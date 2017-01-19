@@ -1,0 +1,21 @@
+{
+    "name": "wearejh/workflow",
+    "description": "Commands to help development workflow",
+    "authors": [
+        {
+            "name": "Michael Woodward",
+            "email": "michael@wearejh.com"
+        }
+    ],
+    "require": {
+        "php": "^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jh\\Workflow\\": "scr"
+        }
+    }
+}
