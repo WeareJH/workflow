@@ -1,14 +1,13 @@
 <?php
 
 namespace Jh\Workflow\Commands;
-use Jh\Workflow\CommandRouter;
 
 /**
- * Class Help
+ * @author Michael Woodward <michael@wearejh.com>
  */
-class Help implements \CommandInterface
+class Help implements CommandInterface
 {
-    public function invoke(array $containers, array $arguments)
+    public function __invoke(array $arguments)
     {
         echo <<<HELP
   
@@ -30,6 +29,8 @@ class Help implements \CommandInterface
     - Build
     - Up
     - Watch
+
+
 HELP;
     }
 }

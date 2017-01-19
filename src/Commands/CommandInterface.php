@@ -1,9 +1,11 @@
 <?php
 
+namespace Jh\Workflow\Commands;
+
 /**
- * Interface CommandInterface
+ * @author Michael Woodward <michael@wearejh.com>
  */
 interface CommandInterface
 {
-    public function invoke(array $containers, array $arguments);
+    public function __invoke(array $arguments);
 }

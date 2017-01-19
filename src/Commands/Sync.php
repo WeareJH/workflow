@@ -5,9 +5,9 @@ namespace Jh\Workflow\Commands;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Sync implements \CommandInterface
+class Sync implements CommandInterface
 {
-    public function invoke(array $containers, array $arguments)
+    public function __invoke(array $arguments)
     {
         // TODO: We don't need to do this anymore, maps are pretty specific
         $containers = [

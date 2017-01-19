@@ -2,6 +2,7 @@
 
 namespace Jh\Workflow;
 
+use Composer\Script\Event;
 use Jh\Workflow\Commands;
 
 /**
@@ -15,9 +16,9 @@ class CommandRouter
         'sync'  => Commands\Sync::class
     ];
 
-    public static function route()
+    public static function route(Event $event)
     {
-        $arguments = array_slice($argv, 2);
+        $arguments = $event->getArguments();
 
         if (!count($arguments)) {
             throw new \InvalidArgumentException('You must supply a sub command, try the help command.');
@@ -29,6 +30,6 @@ class CommandRouter
             throw new \InvalidArgumentException('Not a valid command, try the help command.');
         }
 
-        (new $command)($arguments);
+        (new self::$routes[$command])($arguments);
     }
 }
