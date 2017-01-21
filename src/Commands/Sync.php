@@ -5,20 +5,22 @@ namespace Jh\Workflow\Commands;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Sync implements CommandInterface
+class Sync extends AbstactDockerCommand implements CommandInterface
 {
     public function __invoke(array $arguments)
     {
-        // TODO: We don't need to do this anymore, maps are pretty specific
-        $containers = [
-            'nginx' => ['pub'],
-            'php'   => ['./']
-        ];
+        if (count($arguments) === 0) {
+            echo 'Expected one argument';
+        }
 
-        // TODO: Use containers
-        $path          = $argv[1] ?? exit(1);
-        $projectPath   = realpath(__DIR__ . '/../');
+        $path          = $arguments[0];
+        $projectPath   = realpath(__DIR__ . '/../../../../../');
         $containerPath = ltrim(str_replace($projectPath, '', $path), '/');
+
+        $containers = [
+            $this->phpContainerName()   => ['./'],
+            $this->nginxContainerName() => ['pub']
+        ];
 
         // Filter out uneeded containers
         $containers = array_keys(array_filter($containers, function ($container) use ($containerPath) {
@@ -46,5 +48,15 @@ class Sync implements CommandInterface
             echo "\033[31m x $containerPath > $container \033[0m \n";
             `docker exec $container rm -rf /var/www/$containerPath`;
         }
+    }
+
+    public function getHelpText(): string
+    {
+        return <<<HELP
+Pushes changes from the filesystem to the relevant docker containers.
+
+- Nginx will take changes from the pub directory
+- PHP will take changes from all directories except .docker.
+HELP;
     }
 }

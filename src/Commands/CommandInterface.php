@@ -8,4 +8,6 @@ namespace Jh\Workflow\Commands;
 interface CommandInterface
 {
     public function __invoke(array $arguments);
+
+    public function getHelpText() : string;
 }

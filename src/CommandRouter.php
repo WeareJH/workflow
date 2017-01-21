@@ -11,9 +11,23 @@ use Jh\Workflow\Commands;
 class CommandRouter
 {
     public static $routes = [
-        'help'  => Commands\Help::class,
         'watch' => Commands\Watch::class,
-        'sync'  => Commands\Sync::class
+        'sync'  => Commands\Sync::class,
+        'start' => Commands\Start::class,
+        'stop' => Commands\Stop::class,
+        'build' => Commands\Build::class,
+        'up' => Commands\Up::class,
+        'push' => Commands\Push::class,
+        'pull' => Commands\Pull::class,
+        'composer-update' => Commands\ComposerUpdate::class,
+        'cu' => Commands\ComposerUpdate::class,
+        'magento' => Commands\Magento::class,
+        'mi' => Commands\MagentoFullInstall::class,
+        'magento-install' => Commands\MagentoInstall::class,
+        'magento-configure' => Commands\MagentoConfigure::class,
+        'nginx-reload' => Commands\NginxReload::class,
+        'xdebug-loopback' => Commands\XdebugLoopback::class,
+        'help'  => Commands\Help::class,
     ];
 
     public static function route(Event $event)
