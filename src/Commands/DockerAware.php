@@ -8,14 +8,14 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-abstract class AbstactDockerCommand
+trait DockerAware
 {
-    protected function phpContainerName() : string
+    private function phpContainerName() : string
     {
         return $this->getContainerName('php');
     }
 
-    protected function nginxContainerName() : string
+    private function nginxContainerName() : string
     {
         return $this->getContainerName('nginx');
     }

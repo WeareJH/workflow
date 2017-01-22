@@ -5,8 +5,9 @@ namespace Jh\Workflow\Commands;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class NginxReload extends AbstactDockerCommand implements CommandInterface
+class NginxReload implements CommandInterface
 {
+    use DockerAware;
 
     public function __invoke(array $arguments)
     {

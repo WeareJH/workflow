@@ -5,12 +5,31 @@ namespace Jh\Workflow\Commands;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Pull extends AbstactDockerCommand implements CommandInterface
+class Pull implements CommandInterface
 {
+    use DockerAware;
 
     public function __invoke(array $arguments)
     {
-        // TODO: Implement __invoke() method.
+        if (count($arguments) === 0) {
+            echo 'Expected path to file';
+            return;
+        }
+
+        $container  = $this->phpContainerName();
+        $srcPath    = ltrim('/', array_shift($arguments));
+        $hostExists = file_exists($srcPath);
+
+        if ($hostExists) {
+            $destPath = is_dir($srcPath)
+                ? trim('/', str_replace(basename($srcPath), '', $srcPath))
+                : $srcPath;
+        } else {
+            // TODO: Handle dest path if it doesn't exist on host
+
+        }
+
+        system(sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, $destPath));
     }
 
     public function getHelpText(): string

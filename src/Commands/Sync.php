@@ -5,8 +5,10 @@ namespace Jh\Workflow\Commands;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Sync extends AbstactDockerCommand implements CommandInterface
+class Sync implements CommandInterface
 {
+    use DockerAware;
+
     public function __invoke(array $arguments)
     {
         if (count($arguments) === 0) {
@@ -49,6 +51,7 @@ class Sync extends AbstactDockerCommand implements CommandInterface
             `docker exec $container rm -rf /var/www/$containerPath`;
         }
     }
+
 
     public function getHelpText(): string
     {

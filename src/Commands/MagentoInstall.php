@@ -5,13 +5,14 @@ namespace Jh\Workflow\Commands;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class MagentoInstall extends AbstactDockerCommand implements CommandInterface
+class MagentoInstall implements CommandInterface
 {
+    use DockerAware;
 
     public function __invoke(array $arguments)
     {
         $container = $this->phpContainerName();
-        `docker exec $container magento-install`;
+        system("docker exec $container magento-install");
     }
 
     public function getHelpText(): string

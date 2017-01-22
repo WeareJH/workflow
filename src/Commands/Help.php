@@ -1,6 +1,7 @@
 <?php
 
 namespace Jh\Workflow\Commands;
+
 use Jh\Workflow\CommandRouter;
 
 /**
@@ -14,15 +15,15 @@ class Help implements CommandInterface
         $aliases  = array_diff(CommandRouter::$routes, $commands);
         $width    = exec('tput cols') - 8;
 
-        echo "\n\033[1m  JH Workflow Commands  \033[22m\n\n";
+        echo "\033[1m  JH Workflow Commands  \033[22m";
 
         foreach ($commands as $commandName => $command) {
             /** @var CommandInterface $command */
             $command  = new $command;
             $helpText = implode("\n    ", explode("\n", trim(wordwrap($command->getHelpText(), $width))));
 
-            echo sprintf("\033[32m  %s \033[39m\n", $commandName);
-            echo sprintf("    %s \n\n", $helpText);
+            echo sprintf("\n\n\033[32m  %s \033[39m\n", $commandName);
+            echo sprintf('    %s', $helpText);
         }
     }
 

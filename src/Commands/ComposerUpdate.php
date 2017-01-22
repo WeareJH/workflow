@@ -5,12 +5,16 @@ namespace Jh\Workflow\Commands;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class ComposerUpdate extends AbstactDockerCommand implements CommandInterface
+class ComposerUpdate implements CommandInterface
 {
+    use DockerAware;
 
     public function __invoke(array $arguments)
     {
-        // TODO: Implement __invoke() method.
+        $container = $this->phpContainerName();
+        system("docker exec $container composer update -o");
+
+        // TODO: pull vendor & composer.lock
     }
 
     public function getHelpText(): string

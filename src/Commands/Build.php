@@ -5,17 +5,18 @@ namespace Jh\Workflow\Commands;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Build extends AbstactDockerCommand implements CommandInterface
+class Build implements CommandInterface
 {
+    use DockerAware;
 
     public function __invoke(array $arguments)
     {
-        if (count($arguments) > 0 && '-p' === $arguments[0]) {
-            `docker build -t mikeymike/m2-demo-php -f app.php.dockerfile --build-arg BUILD_ENV=prod ./`;
+        if (count($arguments) > 0 && 'prod' === $arguments[0]) {
+            system('docker build -t mikeymike/m2-demo-php -f app.php.dockerfile --build-arg BUILD_ENV=prod ./');
             return;
         }
 
-        `docker build -t mikeymike/m2-demo-php -f app.php.dockerfile ./`;
+        system('docker build -t mikeymike/m2-demo-php -f app.php.dockerfile ./');
     }
 
     public function getHelpText(): string
@@ -23,8 +24,10 @@ class Build extends AbstactDockerCommand implements CommandInterface
         return <<<HELP
 Runs docker build to create an image ready for use
 
-Use argument -p to build in production mode  \033[2m
+Use argument prod to build in production mode  \033[2m
 (Not yet fully geared to full production deployments) \033[22m
+
+Usage: composer x build [prod]
 HELP;
     }
 }
