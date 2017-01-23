@@ -9,7 +9,16 @@ class Watch implements CommandInterface
 {
     public function __invoke(array $arguments)
     {
-        system('fswatch -r ./app ./pub ./composer.json -e \'.docker|.*__jp*\' | xargs -n1 -I{} composer run sync {}');
+        $watches  = ['./app', './pub', './composer.json'];
+        $excludes = ['.docker', '.*__jp*', '.swp', '.swpx'];
+
+        system(sprintf(
+            'fswatch -r %s -e \'%s\' | xargs -n1 -I{} composer run sync {}',
+            implode(' ', $watches),
+            implode('|', $excludes)
+        ));
+
+        echo 'Watching for file changes...';
     }
 
     public function getHelpText(): string
