@@ -16,18 +16,19 @@ class Pull implements CommandInterface
             return;
         }
 
-        $container  = $this->phpContainerName();
-        $srcPath    = ltrim('/', array_shift($arguments));
-        $hostExists = file_exists($srcPath);
+        $container = $this->phpContainerName();
+        $srcPath   = ltrim('/', array_shift($arguments));
+        $exists    = (bool) `docker exec $container php -r "echo file_exists('/var/www/$srcPath') ? 'true' : 'false';"`;
+        $is_dir    = (bool) `docker exec $container php -r "echo is_dir('/var/www/$srcPath') ? 'true' : 'false';"`;
 
-        if ($hostExists) {
-            $destPath = is_dir($srcPath)
-                ? trim('/', str_replace(basename($srcPath), '', $srcPath))
-                : $srcPath;
-        } else {
-            // TODO: Handle dest path if it doesn't exist on host
-
+        if (!$exists) {
+            echo sprintf('Looks like "%s" doesn\'t exist', $srcPath);
+            return;
         }
+
+        $destPath = $is_dir
+            ? trim('/', str_replace(basename($srcPath), '', $srcPath))
+            : $srcPath;
 
         system(sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, $destPath));
     }

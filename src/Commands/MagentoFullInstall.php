@@ -11,7 +11,8 @@ class MagentoFullInstall implements CommandInterface
 
     public function __invoke(array $arguments)
     {
-        // TODO: Implement __invoke() method.
+        (new MagentoInstall)($arguments);
+        (new MagentoConfigure)($arguments);
     }
 
     public function getHelpText(): string

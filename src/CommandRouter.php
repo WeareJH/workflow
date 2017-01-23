@@ -27,6 +27,7 @@ class CommandRouter
         'magento-configure' => Commands\MagentoConfigure::class,
         'nginx-reload'      => Commands\NginxReload::class,
         'xdebug-loopback'   => Commands\XdebugLoopback::class,
+        'test'              => Commands\Test::class,
         'help'              => Commands\Help::class,
     ];
 

@@ -9,7 +9,7 @@ class Watch implements CommandInterface
 {
     public function __invoke(array $arguments)
     {
-        `fswatch -r ./app ./pub ./composer.json -e \'.docker|.*__jp*\' | xargs -n1 -I{} composer run sync {}`;
+        system('fswatch -r ./app ./pub ./composer.json -e \'.docker|.*__jp*\' | xargs -n1 -I{} composer run sync {}');
     }
 
     public function getHelpText(): string

@@ -11,7 +11,9 @@ class Start implements CommandInterface
 
     public function __invoke(array $arguments)
     {
-        // TODO: Implement __invoke() method.
+        (new Build)($arguments);
+        (new Up)($arguments);
+        (new Watch)($arguments);
     }
 
     public function getHelpText(): string

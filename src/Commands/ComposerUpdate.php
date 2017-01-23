@@ -14,7 +14,10 @@ class ComposerUpdate implements CommandInterface
         $container = $this->phpContainerName();
         system("docker exec $container composer update -o");
 
-        // TODO: pull vendor & composer.lock
+        $pullCommand = new Pull();
+
+        $pullCommand(['vendor']);
+        $pullCommand(['composer.lock']);
     }
 
     public function getHelpText(): string
