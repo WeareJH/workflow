@@ -12,9 +12,9 @@ class ComposerUpdate implements CommandInterface
     public function __invoke(array $arguments)
     {
         $container = $this->phpContainerName();
-        system("docker exec $container composer update -o");
+        system("docker exec -u www-data $container composer update -o");
 
-        $pullCommand = new Pull();
+        $pullCommand = new Pull;
 
         $pullCommand(['vendor']);
         $pullCommand(['composer.lock']);

@@ -26,6 +26,7 @@ class CommandRouter
         'magento-install'   => Commands\MagentoInstall::class,
         'magento-configure' => Commands\MagentoConfigure::class,
         'nginx-reload'      => Commands\NginxReload::class,
+        'sql'               => Commands\Sql::class,
         'xdebug-loopback'   => Commands\XdebugLoopback::class,
         'test'              => Commands\Test::class,
         'help'              => Commands\Help::class,

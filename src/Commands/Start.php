@@ -25,7 +25,7 @@ Runs 3 commands
 - up
 - watch
 
-Use argument -p to start in production mode 
+Use argument prod to start in production mode 
 HELP;
     }
 }

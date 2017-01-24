@@ -13,6 +13,9 @@ class MagentoInstall implements CommandInterface
     {
         $container = $this->phpContainerName();
         system("docker exec $container magento-install");
+
+        $pullCommand = new Pull;
+        $pullCommand(['app/etc']);
     }
 
     public function getHelpText(): string

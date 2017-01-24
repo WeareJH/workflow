@@ -17,12 +17,11 @@ class Push implements CommandInterface
         }
 
         $container = $this->phpContainerName();
-        $srcPath   = trim('/', array_shift($arguments));
-        $destPath  = is_dir($srcPath)
-            ? trim('/', str_replace(basename($srcPath), '', $srcPath))
-            : $srcPath;
+        $srcPath   = trim(array_shift($arguments), '/');
+        $destPath  = trim(str_replace(basename($srcPath), '', $srcPath), '/');
 
-        system(sprintf('docker cp %s %s:/var/www/%s', $container, $srcPath, $destPath));
+        system(sprintf('docker cp %s %s:/var/www/%s', $srcPath, $container, $destPath));
+        echo sprintf("\e[32mCopied '%s' into '%s' on the container \e[39m", $srcPath, $destPath);
     }
 
     public function getHelpText(): string
@@ -30,8 +29,7 @@ class Push implements CommandInterface
         return <<<HELP
 Push files from host to the relevant docker containers. Useful for when the watch isn't running or you want to push loads of files in quickly
 
-Usage: composer x push source_file\033[2m
-Where x is the composer script used in your project and source_file is relative to the app path \033[22m
+Usage: composer run push source_file
 HELP;
     }
 }

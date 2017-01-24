@@ -27,7 +27,7 @@ Runs docker build to create an image ready for use
 Use argument prod to build in production mode  \033[2m
 (Not yet fully geared to full production deployments) \033[22m
 
-Usage: composer x build [prod]
+Usage: composer run build [prod]
 HELP;
     }
 }

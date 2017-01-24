@@ -12,7 +12,7 @@ class Test implements CommandInterface
     public function __invoke(array $arguments)
     {
         $container = $this->phpContainerName();
-        system("docker exec $container vendor/bin/phpcs -s app/code --standard=PSR2 --warning-severity=0");
+        system("docker exec -u www-data $container vendor/bin/phpcs -s app/code --standard=PSR2 --warning-severity=0");
     }
 
     public function getHelpText(): string

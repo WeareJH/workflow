@@ -17,20 +17,18 @@ class Pull implements CommandInterface
         }
 
         $container = $this->phpContainerName();
-        $srcPath   = ltrim('/', array_shift($arguments));
+        $srcPath   = ltrim(array_shift($arguments), '/');
         $exists    = (bool) `docker exec $container php -r "echo file_exists('/var/www/$srcPath') ? 'true' : 'false';"`;
-        $is_dir    = (bool) `docker exec $container php -r "echo is_dir('/var/www/$srcPath') ? 'true' : 'false';"`;
 
         if (!$exists) {
             echo sprintf('Looks like "%s" doesn\'t exist', $srcPath);
             return;
         }
 
-        $destPath = $is_dir
-            ? trim('/', str_replace(basename($srcPath), '', $srcPath))
-            : $srcPath;
+        $destPath = trim(str_replace(basename($srcPath), '', $srcPath), '/');
 
         system(sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, $destPath));
+        echo sprintf("\e[32mCopied '%s' from container into '%s' on the host \e[39m", $srcPath, $destPath);
     }
 
     public function getHelpText(): string
@@ -41,8 +39,7 @@ Pull files from the docker environment to the host, Useful for pulling vendor, c
 If the watch is running and you pull a file that is being watched it will automatically be pushed back into the container.
 If this is not what you want (large dirs can cause issues here) stop the watch, pull then start the watch again afterwards.
 
-Usage: composer x pull source_file \033[2m
-Where x is the composer script used in your project and source_file is relative to the app path \033[22m
+Usage: composer run pull source_file
 HELP;
     }
 }

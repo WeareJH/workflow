@@ -16,7 +16,7 @@ class XdebugLoopback implements CommandInterface
     public function getHelpText(): string
     {
         return <<<HELP
-Starts the network loopback to allow Xdebug from Docker';
+Starts the network loopback to allow Xdebug from Docker'
 
 Runs as sudo, requires password input
 HELP;
