@@ -37,7 +37,9 @@ class CommandRouter
         $arguments = $event->getArguments();
 
         if (!count($arguments)) {
-            throw new \InvalidArgumentException('You must supply a sub command, try the help command.');
+            (new self::$routes['help'])($arguments);
+            echo "\n";
+            return;
         }
 
         $command = strtolower(array_shift($arguments));
