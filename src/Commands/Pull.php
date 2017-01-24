@@ -25,7 +25,7 @@ class Pull implements CommandInterface
             return;
         }
 
-        $destPath = trim(str_replace(basename($srcPath), '', $srcPath), '/');
+        $destPath = './' . trim(str_replace(basename($srcPath), '', $srcPath), '/');
 
         system(sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, $destPath));
         echo sprintf("\e[32mCopied '%s' from container into '%s' on the host \e[39m", $srcPath, $destPath);
