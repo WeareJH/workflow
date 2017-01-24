@@ -33,6 +33,9 @@ class Sync implements CommandInterface
 
         $allowDelete = ($path !== '' && $path !== ' /');
 
+        // Remove the composer command call output
+        echo "\033[2A\033[K\e[1A";
+
         foreach ($containers as $container) {
             if (file_exists($path)) {
                 echo "\033[32m + $containerPath > $container \033[0m \n";

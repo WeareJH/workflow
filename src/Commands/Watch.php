@@ -12,7 +12,7 @@ class Watch implements CommandInterface
         $watches  = ['./app', './pub', './composer.json'];
         $excludes = ['.docker', '.*__jp*', '.swp', '.swpx'];
 
-        echo "\e[32mWatching for file changes...\n\n \e[39m";
+        echo "\e[32mWatching for file changes...\n\n\n \e[39m";
         system(sprintf(
             'fswatch -r %s -e \'%s\' | xargs -n1 -I{} composer run sync {}',
             implode(' ', $watches),
