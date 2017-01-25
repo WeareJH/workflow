@@ -9,22 +9,22 @@ return [
     Application::class => function (ContainerInterface $c) {
         $app = new Application('JH Workflow Tool');
 
-//        $app->add($c->get(Command\Start::class));
-//        $app->add($c->get(Command\Stop::class));
+        $app->add($c->get(Command\Start::class));
+        $app->add($c->get(Command\Stop::class));
         $app->add($c->get(Command\Build::class));
-//        $app->add($c->get(Command\Up::class));
+        $app->add($c->get(Command\Up::class));
         $app->add($c->get(Command\Magento::class));
-//        $app->add($c->get(Command\MagentoFullInstall::class));
-//        $app->add($c->get(Command\MagentoInstall::class));
-//        $app->add($c->get(Command\MagentoConfigure::class));
-//        $app->add($c->get(Command\Pull::class));
-//        $app->add($c->get(Command\Push::class));
-//        $app->add($c->get(Command\Watch::class));
-//        $app->add($c->get(Command\Sync::class));
-//        $app->add($c->get(Command\ComposerUpdate::class));
-//        $app->add($c->get(Command\Test::class));
-//        $app->add($c->get(Command\Sql::class));
-//        $app->add($c->get(Command\NginxReload::class));
+        $app->add($c->get(Command\MagentoFullInstall::class));
+        $app->add($c->get(Command\MagentoInstall::class));
+        $app->add($c->get(Command\MagentoConfigure::class));
+        $app->add($c->get(Command\Pull::class));
+        $app->add($c->get(Command\Push::class));
+        $app->add($c->get(Command\Watch::class));
+        $app->add($c->get(Command\Sync::class));
+        $app->add($c->get(Command\ComposerUpdate::class));
+        $app->add($c->get(Command\Test::class));
+        $app->add($c->get(Command\Sql::class));
+        $app->add($c->get(Command\NginxReload::class));
 
         return $app;
     },

@@ -17,14 +17,10 @@ class MagentoConfigure extends Command implements CommandInterface
 
     public function configure()
     {
-        $description  = "Configures Magento ready for Docker use\n\n";
-        $description .= "   - Redis configuration for sessions and cache to the magento env.php file\n";
-        $description .= '   - Mailcatcher configuration ready for development';
-
         $this
             ->setName('magento-configure')
             ->setAliases(['mc'])
-            ->setDescription($description)
+            ->setDescription('Configures Magento ready for Docker use')
             ->addOption('prod', 'p', InputOption::VALUE_OPTIONAL, 'Ommits development configurations');
     }
 

@@ -2,30 +2,30 @@
 
 ## Usage
 
-1. Pull in with composer
-```
-composer require wearejh/workflow
-```
-
-2. Enable autoloading of classes for scripts
-```
-...
-"autoload-dev": {
-        "psr-4": {
-            ...
-            "Jh\\Workflow\\": "vendor/wearejh/workflow/src"
-        }
-    },
-...
-```
-
-3. Add a script to Composer to use the tool
+Before you create any new project, first update the tool, in-case of any fixes or new features.
 
 ```
-...
-"scripts": {
-    ...
-    "run": "Jh\\Workflow\\CommandRouter::route"
-}
-...
+composer global update wearejh/workflow
 ```
+Then run `workflow` to see the list of available commands.
+
+## Install
+
+Add the following to `~/.composer/composer.json`:
+
+```
+"repositories" : [
+    {
+        "type": "vcs",
+        "url": "git@github.com:WeareJH/workflow.git"
+    }
+]
+```
+
+Then run:
+
+```
+composer global require wearejh/workflow:dev-master
+```
+
+Make sure your composer global bin directory `~/.composer/vendor/bin` is available in your `$PATH` environment variable.

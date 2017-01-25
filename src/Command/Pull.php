@@ -16,15 +16,16 @@ class Pull extends Command implements CommandInterface
 
     public function configure()
     {
-        $description  = "Pull files from the docker environment to the host, Useful for pulling vendor etc\n\n";
-        $description .= 'If the watch is running and you pull a file that is being watched it will ';
-        $description .= "automatically be pushed back into the container\n";
-        $description .= "If this is not what you want (large dirs can cause issues here) stop the watch, ";
-        $description .= "pull then start the watch again afterwards";
+        $help  = "Pull files from the docker environment to the host, Useful for pulling vendor etc\n\n";
+        $help .= 'If the watch is running and you pull a file that is being watched it will ';
+        $help .= "automatically be pushed back into the container\n";
+        $help .= "If this is not what you want (large dirs can cause issues here) stop the watch, ";
+        $help .= "pull then start the watch again afterwards";
 
         $this
             ->setName('pull')
-            ->setDescription($description)
+            ->setDescription('Pull files from the docker environment to the host')
+            ->setHelp($help)
             ->addArgument(
                 'files',
                 InputArgument::REQUIRED | InputArgument::IS_ARRAY,

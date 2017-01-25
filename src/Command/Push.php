@@ -17,7 +17,7 @@ class Push extends Command implements CommandInterface
     public function configure()
 {
     $this
-        ->setName('pull')
+        ->setName('push')
         ->setDescription('Push files from host to the container')
         ->addArgument(
             'files',
