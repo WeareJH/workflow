@@ -1,11 +1,14 @@
 <?php
 
-namespace Jh\Workflow\Commands;
+namespace Jh\Workflow\Command;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Sync implements CommandInterface
+class Sync extends Command implements CommandInterface
 {
     use DockerAware;
 
@@ -64,5 +67,10 @@ Pushes changes from the filesystem to the relevant docker containers.
 - Nginx will take changes from the pub directory
 - PHP will take changes from all directories except .docker.
 HELP;
+    }
+
+    public function execute(InputInterface $input, OutputInterface $output)
+    {
+        // TODO: Implement execute() method.
     }
 }

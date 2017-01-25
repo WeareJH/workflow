@@ -1,11 +1,15 @@
 <?php
 
-namespace Jh\Workflow\Commands;
+namespace Jh\Workflow\Command;
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Start implements CommandInterface
+class Start extends Command implements CommandInterface
 {
     use DockerAware;
 
@@ -27,5 +31,10 @@ Runs 3 commands
 
 Use argument prod to start in production mode 
 HELP;
+    }
+
+    public function execute(InputInterface $input, OutputInterface $output)
+    {
+        // TODO: Implement execute() method.
     }
 }

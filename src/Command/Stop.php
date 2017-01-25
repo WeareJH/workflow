@@ -1,11 +1,14 @@
 <?php
 
-namespace Jh\Workflow\Commands;
+namespace Jh\Workflow\Command;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Stop implements CommandInterface
+class Stop extends Command implements CommandInterface
 {
     use DockerAware;
 
@@ -28,5 +31,10 @@ Use argument prod to stop in production mode
 
 Usage: composer run stop [prod]
 HELP;
+    }
+
+    public function execute(InputInterface $input, OutputInterface $output)
+    {
+        // TODO: Implement execute() method.
     }
 }

@@ -1,11 +1,14 @@
 <?php
 
-namespace Jh\Workflow\Commands;
+namespace Jh\Workflow\Command;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class MagentoConfigure implements CommandInterface
+class MagentoConfigure extends Command implements CommandInterface
 {
     use DockerAware;
 
@@ -41,5 +44,10 @@ Adds
 
 Pass argument prod to ommit the mailcatcher configuration
 HELP;
+    }
+
+    public function execute(InputInterface $input, OutputInterface $output)
+    {
+        // TODO: Implement execute() method.
     }
 }

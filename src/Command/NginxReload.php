@@ -1,11 +1,14 @@
 <?php
 
-namespace Jh\Workflow\Commands;
+namespace Jh\Workflow\Command;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class NginxReload implements CommandInterface
+class NginxReload extends Command implements CommandInterface
 {
     use DockerAware;
 
@@ -18,5 +21,10 @@ class NginxReload implements CommandInterface
     public function getHelpText(): string
     {
         return 'Reloads NGINX configuration files for when you\'ve made changes to them';
+    }
+
+    public function execute(InputInterface $input, OutputInterface $output)
+    {
+        // TODO: Implement execute() method.
     }
 }

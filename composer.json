@@ -9,6 +9,8 @@
     ],
     "require": {
         "php": "^7.0",
+        "symfony/console": "^3.2",
+        "php-di/php-di": "^5.4",
         "symfony/yaml": "^3.2"
     },
     "require-dev": {
@@ -18,5 +20,8 @@
         "psr-4": {
             "Jh\\Workflow\\": "scr"
         }
-    }
+    },
+    "bin": [
+        "bin/workflow"
+    ]
 }

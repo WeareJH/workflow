@@ -1,11 +1,14 @@
 <?php
 
-namespace Jh\Workflow\Commands;
+namespace Jh\Workflow\Command;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Watch implements CommandInterface
+class Watch extends Command implements CommandInterface
 {
     public function __invoke(array $arguments)
     {
@@ -23,5 +26,10 @@ class Watch implements CommandInterface
     public function getHelpText(): string
     {
         return 'Keeps track of filesystem changes, piping the changes to the Sync command';
+    }
+
+    public function execute(InputInterface $input, OutputInterface $output)
+    {
+        // TODO: Implement execute() method.
     }
 }

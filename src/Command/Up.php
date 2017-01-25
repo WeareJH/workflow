@@ -1,11 +1,14 @@
 <?php
 
-namespace Jh\Workflow\Commands;
+namespace Jh\Workflow\Command;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Up implements CommandInterface
+class Up extends Command implements CommandInterface
 {
 
     public function __invoke(array $arguments)
@@ -27,5 +30,10 @@ Use argument prod to start in production mode
 
 Usage: composer x up [prod]
 HELP;
+    }
+
+    public function execute(InputInterface $input, OutputInterface $output)
+    {
+        // TODO: Implement execute() method.
     }
 }

@@ -1,11 +1,14 @@
 <?php
 
-namespace Jh\Workflow\Commands;
+namespace Jh\Workflow\Command;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Pull implements CommandInterface
+class Pull extends Command implements CommandInterface
 {
     use DockerAware;
 
@@ -41,5 +44,10 @@ If this is not what you want (large dirs can cause issues here) stop the watch, 
 
 Usage: composer run pull source_file
 HELP;
+    }
+
+    public function execute(InputInterface $input, OutputInterface $output)
+    {
+        // TODO: Implement execute() method.
     }
 }
