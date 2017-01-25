@@ -1,8 +1,11 @@
 <?php
 
 namespace Jh\Workflow\Command;
+
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -12,16 +15,32 @@ class MagentoConfigure extends Command implements CommandInterface
 {
     use DockerAware;
 
-    public function __invoke(array $arguments)
+    public function configure()
+    {
+        $description  = "Configures Magento ready for Docker use\n\n";
+        $description .= "   - Redis configuration for sessions and cache to the magento env.php file\n";
+        $description .= '   - Mailcatcher configuration ready for development';
+
+        $this
+            ->setName('magento-configure')
+            ->setAliases(['mc'])
+            ->setDescription($description)
+            ->addOption('prod', 'p', InputOption::VALUE_OPTIONAL, 'Ommits development configurations');
+    }
+
+    public function execute(InputInterface $input, OutputInterface $output)
     {
         $phpContainer  = $this->phpContainerName();
         $mailContainer = $this->getContainerName('mail');
 
         system("docker exec $phpContainer magento-configure");
 
-        (new Pull)(['app/etc/env.php']);
+        $pullCommand   = $this->getApplication()->find('pull');
+        $pullArguments = new ArrayInput(['files' => ['app/etc/env.php']]);
 
-        if ('prod' === array_shift($arguments)) {
+        $pullCommand->run($pullArguments, $output);
+
+        if ($input->hasOption('prod')) {
             return;
         }
 
@@ -31,23 +50,11 @@ class MagentoConfigure extends Command implements CommandInterface
         $sql .= "('default', 0, 'system/smtp/host', '$mailContainer'), ";
         $sql .= "('default', 0, 'system/smtp/port', '1025');";
 
-        (new Sql)([$sql]);
-    }
+        $sqlCommand   = $this->getApplication()->find('sql');
+        $sqlArguments = new ArrayInput(['sql' => $sql]);
 
-    public function getHelpText(): string
-    {
-        return <<<HELP
-Adds 
+        $sqlCommand->run($sqlArguments, $output);
 
-  - Redis configuration for sessions, frontend cache and full page cache to the magento env.php file
-  - Mailcatcher configuration ready for development
-
-Pass argument prod to ommit the mailcatcher configuration
-HELP;
-    }
-
-    public function execute(InputInterface $input, OutputInterface $output)
-    {
-        // TODO: Implement execute() method.
+        $output->writeln('Configuration complete!');
     }
 }

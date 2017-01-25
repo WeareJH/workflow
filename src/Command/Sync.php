@@ -1,7 +1,9 @@
 <?php
 
 namespace Jh\Workflow\Command;
+
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -12,15 +14,18 @@ class Sync extends Command implements CommandInterface
 {
     use DockerAware;
 
-    public function __invoke(array $arguments)
+    public function configure()
     {
-        if (count($arguments) === 0) {
-            echo 'Expected one argument';
-        }
+        $this
+            ->setName('sync')
+            ->setDescription('Syncs changes from the host filesystem to the relevant docker containers')
+            ->addArgument('file', InputArgument::REQUIRED, 'The changed file path');
+    }
 
-        $path          = $arguments[0];
-        $projectPath   = realpath(__DIR__ . '/../../../../../');
-        $containerPath = ltrim(str_replace($projectPath, '', $path), '/');
+    public function execute(InputInterface $input, OutputInterface $output)
+    {
+        $path          = $input->getArgument('file');
+        $containerPath = ltrim(str_replace(getcwd(), '', $path), '/');
 
         $containers = [
             $this->phpContainerName()   => ['./'],
@@ -37,40 +42,24 @@ class Sync extends Command implements CommandInterface
         $allowDelete = ($path !== '' && $path !== ' /');
 
         // Remove the composer command call output
-        echo "\033[2A\033[K\e[1A";
+        $output->writeln("\033[2A\033[K\e[1A");
 
         foreach ($containers as $container) {
             if (file_exists($path)) {
-                echo "\033[32m + $containerPath > $container \033[0m \n";
+                $output->writeln("\033[32m + $containerPath > $container \033[0m \n");
                 `docker cp $path $container:/var/www/$containerPath`;
                 continue;
             }
 
             if (!$allowDelete) {
-                echo "\033[31m Not running rm -rf $containerPath \033[0m \n";
-                echo "\033[31m Run this manually in the container instead if you really want to... \033[0m \n";
-                echo "\033[31m docker exec $container rm -rf /var/www/$containerPath \033[0m \n";
+                $output->writeln("\033[31m Not running rm -rf $containerPath \033[0m");
+                $output->writeln("\033[31m Run this manually in the container instead if you really want to...\033[0m");
+                $output->writeln("\033[31m docker exec $container rm -rf /var/www/$containerPath \033[0m");
                 continue;
             }
 
-            echo "\033[31m x $containerPath > $container \033[0m \n";
+            $output->writeln("\033[31m x $containerPath > $container \033[0m \n");
             `docker exec $container rm -rf /var/www/$containerPath`;
         }
-    }
-
-
-    public function getHelpText(): string
-    {
-        return <<<HELP
-Pushes changes from the filesystem to the relevant docker containers.
-
-- Nginx will take changes from the pub directory
-- PHP will take changes from all directories except .docker.
-HELP;
-    }
-
-    public function execute(InputInterface $input, OutputInterface $output)
-    {
-        // TODO: Implement execute() method.
     }
 }

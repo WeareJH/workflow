@@ -19,8 +19,6 @@ switch (true) {
 
 use Symfony\Component\Console\Application;
 
-die(var_dump(class_exists(\Jh\Workflow\Command\Start::class)));
-
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 

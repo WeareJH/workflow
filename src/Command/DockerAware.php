@@ -10,9 +10,10 @@ use Symfony\Component\Yaml\Yaml;
  */
 trait DockerAware
 {
+    // TODO: Clean up, use lib to parse env file, throw exceptions
     private function getDevEnvironmentVars(): array
     {
-        $envFile = __DIR__ . '/../../../../../.docker/local.env';
+        $envFile = getcwd() . '/.docker/local.env';
 
         if (!file_exists($envFile)) {
             echo "Local env file doesn't exist, are you sure your configured correctly?";
@@ -40,10 +41,13 @@ trait DockerAware
         return $this->getContainerName('nginx');
     }
 
+    // TODO: Clean up, throw exceptions
     private function getContainerName(string $service): string
     {
-        $coreComposePath  = __DIR__ . '/../../../../../docker-compose.yml';
-        $devComposePath   = __DIR__ . '/../../../../../docker-compose.dev.yml';
+        $cwd = getcwd();
+
+        $coreComposePath  = $cwd . '/docker-compose.yml';
+        $devComposePath   = $cwd . '/docker-compose.dev.yml';
 
         try {
             $coreYaml  = Yaml::parse(file_get_contents($coreComposePath));

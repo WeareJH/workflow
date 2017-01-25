@@ -4,6 +4,7 @@ namespace Jh\Workflow\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -13,28 +14,24 @@ class Start extends Command implements CommandInterface
 {
     use DockerAware;
 
-    public function __invoke(array $arguments)
+    public function configure()
     {
-        (new Build)($arguments);
-        (new Up)($arguments);
-        (new Watch)($arguments);
-    }
-
-    public function getHelpText(): string
-    {
-        return <<<HELP
-Runs 3 commands
-
-- build
-- up
-- watch
-
-Use argument prod to start in production mode 
-HELP;
+        $this
+            ->setName('start')
+            ->setDescription('Runs build, up and watch comands')
+            ->addOption('prod', 'p', InputOption::VALUE_OPTIONAL, 'Ommits development configurations');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        // TODO: Implement execute() method.
+        $buildCommand = $this->getApplication()->find('build');
+        $upCommand    = $this->getApplication()->find('up');
+        $watchCommand = $this->getApplication()->find('watch');
+
+        $buildCommand->run($input, $output);
+        $upCommand->run($input, $output);
+        $watchCommand->run($input, $output);
+
+        $output->writeln('Containers started');
     }
 }

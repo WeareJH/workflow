@@ -1,6 +1,7 @@
 <?php
 
 namespace Jh\Workflow\Command;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,19 +13,19 @@ class NginxReload extends Command implements CommandInterface
 {
     use DockerAware;
 
-    public function __invoke(array $arguments)
+    public function configure()
     {
-        $container = $this->nginxContainerName();
-        `docker exec $container nginx -s 'reload'`;
-    }
-
-    public function getHelpText(): string
-    {
-        return 'Reloads NGINX configuration files for when you\'ve made changes to them';
+        $this
+            ->setName('magento-full-install')
+            ->setAliases(['mfi'])
+            ->setDescription('Sends reload signal to NGINX in the container');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        // TODO: Implement execute() method.
+        $container = $this->nginxContainerName();
+        `docker exec $container nginx -s 'reload'`;
+
+        $output->writeln('Reload signal sent');
     }
 }
