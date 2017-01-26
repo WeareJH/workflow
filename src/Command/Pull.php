@@ -6,21 +6,34 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
 class Pull extends Command implements CommandInterface
 {
-    use DockerAware;
+    use DockerAwareTrait;
+
+    /**
+     * @var ProcessBuilder
+     */
+    private $processBuilder;
+
+    public function __construct(ProcessBuilder $processBuilder)
+    {
+        parent::__construct();
+        $this->processBuilder = $processBuilder;
+    }
 
     public function configure()
     {
         $help  = "Pull files from the docker environment to the host, Useful for pulling vendor etc\n\n";
         $help .= 'If the watch is running and you pull a file that is being watched it will ';
         $help .= "automatically be pushed back into the container\n";
-        $help .= "If this is not what you want (large dirs can cause issues here) stop the watch, ";
-        $help .= "pull then start the watch again afterwards";
+        $help .= 'If this is not what you want (large dirs can cause issues here) stop the watch, ';
+        $help .= 'pull then start the watch again afterwards';
 
         $this
             ->setName('pull')
@@ -36,24 +49,44 @@ class Pull extends Command implements CommandInterface
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->phpContainerName();
-        $files     = is_array($input->getArgument('file'))
-            ? $input->getArgument('file')
-            : [$input->getArgument('file')];
+        $files     = is_array($input->getArgument('files'))
+            ? $input->getArgument('files')
+            : [$input->getArgument('files')];
 
         foreach ($files as $file) {
             $srcPath = ltrim($file, '/');
-            $exists = (bool)`docker exec $container php -r "echo file_exists('/var/www/$srcPath') ? 'true' : 'false';"`;
 
-            if (!$exists) {
-                echo sprintf('Looks like "%s" doesn\'t exist', $srcPath);
+            $this->processBuilder->setArguments([
+                'docker exec',
+                $container,
+                sprintf("php -r \"echo file_exists('/var/www/%s') ? 'true' : 'false';\"", $srcPath)
+            ]);
+
+            $fileExistsCheck = $this->processBuilder->setTimeout(null)->getProcess();
+            $fileExistsCheck->run();
+
+            if ('false' === $fileExistsCheck->getOutput()) {
+                $output->writeln(sprintf('Looks like "%s" doesn\'t exist', $srcPath));
                 return;
             }
 
             $destPath = './' . trim(str_replace(basename($srcPath), '', $srcPath), '/');
 
-            system(sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, $destPath));
+            $this->processBuilder->setArguments([
+                'docker cp',
+                sprintf('%s:/var/www/%s', $container, $srcPath),
+                $destPath
+            ]);
+
+            $cpProcess = $this->processBuilder->setTimeout(null)->getProcess();
+            $cpProcess->run(function ($type, $buffer) use ($output) {
+                if (Process::ERR === $type) {
+                    $output->writeln('ERR > ' . $buffer);
+                }
+            });
+
             $output->writeln(
-                sprintf("\e[32mCopied '%s' from container into '%s' on the host \e[39m", $srcPath, $destPath)
+                sprintf("<info>Copied '%s' from container into '%s' on the host</info>", $srcPath, $destPath)
             );
         }
     }

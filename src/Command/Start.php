@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Start extends Command implements CommandInterface
 {
-    use DockerAware;
+    use DockerAwareTrait;
 
     public function configure()
     {
@@ -32,6 +32,6 @@ class Start extends Command implements CommandInterface
         $upCommand->run($input, $output);
         $watchCommand->run($input, $output);
 
-        $output->writeln('Containers started');
+        $output->writeln('<info>Containers started</info>');
     }
 }

@@ -6,13 +6,26 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
 class Magento extends Command implements CommandInterface
 {
-    use DockerAware;
+    use DockerAwareTrait;
+
+    /**
+     * @var ProcessBuilder
+     */
+    private $processBuilder;
+
+    public function __construct(ProcessBuilder $processBuilder)
+    {
+        parent::__construct();
+        $this->processBuilder = $processBuilder;
+    }
 
     protected function configure()
     {
@@ -34,8 +47,19 @@ class Magento extends Command implements CommandInterface
             throw new \RuntimeException('No magento command defined!');
         }
 
-        $args = implode(' ', $args);
+        $this->processBuilder->setArguments(array_merge([
+            'docker exec',
+            '-u www-data',
+            $container,
+            'bin/magento'
+        ], $args));
 
-        system("docker exec -u www-data $container bin/magento $args");
+        $process = $this->processBuilder->setTimeout(null)->getProcess();
+
+        $process->run(function ($type, $buffer) use ($output) {
+            Process::ERR === $type
+                ? $output->writeln('ERR > '. $buffer)
+                : $output->writeln('OUT > '. $buffer);
+        });
     }
 }

@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class MagentoFullInstall extends Command implements CommandInterface
 {
-    use DockerAware;
+    use DockerAwareTrait;
 
     public function configure()
     {

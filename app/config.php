@@ -4,6 +4,7 @@ use Interop\Container\ContainerInterface;
 use Jh\Workflow\ArgvInput;
 use Jh\Workflow\Command;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Process\ProcessBuilder;
 
 return [
     Application::class => function (ContainerInterface $c) {
@@ -25,23 +26,26 @@ return [
         $app->add($c->get(Command\Test::class));
         $app->add($c->get(Command\Sql::class));
         $app->add($c->get(Command\NginxReload::class));
+        $app->add($c->get(Command\XdebugLoopback::class));
 
         return $app;
     },
-    Command\Build::class => DI\object(),
-    Command\Magento::class => DI\object(),
+    ProcessBuilder::class             => DI\object(),
+    Command\Build::class              => DI\object(),
+    Command\Magento::class            => DI\object(),
     Command\MagentoFullInstall::class => DI\object(),
-    Command\MagentoInstall::class => DI\object(),
-    Command\MagentoConfigure::class => DI\object(),
-    Command\Pull::class => DI\object(),
-    Command\Push::class => DI\object(),
-    Command\Start::class => DI\object(),
-    Command\Stop::class => DI\object(),
-    Command\Up::class => DI\object(),
-    Command\Watch::class => DI\object(),
-    Command\Sync::class => DI\object(),
-    Command\ComposerUpdate::class => DI\object(),
-    Command\Test::class => DI\object(),
-    Command\Sql::class => DI\object(),
-    Command\NginxReload::class => DI\object(),
+    Command\MagentoInstall::class     => DI\object(),
+    Command\MagentoConfigure::class   => DI\object(),
+    Command\Pull::class               => DI\object(),
+    Command\Push::class               => DI\object(),
+    Command\Start::class              => DI\object(),
+    Command\Stop::class               => DI\object(),
+    Command\Up::class                 => DI\object(),
+    Command\Watch::class              => DI\object(),
+    Command\Sync::class               => DI\object(),
+    Command\ComposerUpdate::class     => DI\object(),
+    Command\Test::class               => DI\object(),
+    Command\Sql::class                => DI\object(),
+    Command\NginxReload::class        => DI\object(),
+    Command\XdebugLoopback::class     => DI\object(),
 ];

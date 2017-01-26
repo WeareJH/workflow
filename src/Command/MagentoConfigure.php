@@ -7,13 +7,26 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
 class MagentoConfigure extends Command implements CommandInterface
 {
-    use DockerAware;
+    use DockerAwareTrait;
+
+    /**
+     * @var ProcessBuilder
+     */
+    private $processBuilder;
+
+    public function __construct(ProcessBuilder $processBuilder)
+    {
+        parent::__construct();
+        $this->processBuilder = $processBuilder;
+    }
 
     public function configure()
     {
@@ -29,17 +42,29 @@ class MagentoConfigure extends Command implements CommandInterface
         $phpContainer  = $this->phpContainerName();
         $mailContainer = $this->getContainerName('mail');
 
-        system("docker exec $phpContainer magento-configure");
+        $this->processBuilder->setArguments(['docker exec', $phpContainer, 'magento-configure']);
+        $process = $this->processBuilder->setTimeout(null)->getProcess();
+
+        $process->run(function ($type, $buffer) use ($output) {
+            Process::ERR === $type
+                ? $output->writeln('ERR > '. $buffer)
+                : $output->writeln('OUT > '. $buffer);
+        });
 
         $pullCommand   = $this->getApplication()->find('pull');
         $pullArguments = new ArrayInput(['files' => ['app/etc/env.php']]);
 
         $pullCommand->run($pullArguments, $output);
 
-        if ($input->hasOption('prod')) {
-            return;
+        if (!$input->hasOption('prod')) {
+            $this->configureMail($mailContainer, $output);
         }
 
+        $output->writeln('Configuration complete!');
+    }
+
+    private function configureMail($mailContainer, $output)
+    {
         $sql =  "DELETE FROM core_config_data WHERE path LIKE 'system/smtp/%'; ";
         $sql .= "INSERT INTO core_config_data (scope, scope_id, path, value) ";
         $sql .= "VALUES ";
@@ -50,7 +75,5 @@ class MagentoConfigure extends Command implements CommandInterface
         $sqlArguments = new ArrayInput(['sql' => $sql]);
 
         $sqlCommand->run($sqlArguments, $output);
-
-        $output->writeln('Configuration complete!');
     }
 }

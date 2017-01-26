@@ -8,7 +8,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-trait DockerAware
+trait DockerAwareTrait
 {
     // TODO: Clean up, use lib to parse env file, throw exceptions
     private function getDevEnvironmentVars(): array
@@ -36,13 +36,18 @@ trait DockerAware
         return $this->getContainerName('php');
     }
 
-    private function nginxContainerName(): string
+    private function getContainerName(string $service): string
     {
-        return $this->getContainerName('nginx');
+        $serviceConfig = $this->getServiceConfig($service);
+
+        if (!isset($serviceConfig['container_name'])) {
+            throw new \RuntimeException(sprintf('Unable to get container name for service %s', $service));
+        }
+
+        return $serviceConfig['container_name'];
     }
 
-    // TODO: Clean up, throw exceptions
-    private function getContainerName(string $service): string
+    private function getServiceConfig(string $service) : array
     {
         $cwd = getcwd();
 
@@ -59,10 +64,10 @@ trait DockerAware
 
         $yaml = array_merge_recursive($coreYaml, $devYaml);
 
-        if (!isset($yaml['services'][$service]['container_name'])) {
-            echo sprintf("Unable to get container name for service %s", $service);
+        if (!isset($yaml['services'][$service])) {
+            throw new \RuntimeException(sprintf('Service "%s" doesn\'t exist in the compose files', $service));
         }
 
-        return $yaml['services'][$service]['container_name'];
+        return $yaml['services'][$service];
     }
 }

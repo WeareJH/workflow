@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Sql extends Command implements CommandInterface
 {
-    use DockerAware;
+    use DockerAwareTrait;
 
     public function configure()
     {
@@ -58,6 +58,8 @@ class Sql extends Command implements CommandInterface
 
     private function runFile(string $container, string $file)
     {
+        echo "Incomplete command, check back later";
+        return;
         $dbDetails = $this->getDbDetails();
 
         // TODO: CP file into the container
