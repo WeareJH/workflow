@@ -15,11 +15,7 @@ use Symfony\Component\Process\ProcessBuilder;
 class Magento extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -47,19 +43,11 @@ class Magento extends Command implements CommandInterface
             throw new \RuntimeException('No magento command defined!');
         }
 
-        $this->processBuilder->setArguments(array_merge([
+        $this->runProcessShowingOutput($output, array_merge([
             'docker exec',
             '-u www-data',
             $container,
             'bin/magento'
         ], $args));
-
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-
-        $process->run(function ($type, $buffer) use ($output) {
-            Process::ERR === $type
-                ? $output->writeln('ERR > '. $buffer)
-                : $output->writeln('OUT > '. $buffer);
-        });
     }
 }

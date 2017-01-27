@@ -16,11 +16,7 @@ use Symfony\Component\Process\ProcessBuilder;
 class Sync extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -50,7 +46,7 @@ class Sync extends Command implements CommandInterface
             return;
         }
 
-        $this->processBuilder->setArguments([
+        $this->runProcessShowingErrors($output, [
             'docker exec',
             $container,
             'rm -rf',
@@ -58,16 +54,5 @@ class Sync extends Command implements CommandInterface
         ]);
 
         $output->writeln("<fg=red> x $containerPath > $container </fg=red>");
-        $this->callProcess($output);
-    }
-
-    private function callProcess($output)
-    {
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-        $process->run(function ($type, $buffer) use ($output) {
-            if (Process::ERR === $type) {
-                $output->writeln('ERR > ' . $buffer);
-            }
-        });
     }
 }

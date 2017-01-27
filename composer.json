@@ -12,7 +12,8 @@
         "symfony/console": "^3.2",
         "php-di/php-di": "^5.4",
         "symfony/yaml": "^3.2",
-        "symfony/process": "^3.2"
+        "symfony/process": "^3.2",
+        "m1/env": "^2.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7"

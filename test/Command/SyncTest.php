@@ -84,14 +84,7 @@ class SyncTest extends AbstractTestCommand
             '/var/www/some-deleted-file.txt',
         ];
 
-        $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
-        $this->processBuilder->setTimeout(null)->willReturn($this->processBuilder);
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-            $callback(Process::ERR, 'bad output');
-        });
-
+        $this->processTestOnlyErrors($expectedArgs);
         $this->output->writeln('<fg=red> x some-deleted-file.txt > m2-php </fg=red>')->shouldBeCalled();
         $this->output->writeln('ERR > bad output')->shouldBeCalled();
 

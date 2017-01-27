@@ -15,11 +15,7 @@ use Symfony\Component\Process\ProcessBuilder;
 class Push extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -55,19 +51,11 @@ class Push extends Command implements CommandInterface
                 return;
             }
 
-            $this->processBuilder->setArguments([
+            $this->runProcessShowingErrors($output, [
                 'docker cp',
                 $srcPath,
                 sprintf('%s:/var/www/%s', $container, $destPath)
             ]);
-
-            $process = $this->processBuilder->setTimeout(null)->getProcess();
-
-            $process->run(function ($type, $buffer) use ($output) {
-                if (Process::ERR === $type) {
-                    $output->writeln('ERR > ' . $buffer);
-                }
-            });
 
             $output->writeln(
                 sprintf("<info> + %s > %s </info>", $srcPath, $container)

@@ -13,10 +13,7 @@ use Symfony\Component\Process\ProcessBuilder;
  */
 class Watch extends Command implements CommandInterface
 {
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -44,7 +41,7 @@ class Watch extends Command implements CommandInterface
 
         $output->writeln("<info>Watching for file changes...</info>");
 
-        $this->processBuilder->setArguments([
+        $this->runProcessShowingErrors($output, [
             'fswatch',
             sprintf('-r %s', implode(' ', $watches)),
             sprintf("-e '%s'", implode('|', $excludes)),
@@ -52,12 +49,5 @@ class Watch extends Command implements CommandInterface
             'xargs -n1 -I{}',
             sprintf('%s sync {}', $bin)
         ]);
-
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-        $process->run(function ($type, $buffer) use ($output) {
-            if (Process::ERR === $type) {
-                $output->writeln('ERR > ' . $buffer);
-            }
-        });
     }
 }

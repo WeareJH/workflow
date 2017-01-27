@@ -38,18 +38,7 @@ class XdebugLoopbackTest extends AbstractTestCommand
 
     public function testXdebugLoopbackCommand()
     {
-        $expectedArgs = ['sudo', 'ifconfig', 'lo0', 'alias', '10.254.254.254'];
-
-        $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
-        $this->processBuilder->setTimeout(null)->willReturn($this->processBuilder);
-        $this->process->setPty(true)->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-            $callback(Process::OUT, 'some output');
-        });
-
-        $this->output->writeln('some output')->shouldBeCalled();
+        $this->processTestNoErrors(['sudo', 'ifconfig', 'lo0', 'alias', '10.254.254.254']);
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }

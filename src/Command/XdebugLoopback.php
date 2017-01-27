@@ -12,10 +12,7 @@ use Symfony\Component\Process\ProcessBuilder;
  */
 class XdebugLoopback extends Command implements CommandInterface
 {
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -33,12 +30,6 @@ class XdebugLoopback extends Command implements CommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->processBuilder->setArguments(['sudo', 'ifconfig', 'lo0', 'alias', '10.254.254.254']);
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-        $process->setPty(true);
-
-        $process->run(function ($type, $buffer) use ($output) {
-            $output->writeln($buffer);
-        });
+        $this->runProcessShowingOutput($output, ['sudo', 'ifconfig', 'lo0', 'alias', '10.254.254.254'], false);
     }
 }

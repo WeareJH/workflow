@@ -69,7 +69,33 @@ class AbstractTestCommand extends TestCase
         });
 
         $this->output->writeln('ERR > bad output')->shouldBeCalled();
-        $this->output->writeln('OUT > good output')->shouldBeCalled();
+        $this->output->writeln('good output')->shouldBeCalled();
+    }
+
+    protected function processTestOnlyErrors(array $expectedArgs, int $timeout = null)
+    {
+        $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
+        $this->processBuilder->setTimeout($timeout)->willReturn($this->processBuilder);
+
+        $this->process->run(Argument::type('callable'))->will(function ($args) {
+            $callback = array_shift($args);
+            $callback(Process::ERR, 'bad output');
+        });
+
+        $this->output->writeln('ERR > bad output')->shouldBeCalled();
+    }
+
+    protected function processTestNoErrors(array $expectedArgs, int $timeout = null)
+    {
+        $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
+        $this->processBuilder->setTimeout($timeout)->willReturn($this->processBuilder);
+
+        $this->process->run(Argument::type('callable'))->will(function ($args) {
+            $callback = array_shift($args);
+            $callback(Process::OUT, 'good output');
+        });
+
+        $this->output->writeln('good output')->shouldBeCalled();
     }
 
     protected function useInvalidEnvironment()
@@ -80,5 +106,10 @@ class AbstractTestCommand extends TestCase
     protected function useValidEnvironment()
     {
         chdir(__DIR__ . '/../fixtures/valid-env');
+    }
+
+    protected function useBrokenEnvironemt()
+    {
+        chdir(__DIR__ . '/../fixtures/broken-env');
     }
 }

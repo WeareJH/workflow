@@ -2,6 +2,7 @@
 
 namespace Jh\Workflow\Command;
 
+use M1\Env\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -10,25 +11,15 @@ use Symfony\Component\Yaml\Yaml;
  */
 trait DockerAwareTrait
 {
-    // TODO: Clean up, use lib to parse env file, throw exceptions
     private function getDevEnvironmentVars(): array
     {
         $envFile = getcwd() . '/.docker/local.env';
 
         if (!file_exists($envFile)) {
-            echo "Local env file doesn't exist, are you sure your configured correctly?";
-            return;
+            throw new \RuntimeException("Local env file doesn't exist, are you sure your configured correctly?");
         }
 
-        $lines = file($envFile);
-
-        $values = array_filter(array_map(function ($line) {
-            return explode('=', trim($line));
-        }, $lines), function ($line) {
-            return count($line) === 2;
-        });
-
-        return array_column($values, 1, 0);
+        return Parser::parse(file_get_contents($envFile));
     }
 
     private function phpContainerName(): string
@@ -58,8 +49,7 @@ trait DockerAwareTrait
             $coreYaml  = Yaml::parse(file_get_contents($coreComposePath));
             $devYaml   = Yaml::parse(file_get_contents($devComposePath));
         } catch (ParseException $e) {
-            echo sprintf("Unable to parse docker-compose file \n\n %s", $e->getMessage());
-            return;
+            throw new \RuntimeException(sprintf("Unable to parse docker-compose file \n\n %s", $e->getMessage()));
         }
 
         $yaml = array_merge_recursive($coreYaml, $devYaml);

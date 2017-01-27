@@ -13,11 +13,7 @@ use Symfony\Component\Process\ProcessBuilder;
 class Test extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -36,7 +32,7 @@ class Test extends Command implements CommandInterface
     {
         $container = $this->phpContainerName();
 
-        $this->processBuilder->setArguments([
+        $this->runProcessShowingOutput($output, [
             'docker exec',
             '-u www-data',
             $container,
@@ -44,13 +40,7 @@ class Test extends Command implements CommandInterface
             '-s app/code',
             '--standard=PSR2',
             '--warning-severity=0'
-        ]);
-
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-
-        $process->run(function ($type, $buffer) use ($output) {
-            $output->writeln($buffer);
-        });
+        ], false);
 
         $output->writeln('<info>Tests complete!</info>');
     }

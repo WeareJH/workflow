@@ -15,11 +15,7 @@ use Symfony\Component\Process\ProcessBuilder;
 class Stop extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -41,20 +37,12 @@ class Stop extends Command implements CommandInterface
             ? 'docker-compose.prod.yml'
             : 'docker-compose.dev.yml';
 
-        $this->processBuilder->setArguments([
+        $this->runProcessShowingOutput($output, [
             'docker-compose',
             '-f docker-compose.yml',
             '-f ' . $envDockerFile,
             'down'
         ]);
-
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-
-        $process->run(function ($type, $buffer) use ($output) {
-            Process::ERR === $type
-                ? $output->writeln('ERR > '. $buffer)
-                : $output->writeln('OUT > '. $buffer);
-        });
 
         $output->writeln('<info>Containers stopped</info>');
     }

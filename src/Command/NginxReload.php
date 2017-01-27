@@ -14,11 +14,7 @@ use Symfony\Component\Process\ProcessBuilder;
 class NginxReload extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -38,20 +34,12 @@ class NginxReload extends Command implements CommandInterface
     {
         $container = $this->getContainerName('nginx');
 
-        $this->processBuilder->setArguments([
+        $this->runProcessShowingOutput($output, [
             'docker exec',
             $container,
             'nginx',
             "-s 'reload'"
         ]);
-
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-
-        $process->run(function ($type, $buffer) use ($output) {
-            Process::ERR === $type
-                ? $output->writeln('ERR > '. $buffer)
-                : $output->writeln('OUT > '. $buffer);
-        });
 
         $output->writeln('Reload signal sent');
     }

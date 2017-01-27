@@ -14,10 +14,7 @@ use Symfony\Component\Process\ProcessBuilder;
  */
 class Up extends Command implements CommandInterface
 {
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -39,19 +36,11 @@ class Up extends Command implements CommandInterface
             ? 'docker-compose.prod.yml'
             : 'docker-compose.dev.yml';
 
-        $this->processBuilder->setArguments([
+        $this->runProcessShowingOutput($output, [
             'docker-compose',
             '-f docker-compose.yml',
             '-f ' . $envDockerFile,
             'up'
         ]);
-
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-
-        $process->run(function ($type, $buffer) use ($output) {
-            Process::ERR === $type
-                ? $output->writeln('ERR > '. $buffer)
-                : $output->writeln('OUT > '. $buffer);
-        });
     }
 }

@@ -49,15 +49,7 @@ class TestTest extends AbstractTestCommand
             '--warning-severity=0'
         ];
 
-        $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
-        $this->processBuilder->setTimeout(null)->willReturn($this->processBuilder);
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-            $callback(Process::OUT, 'some output');
-        });
-
-        $this->output->writeln('some output')->shouldBeCalled();
+        $this->processTestNoErrors($expectedArgs);
         $this->output->writeln('<info>Tests complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

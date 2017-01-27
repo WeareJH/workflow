@@ -15,11 +15,7 @@ use Symfony\Component\Process\ProcessBuilder;
 class Build extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -44,21 +40,13 @@ class Build extends Command implements CommandInterface
             throw new \RuntimeException('No image specified for PHP container');
         }
 
-        $this->processBuilder->setArguments([
+        $this->runProcessShowingOutput($output, [
             'docker build',
             '-t ' . $service['image'],
             '-f app.php.dockerfile',
             $buildArg,
             './'
         ]);
-
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-
-        $process->run(function ($type, $buffer) use ($output) {
-            Process::ERR === $type
-                ? $output->writeln('ERR > '. $buffer)
-                : $output->writeln('OUT > '. $buffer);
-        });
 
         $output->writeln('<info>Build complete!</info>');
     }

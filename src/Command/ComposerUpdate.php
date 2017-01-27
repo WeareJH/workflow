@@ -15,11 +15,7 @@ use Symfony\Component\Process\ProcessBuilder;
 class ComposerUpdate extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -39,20 +35,12 @@ class ComposerUpdate extends Command implements CommandInterface
     {
         $container = $this->phpContainerName();
 
-        $this->processBuilder->setArguments([
+        $this->runProcessShowingOutput($output, [
             'docker exec',
             $container,
             'composer update',
             '-o'
         ]);
-
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-
-        $process->run(function ($type, $buffer) use ($output) {
-            Process::ERR === $type
-                ? $output->writeln('ERR > '. $buffer)
-                : $output->writeln('OUT > '. $buffer);
-        });
 
         $pullCommand   = $this->getApplication()->find('pull');
         $pullArguments = new ArrayInput(['files' => ['vendor', 'composer.lock']]);

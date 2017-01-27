@@ -16,11 +16,7 @@ use Symfony\Component\Process\ProcessBuilder;
 class MagentoConfigure extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -42,14 +38,7 @@ class MagentoConfigure extends Command implements CommandInterface
         $phpContainer  = $this->phpContainerName();
         $mailContainer = $this->getContainerName('mail');
 
-        $this->processBuilder->setArguments(['docker exec', $phpContainer, 'magento-configure']);
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-
-        $process->run(function ($type, $buffer) use ($output) {
-            Process::ERR === $type
-                ? $output->writeln('ERR > '. $buffer)
-                : $output->writeln('OUT > '. $buffer);
-        });
+        $this->runProcessShowingOutput($output, ['docker exec', $phpContainer, 'magento-configure']);
 
         $pullCommand   = $this->getApplication()->find('pull');
         $pullArguments = new ArrayInput(['files' => ['app/etc/env.php']]);

@@ -7,6 +7,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -14,6 +16,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Sql extends Command implements CommandInterface
 {
     use DockerAwareTrait;
+    use ProcessRunnerTrait;
+
+    public function __construct(ProcessBuilder $processBuilder)
+    {
+        parent::__construct();
+        $this->processBuilder = $processBuilder;
+    }
 
     public function configure()
     {
@@ -21,7 +30,7 @@ class Sql extends Command implements CommandInterface
             ->setName('sql')
             ->setDescription('Run arbitary sql against the database')
             ->addArgument('sql', InputArgument::OPTIONAL, 'SQL to run directly to mysql')
-            ->addOption('file', 'f', InputOption::VALUE_OPTIONAL);
+            ->addOption('file', 'f', InputOption::VALUE_OPTIONAL, 'Path to a file to import');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
@@ -29,42 +38,56 @@ class Sql extends Command implements CommandInterface
         $container = $this->getContainerName('db');
 
         if ($input->hasArgument('sql')) {
-            $this->runRaw($container, $input->getArgument('sql'));
+            $this->runRaw($container, $input->getArgument('sql'), $output);
         }
 
         if ($input->hasOption('file')) {
             $file = $input->getOption('file');
 
-            if (!file_exists($file)) {
+            if (!file_exists($file) || !is_file($file)) {
                 throw new \RuntimeException('SQL file does not exist!');
             }
 
-            $this->runFile($container, $file);
+            $this->runFile($container, $file, $output);
         }
+
+        $output->writeln('<info>DB file import process complete</info>');
     }
 
-    private function runRaw(string $container, string $sql)
+    private function runRaw(string $container, string $sql, OutputInterface $output)
     {
         $dbDetails = $this->getDbDetails();
-        system(sprintf(
-            'docker exec -t %s mysql -u%s -p%s %s -e "%s"',
+
+        $this->runProcessShowingErrors($output, [
+            'docker exec -t',
             $container,
-            $dbDetails['user'],
-            $dbDetails['pass'],
+            'mysql',
+            sprintf('-u%s', $dbDetails['user']),
+            sprintf('-p%s', $dbDetails['pass']),
             $dbDetails['db'],
-            $sql
-        ));
+            '-e',
+            sprintf('"%s"', $sql)
+        ]);
     }
 
-    private function runFile(string $container, string $file)
+    private function runFile(string $container, string $file, OutputInterface $output)
     {
-        echo "Incomplete command, check back later";
-        return;
         $dbDetails = $this->getDbDetails();
 
-        // TODO: CP file into the container
-        // TODO: Run mysql pushing file in
-        // TODO: Remove file from container
+        $this->runProcessShowingErrors($output, ['docker cp', $file, sprintf('%s:/root/%s', $container, $file)]);
+
+        $this->runProcessShowingErrors($output, [
+            'docker exec',
+            $container,
+            'mysql',
+            sprintf('-u%s', $dbDetails['user']),
+            sprintf('-p%s', $dbDetails['pass']),
+            $dbDetails['db'],
+            '<',
+            sprintf('/root/%s', $file)
+        ]);
+
+        $this->runProcessShowingErrors($output, ['docker exec', $container, 'rm', sprintf('/root/%s', $file)]);
     }
 
     private function getDbDetails() : array

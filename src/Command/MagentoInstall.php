@@ -15,11 +15,7 @@ use Symfony\Component\Process\ProcessBuilder;
 class MagentoInstall extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -39,19 +35,7 @@ class MagentoInstall extends Command implements CommandInterface
     {
         $container = $this->phpContainerName();
 
-        $this->processBuilder->setArguments([
-            'docker exec',
-            $container,
-            'magento-install'
-        ]);
-
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-
-        $process->run(function ($type, $buffer) use ($output) {
-            Process::ERR === $type
-                ? $output->writeln('ERR > '. $buffer)
-                : $output->writeln('OUT > '. $buffer);
-        });
+        $this->runProcessShowingOutput($output, ['docker exec', $container, 'magento-install']);
 
         $pullCommand   = $this->getApplication()->find('pull');
         $pullArguments = new ArrayInput(['files' => ['app/etc']]);

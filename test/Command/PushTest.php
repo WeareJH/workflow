@@ -58,17 +58,8 @@ class PushTest extends AbstractTestCommand
             'm2-php:/var/www/',
         ];
 
-        $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
-        $this->processBuilder->setTimeout(null)->willReturn($this->processBuilder);
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-            $callback(Process::ERR, 'bad output');
-        });
-
-        // This is wrong but I don't know why...
-        // $this->output->writeln('ERR > bad output')->shouldBeCalled();
-        $this->output->writeln("<info> + some-file.txt > m2-php </info>");
+        $this->processTestOnlyErrors($expectedArgs);
+        $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }

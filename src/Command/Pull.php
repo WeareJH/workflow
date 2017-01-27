@@ -15,11 +15,7 @@ use Symfony\Component\Process\ProcessBuilder;
 class Pull extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-
-    /**
-     * @var ProcessBuilder
-     */
-    private $processBuilder;
+    use ProcessRunnerTrait;
 
     public function __construct(ProcessBuilder $processBuilder)
     {
@@ -56,14 +52,11 @@ class Pull extends Command implements CommandInterface
         foreach ($files as $file) {
             $srcPath = ltrim($file, '/');
 
-            $this->processBuilder->setArguments([
+            $fileExistsCheck = $this->runProcessNoOutput([
                 'docker exec',
                 $container,
                 sprintf("php -r \"echo file_exists('/var/www/%s') ? 'true' : 'false';\"", $srcPath)
             ]);
-
-            $fileExistsCheck = $this->processBuilder->setTimeout(null)->getProcess();
-            $fileExistsCheck->run();
 
             if ('false' === $fileExistsCheck->getOutput()) {
                 $output->writeln(sprintf('Looks like "%s" doesn\'t exist', $srcPath));
@@ -72,18 +65,11 @@ class Pull extends Command implements CommandInterface
 
             $destPath = './' . trim(str_replace(basename($srcPath), '', $srcPath), '/');
 
-            $this->processBuilder->setArguments([
+            $this->runProcessShowingErrors($output, [
                 'docker cp',
                 sprintf('%s:/var/www/%s', $container, $srcPath),
                 $destPath
             ]);
-
-            $cpProcess = $this->processBuilder->setTimeout(null)->getProcess();
-            $cpProcess->run(function ($type, $buffer) use ($output) {
-                if (Process::ERR === $type) {
-                    $output->writeln('ERR > ' . $buffer);
-                }
-            });
 
             $output->writeln(
                 sprintf("<info>Copied '%s' from container into '%s' on the host</info>", $srcPath, $destPath)
