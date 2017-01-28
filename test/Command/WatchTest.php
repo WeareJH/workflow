@@ -52,7 +52,8 @@ class WatchTest extends AbstractTestCommand
             '|',
             'xargs',
             '-n1',
-            '-I{}',
+            '-I',
+            '{}',
             'workflow',
             'sync',
             '{}'

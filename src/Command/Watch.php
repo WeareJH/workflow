@@ -41,10 +41,13 @@ class Watch extends Command implements CommandInterface
 
         $output->writeln("<info>Watching for file changes...</info>");
 
-        $part1 = explode(' ', sprintf('fswatch -r %s', implode(' ', $watches)));
-        $part2 = ['-e', sprintf('"%s"', implode('|', $excludes))];
-        $part3 = explode(' ', sprintf('| xargs -n1 -I{} %s sync {}', $bin));
+        $command = sprintf(
+            'fswatch -r %s -e "%s" | xargs -n1 -I {} %s sync {}',
+            implode(' ', $watches),
+            implode('|', $excludes),
+            $bin
+        );
 
-        $this->runProcessShowingOutput($output, array_merge($part1, $part2, $part3));
+        $this->runProcessShowingOutput($output, explode(' ', $command));
     }
 }
