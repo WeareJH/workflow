@@ -3,8 +3,6 @@
 namespace Jh\WorkflowTest\Command;
 
 use Jh\Workflow\Command\Watch;
-use Prophecy\Argument;
-use Symfony\Component\Process\Process;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -38,9 +36,6 @@ class WatchTest extends AbstractTestCommand
 
     public function testWatch()
     {
-        // We have to use $_SERVER here
-        $_SERVER['argv'] = ['workflow', 'watch'];
-
         $expectedArgs = [
             'fswatch',
             '-r',
