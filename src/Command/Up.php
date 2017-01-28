@@ -36,11 +36,7 @@ class Up extends Command implements CommandInterface
             ? 'docker-compose.prod.yml'
             : 'docker-compose.dev.yml';
 
-        $this->runProcessShowingOutput($output, [
-            'docker-compose',
-            '-f docker-compose.yml',
-            '-f ' . $envDockerFile,
-            'up'
-        ]);
+        $command = sprintf('docker-compose -f docker-compose.yml -f %s up', $envDockerFile);
+        $this->runProcessShowingOutput($output, explode(' ', $command));
     }
 }

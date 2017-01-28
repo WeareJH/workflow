@@ -40,13 +40,8 @@ class Build extends Command implements CommandInterface
             throw new \RuntimeException('No image specified for PHP container');
         }
 
-        $this->runProcessShowingOutput($output, [
-            'docker build',
-            '-t ' . $service['image'],
-            '-f app.php.dockerfile',
-            $buildArg,
-            './'
-        ]);
+        $command = sprintf('docker build -t %s -f app.php.dockerfile %s ./', $service['image'], $buildArg);
+        $this->runProcessShowingOutput($output, explode(' ', $command));
 
         $output->writeln('<info>Build complete!</info>');
     }

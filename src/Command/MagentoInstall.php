@@ -35,7 +35,8 @@ class MagentoInstall extends Command implements CommandInterface
     {
         $container = $this->phpContainerName();
 
-        $this->runProcessShowingOutput($output, ['docker exec', $container, 'magento-install']);
+        $command = sprintf('docker exec %s magento-install', $container);
+        $this->runProcessShowingOutput($output, explode(' ', $command));
 
         $pullCommand   = $this->getApplication()->find('pull');
         $pullArguments = new ArrayInput(['files' => ['app/etc']]);

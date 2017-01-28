@@ -53,9 +53,12 @@ class Pull extends Command implements CommandInterface
             $srcPath = ltrim($file, '/');
 
             $fileExistsCheck = $this->runProcessNoOutput([
-                'docker exec',
+                'docker',
+                'exec',
                 $container,
-                sprintf("php -r \"echo file_exists('/var/www/%s') ? 'true' : 'false';\"", $srcPath)
+                'php',
+                '-r',
+                sprintf("\"echo file_exists('/var/www/%s') ? 'true' : 'false';\"", $srcPath)
             ]);
 
             if ('false' === $fileExistsCheck->getOutput()) {
@@ -65,11 +68,8 @@ class Pull extends Command implements CommandInterface
 
             $destPath = './' . trim(str_replace(basename($srcPath), '', $srcPath), '/');
 
-            $this->runProcessShowingErrors($output, [
-                'docker cp',
-                sprintf('%s:/var/www/%s', $container, $srcPath),
-                $destPath
-            ]);
+            $command = sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, $destPath);
+            $this->runProcessShowingErrors($output, explode(' ', $command));
 
             $output->writeln(
                 sprintf("<info>Copied '%s' from container into '%s' on the host</info>", $srcPath, $destPath)

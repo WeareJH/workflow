@@ -60,9 +60,12 @@ class PullTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn(['some-file.txt']);
 
         $expectedArgs = [
-            'docker exec',
+            'docker',
+            'exec',
             'm2-php',
-            "php -r \"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
+            'php',
+            '-r',
+            "\"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
         ];
 
         $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
@@ -71,7 +74,8 @@ class PullTest extends AbstractTestCommand
         $this->process->getOutput()->willReturn('true');
 
         $expectedArgs = [
-            'docker cp',
+            'docker',
+            'cp',
             'm2-php:/var/www/some-file.txt',
             './'
         ];
@@ -91,9 +95,12 @@ class PullTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn(['some-file.txt']);
 
         $expectedArgs = [
-            'docker exec',
+            'docker',
+            'exec',
             'm2-php',
-            "php -r \"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
+            'php',
+            '-r',
+            "\"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
         ];
 
         $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);

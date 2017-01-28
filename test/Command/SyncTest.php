@@ -78,9 +78,11 @@ class SyncTest extends AbstractTestCommand
         $this->input->getArgument('file')->willReturn('some-deleted-file.txt');
 
         $expectedArgs = [
-            'docker exec',
+            'docker',
+            'exec',
             'm2-php',
-            'rm -rf',
+            'rm',
+            '-rf',
             '/var/www/some-deleted-file.txt',
         ];
 

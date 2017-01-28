@@ -39,8 +39,10 @@ class UpTest extends AbstractTestCommand
 
         $expectedArgs = [
             'docker-compose',
-            '-f docker-compose.yml',
-            '-f docker-compose.dev.yml',
+            '-f',
+            'docker-compose.yml',
+            '-f',
+            'docker-compose.dev.yml',
             'up'
         ];
 
@@ -56,8 +58,10 @@ class UpTest extends AbstractTestCommand
 
         $expectedArgs = [
             'docker-compose',
-            '-f docker-compose.yml',
-            '-f docker-compose.prod.yml',
+            '-f',
+            'docker-compose.yml',
+            '-f',
+            'docker-compose.prod.yml',
             'up'
         ];
 

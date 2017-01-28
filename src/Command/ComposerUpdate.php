@@ -35,12 +35,8 @@ class ComposerUpdate extends Command implements CommandInterface
     {
         $container = $this->phpContainerName();
 
-        $this->runProcessShowingOutput($output, [
-            'docker exec',
-            $container,
-            'composer update',
-            '-o'
-        ]);
+        $command = sprintf('docker exec %s composer update -o', $container);
+        $this->runProcessShowingOutput($output, explode(' ', $command));
 
         $pullCommand   = $this->getApplication()->find('pull');
         $pullArguments = new ArrayInput(['files' => ['vendor', 'composer.lock']]);

@@ -38,7 +38,8 @@ class MagentoConfigure extends Command implements CommandInterface
         $phpContainer  = $this->phpContainerName();
         $mailContainer = $this->getContainerName('mail');
 
-        $this->runProcessShowingOutput($output, ['docker exec', $phpContainer, 'magento-configure']);
+        $command = sprintf('docker exec %s magento-configure', $phpContainer);
+        $this->runProcessShowingOutput($output, explode(' ', $command));
 
         $pullCommand   = $this->getApplication()->find('pull');
         $pullArguments = new ArrayInput(['files' => ['app/etc/env.php']]);

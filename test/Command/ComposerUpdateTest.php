@@ -63,9 +63,11 @@ class ComposerUpdateTest extends AbstractTestCommand
         $this->useValidEnvironment();
 
         $expectedArgs = [
-            'docker exec',
+            'docker',
+            'exec',
             'm2-php',
-            'composer update',
+            'composer',
+            'update',
             '-o'
         ];
 

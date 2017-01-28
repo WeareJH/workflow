@@ -53,7 +53,8 @@ class PushTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn(['some-file.txt']);
 
         $expectedArgs = [
-            'docker cp',
+            'docker',
+            'cp',
             'some-file.txt',
             'm2-php:/var/www/',
         ];

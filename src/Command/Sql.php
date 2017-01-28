@@ -56,38 +56,24 @@ class Sql extends Command implements CommandInterface
 
     private function runRaw(string $container, string $sql, OutputInterface $output)
     {
-        $dbDetails = $this->getDbDetails();
+        extract($this->getDbDetails(), EXTR_OVERWRITE);
 
-        $this->runProcessShowingErrors($output, [
-            'docker exec -t',
-            $container,
-            'mysql',
-            sprintf('-u%s', $dbDetails['user']),
-            sprintf('-p%s', $dbDetails['pass']),
-            $dbDetails['db'],
-            '-e',
-            sprintf('"%s"', $sql)
-        ]);
+        $command = sprintf('docker exec -t %s mysql -u%s -p%s %s -e', $container, $user, $pass, $db);
+        $this->runProcessShowingErrors($output, array_merge(explode(' ', $command), [sprintf('"%s"', $sql)]));
     }
 
     private function runFile(string $container, string $file, OutputInterface $output)
     {
-        $dbDetails = $this->getDbDetails();
+        extract($this->getDbDetails(), EXTR_OVERWRITE);
 
-        $this->runProcessShowingErrors($output, ['docker cp', $file, sprintf('%s:/root/%s', $container, $file)]);
+        $command = sprintf('docker cp %s %s:/root/%s', $file, $container, $file);
+        $this->runProcessShowingErrors($output, explode(' ', $command));
 
-        $this->runProcessShowingErrors($output, [
-            'docker exec',
-            $container,
-            'mysql',
-            sprintf('-u%s', $dbDetails['user']),
-            sprintf('-p%s', $dbDetails['pass']),
-            $dbDetails['db'],
-            '<',
-            sprintf('/root/%s', $file)
-        ]);
+        $command = sprintf('docker exec %s mysql -u%s -p%s %s < /root/%s', $container, $user, $pass, $db, $file);
+        $this->runProcessShowingErrors($output, explode(' ', $command));
 
-        $this->runProcessShowingErrors($output, ['docker exec', $container, 'rm', sprintf('/root/%s', $file)]);
+        $command = sprintf('docker exec %s rm /root/%s', $container, $file);
+        $this->runProcessShowingErrors($output, explode(' ', $command));
     }
 
     private function getDbDetails() : array

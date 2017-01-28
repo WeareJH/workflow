@@ -61,7 +61,8 @@ class MagentoInstallTest extends AbstractTestCommand
         $this->useValidEnvironment();
 
         $expectedArgs = [
-            'docker exec',
+            'docker',
+            'exec',
             'm2-php',
             'magento-install'
         ];

@@ -43,11 +43,7 @@ class Magento extends Command implements CommandInterface
             throw new \RuntimeException('No magento command defined!');
         }
 
-        $this->runProcessShowingOutput($output, array_merge([
-            'docker exec',
-            '-u www-data',
-            $container,
-            'bin/magento'
-        ], $args));
+        $command = sprintf('docker exec -u www-data %s bin/magento', $container);
+        $this->runProcessShowingOutput($output, array_merge(explode(' ', $command), $args));
     }
 }

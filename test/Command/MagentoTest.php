@@ -46,8 +46,10 @@ class MagentoTest extends AbstractTestCommand
         $_SERVER['argv'] = array_merge(['workflow', 'magento'], $args);
 
         $this->processTest(array_merge([
-            'docker exec',
-            '-u www-data',
+            'docker',
+            'exec',
+            '-u',
+            'www-data',
             'm2-php',
             'bin/magento'
         ], $args));

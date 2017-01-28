@@ -46,12 +46,8 @@ class Sync extends Command implements CommandInterface
             return;
         }
 
-        $this->runProcessShowingErrors($output, [
-            'docker exec',
-            $container,
-            'rm -rf',
-            sprintf('/var/www/%s', $containerPath)
-        ]);
+        $command = sprintf('docker exec %s rm -rf /var/www/%s', $container, $containerPath);
+        $this->runProcessShowingErrors($output, explode(' ', $command));
 
         $output->writeln("<fg=red> x $containerPath > $container </fg=red>");
     }

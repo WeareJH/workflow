@@ -43,11 +43,19 @@ class WatchTest extends AbstractTestCommand
 
         $expectedArgs = [
             'fswatch',
-            '-r ./app ./pub ./composer.json',
-            "-e '.docker|.*__jp*|.swp|.swpx'",
+            '-r',
+            './app',
+            './pub',
+            './composer.json',
+            '-e',
+            '".docker|.*__jp*|.swp|.swpx"',
             '|',
-            'xargs -n1 -I{}',
-            'workflow sync {}'
+            'xargs',
+            '-n1',
+            '-I{}',
+            'workflow',
+            'sync',
+            '{}'
         ];
 
         $this->processTestOnlyErrors($expectedArgs);

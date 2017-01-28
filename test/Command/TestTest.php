@@ -40,11 +40,14 @@ class TestTest extends AbstractTestCommand
         $this->useValidEnvironment();
 
         $expectedArgs = [
-            'docker exec',
-            '-u www-data',
+            'docker',
+            'exec',
+            '-u',
+            'www-data',
             'm2-php',
             'vendor/bin/phpcs',
-            '-s app/code',
+            '-s',
+            'app/code',
             '--standard=PSR2',
             '--warning-severity=0'
         ];

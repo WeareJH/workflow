@@ -34,12 +34,8 @@ class NginxReload extends Command implements CommandInterface
     {
         $container = $this->getContainerName('nginx');
 
-        $this->runProcessShowingOutput($output, [
-            'docker exec',
-            $container,
-            'nginx',
-            "-s 'reload'"
-        ]);
+        $command = sprintf('docker exec %s nginx -s "reload"', $container);
+        $this->runProcessShowingOutput($output, explode(' ', $command));
 
         $output->writeln('Reload signal sent');
     }

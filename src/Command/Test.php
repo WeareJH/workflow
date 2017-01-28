@@ -32,15 +32,11 @@ class Test extends Command implements CommandInterface
     {
         $container = $this->phpContainerName();
 
-        $this->runProcessShowingOutput($output, [
-            'docker exec',
-            '-u www-data',
-            $container,
-            'vendor/bin/phpcs',
-            '-s app/code',
-            '--standard=PSR2',
-            '--warning-severity=0'
-        ], false);
+        $command = sprintf(
+            'docker exec -u www-data %s vendor/bin/phpcs -s app/code --standard=PSR2 --warning-severity=0',
+            $container
+        );
+        $this->runProcessShowingOutput($output, explode(' ', $command), false);
 
         $output->writeln('<info>Tests complete!</info>');
     }

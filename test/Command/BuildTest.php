@@ -38,9 +38,12 @@ class BuildTest extends AbstractTestCommand
         $this->useValidEnvironment();
 
         $expectedArgs = [
-            'docker build',
-            '-t wearejh/m2',
-            '-f app.php.dockerfile',
+            'docker',
+            'build',
+            '-t',
+            'wearejh/m2',
+            '-f',
+            'app.php.dockerfile',
             '',
             './'
         ];
@@ -56,10 +59,14 @@ class BuildTest extends AbstractTestCommand
         $this->useValidEnvironment();
 
         $expectedArgs = [
-            'docker build',
-            '-t wearejh/m2',
-            '-f app.php.dockerfile',
-            '--build-arg BUILD_ENV=prod',
+            'docker',
+            'build',
+            '-t',
+            'wearejh/m2',
+            '-f',
+            'app.php.dockerfile',
+            '--build-arg',
+            'BUILD_ENV=prod',
             './'
         ];
 

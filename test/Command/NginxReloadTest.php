@@ -37,10 +37,12 @@ class NginxReloadTest extends AbstractTestCommand
         $this->useValidEnvironment();
 
         $expectedArgs = [
-            'docker exec',
+            'docker',
+            'exec',
             'm2',
             'nginx',
-            "-s 'reload'"
+            '-s',
+            '"reload"'
         ];
 
         $this->processTest($expectedArgs);

@@ -39,8 +39,10 @@ class StopTest extends AbstractTestCommand
 
         $expectedArgs = [
             'docker-compose',
-            '-f docker-compose.yml',
-            '-f docker-compose.dev.yml',
+            '-f',
+            'docker-compose.yml',
+            '-f',
+            'docker-compose.dev.yml',
             'down'
         ];
 
@@ -54,12 +56,14 @@ class StopTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $this->input->hasOption('prod')->willReturn(true);
+        $this->input->getOption('prod')->willReturn(true);
 
         $expectedArgs = [
             'docker-compose',
-            '-f docker-compose.yml',
-            '-f docker-compose.prod.yml',
+            '-f',
+            'docker-compose.yml',
+            '-f',
+            'docker-compose.prod.yml',
             'down'
         ];
 
