@@ -58,7 +58,7 @@ class WatchTest extends AbstractTestCommand
             '{}'
         ];
 
-        $this->processTestOnlyErrors($expectedArgs);
+        $this->processTest($expectedArgs);
         $this->output->writeln('<info>Watching for file changes...</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

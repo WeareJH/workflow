@@ -86,9 +86,8 @@ class SyncTest extends AbstractTestCommand
             '/var/www/some-deleted-file.txt',
         ];
 
-        $this->processTestOnlyErrors($expectedArgs);
+        $this->processTest($expectedArgs);
         $this->output->writeln('<fg=red> x some-deleted-file.txt > m2-php </fg=red>')->shouldBeCalled();
-        $this->output->writeln('ERR > bad output')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }

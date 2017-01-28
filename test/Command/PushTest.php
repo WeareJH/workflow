@@ -59,7 +59,7 @@ class PushTest extends AbstractTestCommand
             'm2-php:/var/www/',
         ];
 
-        $this->processTestOnlyErrors($expectedArgs);
+        $this->processTest($expectedArgs);
         $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

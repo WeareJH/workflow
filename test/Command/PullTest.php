@@ -68,9 +68,7 @@ class PullTest extends AbstractTestCommand
             "\"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
         ];
 
-        $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
-        $this->processBuilder->setTimeout(null)->willReturn($this->processBuilder);
-        $this->process->run()->shouldBeCalled();
+        $this->processTestNoOutput($expectedArgs);
         $this->process->getOutput()->willReturn('true');
 
         $expectedArgs = [
@@ -80,7 +78,7 @@ class PullTest extends AbstractTestCommand
             './'
         ];
 
-        $this->processTestOnlyErrors($expectedArgs);
+        $this->processTest($expectedArgs);
         $this->output
             ->writeln("<info>Copied 'some-file.txt' from container into './' on the host</info>")
             ->shouldBeCalled();

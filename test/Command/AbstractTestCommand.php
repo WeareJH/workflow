@@ -68,34 +68,16 @@ class AbstractTestCommand extends TestCase
             $callback(Process::OUT, 'good output');
         });
 
-        $this->output->writeln('ERR > bad output')->shouldBeCalled();
+        $this->output->writeln('bad output')->shouldBeCalled();
         $this->output->writeln('good output')->shouldBeCalled();
     }
 
-    protected function processTestOnlyErrors(array $expectedArgs, int $timeout = null)
+    protected function processTestNoOutput(array $expectedArgs, int $timeout = null)
     {
         $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
         $this->processBuilder->setTimeout($timeout)->willReturn($this->processBuilder);
 
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-            $callback(Process::ERR, 'bad output');
-        });
-
-        $this->output->writeln('ERR > bad output')->shouldBeCalled();
-    }
-
-    protected function processTestNoErrors(array $expectedArgs, int $timeout = null)
-    {
-        $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
-        $this->processBuilder->setTimeout($timeout)->willReturn($this->processBuilder);
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->writeln('good output')->shouldBeCalled();
+        $this->process->run()->shouldBeCalled();
     }
 
     protected function useInvalidEnvironment()

@@ -36,7 +36,7 @@ class Test extends Command implements CommandInterface
             'docker exec -u www-data %s vendor/bin/phpcs -s app/code --standard=PSR2 --warning-severity=0',
             $container
         );
-        $this->runProcessShowingOutput($output, explode(' ', $command), false);
+        $this->runProcessShowingOutput($output, explode(' ', $command));
 
         $output->writeln('<info>Tests complete!</info>');
     }

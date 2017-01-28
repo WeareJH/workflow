@@ -69,7 +69,7 @@ class Pull extends Command implements CommandInterface
             $destPath = './' . trim(str_replace(basename($srcPath), '', $srcPath), '/');
 
             $command = sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, $destPath);
-            $this->runProcessShowingErrors($output, explode(' ', $command));
+            $this->runProcessShowingOutput($output, explode(' ', $command));
 
             $output->writeln(
                 sprintf("<info>Copied '%s' from container into '%s' on the host</info>", $srcPath, $destPath)

@@ -38,7 +38,7 @@ class ProcessRunnerTraitTest extends AbstractTestCommand
 
             public function runProcessShowingErrorsTest()
             {
-                $this->runProcessShowingErrors($this->output, []);
+                $this->runProcessShowingOutput($this->output, []);
             }
         };
     }

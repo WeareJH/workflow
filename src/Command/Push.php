@@ -52,7 +52,7 @@ class Push extends Command implements CommandInterface
             }
 
             $command = sprintf('docker cp %s %s:/var/www/%s', $srcPath, $container, $destPath);
-            $this->runProcessShowingErrors($output, explode(' ', $command));
+            $this->runProcessShowingOutput($output, explode(' ', $command));
 
             $output->writeln(
                 sprintf("<info> + %s > %s </info>", $srcPath, $container)

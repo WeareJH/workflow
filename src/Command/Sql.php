@@ -59,7 +59,7 @@ class Sql extends Command implements CommandInterface
         extract($this->getDbDetails(), EXTR_OVERWRITE);
 
         $command = sprintf('docker exec -t %s mysql -u%s -p%s %s -e', $container, $user, $pass, $db);
-        $this->runProcessShowingErrors($output, array_merge(explode(' ', $command), [sprintf('"%s"', $sql)]));
+        $this->runProcessShowingOutput($output, array_merge(explode(' ', $command), [sprintf('"%s"', $sql)]));
     }
 
     private function runFile(string $container, string $file, OutputInterface $output)
@@ -67,13 +67,13 @@ class Sql extends Command implements CommandInterface
         extract($this->getDbDetails(), EXTR_OVERWRITE);
 
         $command = sprintf('docker cp %s %s:/root/%s', $file, $container, $file);
-        $this->runProcessShowingErrors($output, explode(' ', $command));
+        $this->runProcessShowingOutput($output, explode(' ', $command));
 
         $command = sprintf('docker exec %s mysql -u%s -p%s %s < /root/%s', $container, $user, $pass, $db, $file);
-        $this->runProcessShowingErrors($output, explode(' ', $command));
+        $this->runProcessShowingOutput($output, explode(' ', $command));
 
         $command = sprintf('docker exec %s rm /root/%s', $container, $file);
-        $this->runProcessShowingErrors($output, explode(' ', $command));
+        $this->runProcessShowingOutput($output, explode(' ', $command));
     }
 
     private function getDbDetails() : array

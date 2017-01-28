@@ -38,7 +38,7 @@ class XdebugLoopbackTest extends AbstractTestCommand
 
     public function testXdebugLoopbackCommand()
     {
-        $this->processTestNoErrors(['sudo', 'ifconfig', 'lo0', 'alias', '10.254.254.254']);
+        $this->processTest(['sudo', 'ifconfig', 'lo0', 'alias', '10.254.254.254']);
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }

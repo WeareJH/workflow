@@ -33,32 +33,14 @@ trait ProcessRunnerTrait
         return $process;
     }
 
-    private function runProcessShowingOutput(OutputInterface $output, array $args, bool $showErrors = true)
-    {
-        $this->checkProcess();
-        $this->processBuilder->setArguments($args);
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
-
-        $process->run(function ($type, $buffer) use ($output, $showErrors) {
-            if (Process::ERR === $type && $showErrors) {
-                $output->writeln('ERR > '. $buffer);
-            }
-            if (Process::OUT === $type) {
-                $output->writeln($buffer);
-            }
-        });
-    }
-
-    private function runProcessShowingErrors(OutputInterface $output, array $args)
+    private function runProcessShowingOutput(OutputInterface $output, array $args)
     {
         $this->checkProcess();
         $this->processBuilder->setArguments($args);
         $process = $this->processBuilder->setTimeout(null)->getProcess();
 
         $process->run(function ($type, $buffer) use ($output) {
-            if (Process::ERR === $type) {
-                $output->writeln('ERR > ' . $buffer);
-            }
+            $output->writeln($buffer);
         });
     }
 }

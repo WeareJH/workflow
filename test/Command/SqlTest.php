@@ -56,7 +56,7 @@ class SqlTest extends AbstractTestCommand
         $this->input->getArgument('sql')->willReturn('SELECT * FROM core_config_data');
         $this->input->hasOption('file')->willReturn(false);
 
-        $this->processTestOnlyErrors([
+        $this->processTest([
             'docker',
             'exec',
             '-t',
@@ -81,8 +81,8 @@ class SqlTest extends AbstractTestCommand
         $this->input->hasOption('file')->willReturn(true);
         $this->input->getOption('file')->willReturn('some-import.sql');
 
-        $this->processTestOnlyErrors(['docker', 'cp', 'some-import.sql', 'm2-db:/root/some-import.sql']);
-        $this->processTestOnlyErrors([
+        $this->processTest(['docker', 'cp', 'some-import.sql', 'm2-db:/root/some-import.sql']);
+        $this->processTest([
             'docker',
             'exec',
             'm2-db',
@@ -93,7 +93,7 @@ class SqlTest extends AbstractTestCommand
             '<',
             '/root/some-import.sql'
         ]);
-        $this->processTestOnlyErrors(['docker', 'exec', 'm2-db', 'rm', '/root/some-import.sql']);
+        $this->processTest(['docker', 'exec', 'm2-db', 'rm', '/root/some-import.sql']);
 
         $this->output->writeln('<info>DB file import process complete</info>')->shouldBeCalled();
 

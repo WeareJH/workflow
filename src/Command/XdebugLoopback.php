@@ -30,6 +30,6 @@ class XdebugLoopback extends Command implements CommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->runProcessShowingOutput($output, ['sudo', 'ifconfig', 'lo0', 'alias', '10.254.254.254'], false);
+        $this->runProcessShowingOutput($output, ['sudo', 'ifconfig', 'lo0', 'alias', '10.254.254.254']);
     }
 }

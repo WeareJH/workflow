@@ -45,6 +45,6 @@ class Watch extends Command implements CommandInterface
         $part2 = ['-e', sprintf('"%s"', implode('|', $excludes))];
         $part3 = explode(' ', sprintf('| xargs -n1 -I{} %s sync {}', $bin));
 
-        $this->runProcessShowingErrors($output, array_merge($part1, $part2, $part3));
+        $this->runProcessShowingOutput($output, array_merge($part1, $part2, $part3));
     }
 }

@@ -52,7 +52,7 @@ class TestTest extends AbstractTestCommand
             '--warning-severity=0'
         ];
 
-        $this->processTestNoErrors($expectedArgs);
+        $this->processTest($expectedArgs);
         $this->output->writeln('<info>Tests complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
