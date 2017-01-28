@@ -50,6 +50,8 @@ class UpTest extends AbstractTestCommand
         ];
 
         $this->processTest($expectedArgs);
+        $this->output->writeln('<info>Containers started</info>')->shouldBeCalled();
+
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
 
@@ -70,6 +72,8 @@ class UpTest extends AbstractTestCommand
         ];
 
         $this->processTest($expectedArgs);
+        $this->output->writeln('<info>Containers started</info>')->shouldBeCalled();
+
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
 }

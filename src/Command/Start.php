@@ -31,7 +31,5 @@ class Start extends Command implements CommandInterface
         $buildCommand->run($input, $output);
         $upCommand->run($input, $output);
         $watchCommand->run($input, $output);
-
-        $output->writeln('<info>Containers started</info>');
     }
 }

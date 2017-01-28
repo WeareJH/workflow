@@ -82,8 +82,6 @@ class StartTest extends AbstractTestCommand
         $this->upCommand->run($this->input, $this->output)->shouldBeCalled();
         $this->watchCommand->run($this->input, $this->output)->shouldBeCalled();
 
-        $this->output->writeln('<info>Containers started</info>')->shouldBeCalled();
-
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
 }

@@ -38,5 +38,7 @@ class Up extends Command implements CommandInterface
 
         $command = sprintf('docker-compose -f docker-compose.yml -f %s up -d', $envDockerFile);
         $this->runProcessShowingOutput($output, explode(' ', $command));
+
+        $output->writeln('<info>Containers started</info>');
     }
 }
