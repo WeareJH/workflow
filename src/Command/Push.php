@@ -43,8 +43,8 @@ class Push extends Command implements CommandInterface
             : [$input->getArgument('files')];
 
         foreach ($files as $file) {
-            $srcPath  = trim($file, '/');
-            $destPath = trim(str_replace(basename($srcPath), '', $srcPath), '/');
+            $srcPath     = trim(str_replace(getcwd(), '', $file), '/');
+            $destPath    = trim(str_replace(basename($srcPath), '', $srcPath), '/');
 
             if (!file_exists($srcPath)) {
                 $output->writeln(sprintf('Looks like "%s" doesn\'t exist', $srcPath));

@@ -46,11 +46,31 @@ class PushTest extends AbstractTestCommand
         static::assertTrue($fileArg->isArray());
     }
 
-    public function testPushCommand()
+    public function testPushCommandRelativePath()
     {
         $this->useValidEnvironment();
 
         $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn(['some-file.txt']);
+
+        $expectedArgs = [
+            'docker',
+            'cp',
+            'some-file.txt',
+            'm2-php:/var/www/',
+        ];
+
+        $this->processTest($expectedArgs);
+        $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testPushCommandAbsolutePath()
+    {
+        $this->useValidEnvironment();
+
+        $filePath = realpath('some-file.txt');
+        $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn([$filePath]);
 
         $expectedArgs = [
             'docker',
