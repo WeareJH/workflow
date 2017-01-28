@@ -37,6 +37,8 @@ class UpTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
+        $this->input->getOption('prod')->willReturn(false);
+
         $expectedArgs = [
             'docker-compose',
             '-f',
@@ -54,7 +56,7 @@ class UpTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $this->input->hasOption('prod')->willReturn(true);
+        $this->input->getOption('prod')->willReturn(true);
 
         $expectedArgs = [
             'docker-compose',

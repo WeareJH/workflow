@@ -32,7 +32,7 @@ class Up extends Command implements CommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $envDockerFile = $input->hasOption('prod')
+        $envDockerFile = $input->getOption('prod')
             ? 'docker-compose.prod.yml'
             : 'docker-compose.dev.yml';
 
