@@ -41,7 +41,8 @@ class Build extends Command implements CommandInterface
         }
 
         $command = sprintf('docker build -t %s -f app.php.dockerfile %s ./', $service['image'], $buildArg);
-        $this->runProcessShowingOutput($output, explode(' ', $command));
+        $args    = array_values(array_filter(explode(' ', $command)));
+        $this->runProcessShowingOutput($output, $args);
 
         $output->writeln('<info>Build complete!</info>');
     }

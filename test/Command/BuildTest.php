@@ -44,7 +44,6 @@ class BuildTest extends AbstractTestCommand
             'wearejh/m2',
             '-f',
             'app.php.dockerfile',
-            '',
             './'
         ];
 
