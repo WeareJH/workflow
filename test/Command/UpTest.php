@@ -45,7 +45,8 @@ class UpTest extends AbstractTestCommand
             'docker-compose.yml',
             '-f',
             'docker-compose.dev.yml',
-            'up'
+            'up',
+            '-d'
         ];
 
         $this->processTest($expectedArgs);
@@ -64,7 +65,8 @@ class UpTest extends AbstractTestCommand
             'docker-compose.yml',
             '-f',
             'docker-compose.prod.yml',
-            'up'
+            'up',
+            '-d'
         ];
 
         $this->processTest($expectedArgs);
