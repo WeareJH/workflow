@@ -20,7 +20,7 @@ class TestTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Test($this->processBuilder->reveal());
+        $this->command = new Test($this->processFactory->reveal());
     }
 
     public function tearDown()
@@ -38,21 +38,10 @@ class TestTest extends AbstractTestCommand
     public function testCommandrunsExpectedTests()
     {
         $this->useValidEnvironment();
-
-        $expectedArgs = [
-            'docker',
-            'exec',
-            '-u',
-            'www-data',
-            'm2-php',
-            'vendor/bin/phpcs',
-            '-s',
-            'app/code',
-            '--standard=PSR2',
-            '--warning-severity=0'
-        ];
-
-        $this->processTest($expectedArgs);
+        
+        $this->processTest(
+            'docker exec -u www-data m2-php vendor/bin/phpcs -s app/code --standard=PSR2 --warning-severity=0'
+        );
         $this->output->writeln('<info>Tests complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

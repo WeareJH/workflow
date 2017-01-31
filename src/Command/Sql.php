@@ -2,13 +2,13 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\ProcessFactory;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -18,10 +18,10 @@ class Sql extends Command implements CommandInterface
     use DockerAwareTrait;
     use ProcessRunnerTrait;
 
-    public function __construct(ProcessBuilder $processBuilder)
+    public function __construct(ProcessFactory $processFactory)
     {
         parent::__construct();
-        $this->processBuilder = $processBuilder;
+        $this->processFactory = $processFactory;
     }
 
     public function configure()
@@ -41,7 +41,7 @@ class Sql extends Command implements CommandInterface
             $this->runRaw($container, $input->getArgument('sql'), $output);
         }
 
-        if ($input->hasOption('file')) {
+        if ($input->getOption('file')) {
             $file = $input->getOption('file');
 
             if (!file_exists($file) || !is_file($file)) {
@@ -51,15 +51,20 @@ class Sql extends Command implements CommandInterface
             $this->runFile($container, $file, $output);
         }
 
-        $output->writeln('<info>DB file import process complete</info>');
+        $output->writeln('<info>DB process complete</info>');
     }
 
     private function runRaw(string $container, string $sql, OutputInterface $output)
     {
         extract($this->getDbDetails(), EXTR_OVERWRITE);
 
-        $command = sprintf('docker exec -t %s mysql -u%s -p%s %s -e', $container, $user, $pass, $db);
-        $this->runProcessShowingOutput($output, array_merge(explode(' ', $command), [sprintf('"%s"', $sql)]));
+        $command = sprintf('docker exec -t %s mysql -u%s -p%s %s -e "%s"', $container, $user, $pass, $db, $sql);
+        $this->processFactory->create($command)->run(function ($type, $buffer) use ($output) {
+            $output->write($buffer);
+        });
+
+//        $command = sprintf('docker exec -t %s mysql -u%s -p%s %s -e', $container, $user, $pass, $db);
+//        $this->runProcessShowingOutput($output, array_merge($command, [sprintf('"%s"', $sql)]));
     }
 
     private function runFile(string $container, string $file, OutputInterface $output)
@@ -67,13 +72,13 @@ class Sql extends Command implements CommandInterface
         extract($this->getDbDetails(), EXTR_OVERWRITE);
 
         $command = sprintf('docker cp %s %s:/root/%s', $file, $container, $file);
-        $this->runProcessShowingOutput($output, explode(' ', $command));
+        $this->runProcessShowingOutput($output, $command);
 
         $command = sprintf('docker exec %s mysql -u%s -p%s %s < /root/%s', $container, $user, $pass, $db, $file);
-        $this->runProcessShowingOutput($output, explode(' ', $command));
+        $this->runProcessShowingOutput($output, $command);
 
         $command = sprintf('docker exec %s rm /root/%s', $container, $file);
-        $this->runProcessShowingOutput($output, explode(' ', $command));
+        $this->runProcessShowingOutput($output, $command);
     }
 
     private function getDbDetails() : array

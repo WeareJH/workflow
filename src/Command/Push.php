@@ -7,7 +7,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
+use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -17,10 +17,10 @@ class Push extends Command implements CommandInterface
     use DockerAwareTrait;
     use ProcessRunnerTrait;
 
-    public function __construct(ProcessBuilder $processBuilder)
+    public function __construct(ProcessFactory $processFactory)
     {
         parent::__construct();
-        $this->processBuilder = $processBuilder;
+        $this->processFactory = $processFactory;
     }
 
     public function configure()
@@ -52,7 +52,7 @@ class Push extends Command implements CommandInterface
             }
 
             $command = sprintf('docker cp %s %s:/var/www/%s', $srcPath, $container, $destPath);
-            $this->runProcessShowingOutput($output, explode(' ', $command));
+            $this->runProcessShowingOutput($output, $command);
 
             $output->writeln(
                 sprintf("<info> + %s > %s </info>", $srcPath, $container)

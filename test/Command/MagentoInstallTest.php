@@ -34,7 +34,7 @@ class MagentoInstallTest extends AbstractTestCommand
     {
         parent::setUp();
 
-        $this->command     = new MagentoInstall($this->processBuilder->reveal());
+        $this->command     = new MagentoInstall($this->processFactory->reveal());
         $this->application = $this->prophesize(Application::class);
         $this->pullCommand = $this->prophesize(Pull::class);
 
@@ -60,14 +60,7 @@ class MagentoInstallTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $expectedArgs = [
-            'docker',
-            'exec',
-            'm2-php',
-            'magento-install'
-        ];
-
-        $this->processTest($expectedArgs);
+        $this->processTest('docker exec m2-php magento-install');
 
         $expectedInput = new ArrayInput(['files' => ['app/etc']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();

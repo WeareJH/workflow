@@ -17,7 +17,7 @@ class StopTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Stop($this->processBuilder->reveal());
+        $this->command = new Stop($this->processFactory->reveal());
     }
 
     public function tearDown()
@@ -37,16 +37,7 @@ class StopTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $expectedArgs = [
-            'docker-compose',
-            '-f',
-            'docker-compose.yml',
-            '-f',
-            'docker-compose.dev.yml',
-            'down'
-        ];
-
-        $this->processTest($expectedArgs);
+        $this->processTest('docker-compose -f docker-compose.yml -f docker-compose.dev.yml down');
         $this->output->writeln('<info>Containers stopped</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -58,16 +49,7 @@ class StopTest extends AbstractTestCommand
 
         $this->input->getOption('prod')->willReturn(true);
 
-        $expectedArgs = [
-            'docker-compose',
-            '-f',
-            'docker-compose.yml',
-            '-f',
-            'docker-compose.prod.yml',
-            'down'
-        ];
-
-        $this->processTest($expectedArgs);
+        $this->processTest('docker-compose -f docker-compose.yml -f docker-compose.prod.yml down');
 
         $this->output->writeln('<info>Containers stopped</info>')->shouldBeCalled();
 

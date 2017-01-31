@@ -28,17 +28,17 @@ class ProcessRunnerTraitTest extends AbstractTestCommand
 
             public function runProcessNoOutputTest()
             {
-                $this->runProcessNoOutput([]);
+                $this->runProcessNoOutput('');
             }
 
             public function runProcessShowingOutputTest()
             {
-                $this->runProcessShowingOutput($this->output, []);
+                $this->runProcessShowingOutput($this->output, '');
             }
 
             public function runProcessShowingErrorsTest()
             {
-                $this->runProcessShowingOutput($this->output, []);
+                $this->runProcessShowingOutput($this->output, '');
             }
         };
     }

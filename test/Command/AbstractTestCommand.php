@@ -2,6 +2,7 @@
 
 namespace Jh\WorkflowTest\Command;
 
+use Jh\Workflow\ProcessFactory;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -11,7 +12,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -39,9 +39,9 @@ class AbstractTestCommand extends TestCase
     protected $process;
 
     /**
-     * @var ObjectProphecy|ProcessBuilder
+     * @var ObjectProphecy|ProcessFactory
      */
-    protected $processBuilder;
+    protected $processFactory;
 
     public function setUp()
     {
@@ -51,15 +51,12 @@ class AbstractTestCommand extends TestCase
         $this->output = $this->prophesize(Output::class);
 
         $this->process        = $this->prophesize(Process::class);
-        $this->processBuilder = $this->prophesize(ProcessBuilder::class);
-
-        $this->processBuilder->getProcess()->willReturn($this->process->reveal());
+        $this->processFactory = $this->prophesize(ProcessFactory::class);
     }
 
-    protected function processTest(array $expectedArgs, int $timeout = null)
+    protected function processTest(string $expected)
     {
-        $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
-        $this->processBuilder->setTimeout($timeout)->willReturn($this->processBuilder);
+        $this->processFactory->create($expected)->willReturn($this->process->reveal());
 
         $this->process->run(Argument::type('callable'))->will(function ($args) {
             $callback = array_shift($args);
@@ -72,10 +69,9 @@ class AbstractTestCommand extends TestCase
         $this->output->write('good output')->shouldBeCalled();
     }
 
-    protected function processTestNoOutput(array $expectedArgs, int $timeout = null)
+    protected function processTestNoOutput(string $expected)
     {
-        $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
-        $this->processBuilder->setTimeout($timeout)->willReturn($this->processBuilder);
+        $this->processFactory->create($expected)->willReturn($this->process->reveal());
 
         $this->process->run()->shouldBeCalled();
     }

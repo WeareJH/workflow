@@ -6,8 +6,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
+use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -17,10 +16,10 @@ class Pull extends Command implements CommandInterface
     use DockerAwareTrait;
     use ProcessRunnerTrait;
 
-    public function __construct(ProcessBuilder $processBuilder)
+    public function __construct(ProcessFactory $processFactory)
     {
         parent::__construct();
-        $this->processBuilder = $processBuilder;
+        $this->processFactory = $processFactory;
     }
 
     public function configure()
@@ -52,14 +51,11 @@ class Pull extends Command implements CommandInterface
         foreach ($files as $file) {
             $srcPath = ltrim($file, '/');
 
-            $fileExistsCheck = $this->runProcessNoOutput([
-                'docker',
-                'exec',
+            $fileExistsCheck = $this->runProcessNoOutput(sprintf(
+                "docker exec %s php -r \"echo file_exists('/var/www/%s') ? 'true' : 'false';\"",
                 $container,
-                'php',
-                '-r',
-                sprintf("\"echo file_exists('/var/www/%s') ? 'true' : 'false';\"", $srcPath)
-            ]);
+                $srcPath
+            ));
 
             if ('false' === $fileExistsCheck->getOutput()) {
                 $output->writeln(sprintf('Looks like "%s" doesn\'t exist', $srcPath));
@@ -69,7 +65,7 @@ class Pull extends Command implements CommandInterface
             $destPath = './' . trim(str_replace(basename($srcPath), '', $srcPath), '/');
 
             $command = sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, $destPath);
-            $this->runProcessShowingOutput($output, explode(' ', $command));
+            $this->runProcessShowingOutput($output, $command);
 
             $output->writeln(
                 sprintf("<info>Copied '%s' from container into '%s' on the host</info>", $srcPath, $destPath)

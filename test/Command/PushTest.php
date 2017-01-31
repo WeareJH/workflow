@@ -20,7 +20,7 @@ class PushTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Push($this->processBuilder->reveal());
+        $this->command = new Push($this->processFactory->reveal());
     }
 
     public function tearDown()
@@ -52,14 +52,7 @@ class PushTest extends AbstractTestCommand
 
         $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn(['some-file.txt']);
 
-        $expectedArgs = [
-            'docker',
-            'cp',
-            'some-file.txt',
-            'm2-php:/var/www/',
-        ];
-
-        $this->processTest($expectedArgs);
+        $this->processTest('docker cp some-file.txt m2-php:/var/www/');
         $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -72,14 +65,7 @@ class PushTest extends AbstractTestCommand
         $filePath = realpath('some-file.txt');
         $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn([$filePath]);
 
-        $expectedArgs = [
-            'docker',
-            'cp',
-            'some-file.txt',
-            'm2-php:/var/www/',
-        ];
-
-        $this->processTest($expectedArgs);
+        $this->processTest('docker cp some-file.txt m2-php:/var/www/');
         $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

@@ -2,9 +2,9 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\ProcessFactory;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -12,34 +12,31 @@ use Symfony\Component\Process\ProcessBuilder;
 trait ProcessRunnerTrait
 {
     /**
-     * @var null|ProcessBuilder
+     * @var null|ProcessFactory
      */
-    private $processBuilder;
+    private $processFactory;
 
     private function checkProcess()
     {
-        if (null === $this->processBuilder) {
-            throw new \RuntimeException('Process builder isn\'t available');
+        if (null === $this->processFactory) {
+            throw new \RuntimeException('Process factory isn\'t available');
         }
     }
 
-    private function runProcessNoOutput(array $args): Process
+    private function runProcessNoOutput(string $command): Process
     {
         $this->checkProcess();
-        $this->processBuilder->setArguments($args);
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
+        $process = $this->processFactory->create($command);
         $process->run();
 
         return $process;
     }
 
-    private function runProcessShowingOutput(OutputInterface $output, array $args)
+    private function runProcessShowingOutput(OutputInterface $output, string $command)
     {
         $this->checkProcess();
-        $this->processBuilder->setArguments($args);
-        $process = $this->processBuilder->setTimeout(null)->getProcess();
 
-        $process->run(function ($type, $buffer) use ($output) {
+        $this->processFactory->create($command)->run(function ($type, $buffer) use ($output) {
             $output->write($buffer);
         });
     }

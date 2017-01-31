@@ -19,7 +19,7 @@ class XdebugLoopbackTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new XdebugLoopback($this->processBuilder->reveal());
+        $this->command = new XdebugLoopback($this->processFactory->reveal());
     }
 
     public function tearDown()
@@ -38,7 +38,7 @@ class XdebugLoopbackTest extends AbstractTestCommand
 
     public function testXdebugLoopbackCommand()
     {
-        $this->processTest(['sudo', 'ifconfig', 'lo0', 'alias', '10.254.254.254']);
+        $this->processTest('sudo ifconfig lo0 alias 10.254.254.254');
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }

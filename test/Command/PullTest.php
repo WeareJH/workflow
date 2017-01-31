@@ -20,7 +20,7 @@ class PullTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Pull($this->processBuilder->reveal());
+        $this->command = new Pull($this->processFactory->reveal());
     }
 
     public function tearDown()
@@ -59,26 +59,12 @@ class PullTest extends AbstractTestCommand
 
         $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn(['some-file.txt']);
 
-        $expectedArgs = [
-            'docker',
-            'exec',
-            'm2-php',
-            'php',
-            '-r',
-            "\"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
-        ];
-
-        $this->processTestNoOutput($expectedArgs);
+        $this->processTestNoOutput(
+            "docker exec m2-php php -r \"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
+        );
         $this->process->getOutput()->willReturn('true');
 
-        $expectedArgs = [
-            'docker',
-            'cp',
-            'm2-php:/var/www/some-file.txt',
-            './'
-        ];
-
-        $this->processTest($expectedArgs);
+        $this->processTest('docker cp m2-php:/var/www/some-file.txt ./');
         $this->output
             ->writeln("<info>Copied 'some-file.txt' from container into './' on the host</info>")
             ->shouldBeCalled();
@@ -92,18 +78,9 @@ class PullTest extends AbstractTestCommand
 
         $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn(['some-file.txt']);
 
-        $expectedArgs = [
-            'docker',
-            'exec',
-            'm2-php',
-            'php',
-            '-r',
-            "\"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
-        ];
-
-        $this->processBuilder->setArguments($expectedArgs)->willReturn($this->processBuilder);
-        $this->processBuilder->setTimeout(null)->willReturn($this->processBuilder);
-        $this->process->run()->shouldBeCalled();
+        $this->processTestNoOutput(
+            "docker exec m2-php php -r \"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
+        );
         $this->process->getOutput()->willReturn('false');
 
         $this->output->writeln('Looks like "some-file.txt" doesn\'t exist')->shouldBeCalled();

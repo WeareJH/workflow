@@ -17,7 +17,7 @@ class WatchTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Watch($this->processBuilder->reveal());
+        $this->command = new Watch($this->processFactory->reveal());
     }
 
     public function tearDown()
@@ -36,27 +36,13 @@ class WatchTest extends AbstractTestCommand
 
     public function testWatch()
     {
-        static::markTestSkipped('Currently untestable');
-        $expectedArgs = [
-            'fswatch',
-            '-r',
-            './app',
-            './pub',
-            './composer.json',
-            '-e',
-            '".docker|.*__jp*|.swp|.swpx"',
-            '|',
-            'xargs',
-            '-n1',
-            '-I',
-            '{}',
-            'workflow',
-            'sync',
-            '{}'
-        ];
+        $includes = './app ./pub ./composer.json';
+        $excludes = '.docker|.*__jp*|.swp|.swpx';
+        $expected  = sprintf('fswatch -r %s -e "%s" | xargs -n1 -I {} workflow sync {}', $includes, $excludes);
 
-        $this->processTest($expectedArgs);
+        $this->processTest($expected);
         $this->output->writeln('<info>Watching for file changes...</info>')->shouldBeCalled();
+        $this->output->writeln('')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }

@@ -6,7 +6,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
+use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -15,10 +15,10 @@ class Watch extends Command implements CommandInterface
 {
     use ProcessRunnerTrait;
 
-    public function __construct(ProcessBuilder $processBuilder)
+    public function __construct(ProcessFactory $processFactory)
     {
         parent::__construct();
-        $this->processBuilder = $processBuilder;
+        $this->processFactory = $processFactory;
     }
 
     public function configure()
@@ -36,21 +36,12 @@ class Watch extends Command implements CommandInterface
         $output->writeln("<info>Watching for file changes...</info>");
         $output->writeln('');
 
-        (new Process(sprintf(
+        $command = sprintf(
             'fswatch -r %s -e "%s" | xargs -n1 -I {} workflow sync {}',
             implode(' ', $watches),
             implode('|', $excludes)
-        )))->setTimeout(null)->run(function ($type, $buffer) use ($output) {
-           $output->write($buffer);
-        });
+        );
 
-//        TODO: This is how it should be but | doesn't work with ProcessBuilder...
-//        $command = sprintf(
-//            'fswatch -r %s -e "%s" | xargs -n1 -I {} workflow sync {}',
-//            implode(' ', $watches),
-//            implode('|', $excludes)
-//        );
-//
-//        $this->runProcessShowingOutput($output, explode(' ', $command));
+        $this->runProcessShowingOutput($output, $command);
     }
 }

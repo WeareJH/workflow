@@ -35,7 +35,7 @@ class ComposerUpdateTest extends AbstractTestCommand
     {
         parent::setUp();
 
-        $this->command     = new ComposerUpdate($this->processBuilder->reveal());
+        $this->command     = new ComposerUpdate($this->processFactory->reveal());
         $this->application = $this->prophesize(Application::class);
         $this->pullCommand = $this->prophesize(Pull::class);
 
@@ -65,16 +65,7 @@ class ComposerUpdateTest extends AbstractTestCommand
 
         $this->output->getVerbosity()->willReturn(OutputInterface::OUTPUT_NORMAL);
 
-        $expectedArgs = [
-            'docker',
-            'exec',
-            'm2-php',
-            'composer',
-            'update',
-            '-o'
-        ];
-
-        $this->processTest($expectedArgs);
+        $this->processTest('docker exec m2-php composer update -o');
 
         $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
@@ -93,17 +84,7 @@ class ComposerUpdateTest extends AbstractTestCommand
 
         $this->output->getVerbosity()->willReturn($verbosity);
 
-        $expectedArgs = [
-            'docker',
-            'exec',
-            'm2-php',
-            'composer',
-            'update',
-            '-o',
-            $expectedFlag
-        ];
-
-        $this->processTest($expectedArgs);
+        $this->processTest(sprintf('docker exec m2-php composer update -o %s', $expectedFlag));
 
         $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();

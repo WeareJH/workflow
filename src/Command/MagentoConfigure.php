@@ -7,8 +7,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
+use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -18,10 +17,10 @@ class MagentoConfigure extends Command implements CommandInterface
     use DockerAwareTrait;
     use ProcessRunnerTrait;
 
-    public function __construct(ProcessBuilder $processBuilder)
+    public function __construct(ProcessFactory $processFactory)
     {
         parent::__construct();
-        $this->processBuilder = $processBuilder;
+        $this->processFactory = $processFactory;
     }
 
     public function configure()
@@ -39,7 +38,7 @@ class MagentoConfigure extends Command implements CommandInterface
         $mailContainer = $this->getContainerName('mail');
 
         $command = sprintf('docker exec %s magento-configure', $phpContainer);
-        $this->runProcessShowingOutput($output, explode(' ', $command));
+        $this->runProcessShowingOutput($output, $command);
 
         $pullCommand   = $this->getApplication()->find('pull');
         $pullArguments = new ArrayInput(['files' => ['app/etc/env.php']]);

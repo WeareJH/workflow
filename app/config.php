@@ -3,6 +3,7 @@
 use Interop\Container\ContainerInterface;
 use Jh\Workflow\ArgvInput;
 use Jh\Workflow\Command;
+use Jh\Workflow\ProcessFactory;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Process\ProcessBuilder;
 
@@ -31,6 +32,7 @@ return [
         return $app;
     },
     ProcessBuilder::class             => DI\object(),
+    ProcessFactory::class             => DI\object(),
     Command\Build::class              => DI\object(),
     Command\Magento::class            => DI\object(),
     Command\MagentoFullInstall::class => DI\object(),

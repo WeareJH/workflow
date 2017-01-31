@@ -17,7 +17,7 @@ class SqlTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Sql($this->processBuilder->reveal());
+        $this->command = new Sql($this->processFactory->reveal());
     }
 
     public function tearDown()
@@ -54,21 +54,12 @@ class SqlTest extends AbstractTestCommand
 
         $this->input->hasArgument('sql')->willReturn(true);
         $this->input->getArgument('sql')->willReturn('SELECT * FROM core_config_data');
-        $this->input->hasOption('file')->willReturn(false);
+        $this->input->getOption('file')->willReturn(null);
 
-        $this->processTest([
-            'docker',
-            'exec',
-            '-t',
-            'm2-db',
-            'mysql',
-            '-udocker',
-            '-pdocker',
-            'docker',
-            '-e',
-            '"SELECT * FROM core_config_data"'
-        ]);
-        $this->output->writeln('<info>DB file import process complete</info>')->shouldBeCalled();
+        $this->processTest(
+            'docker exec -t m2-db mysql -udocker -pdocker docker -e "SELECT * FROM core_config_data"'
+        );
+        $this->output->writeln('<info>DB process complete</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -78,24 +69,13 @@ class SqlTest extends AbstractTestCommand
         $this->useValidEnvironment();
 
         $this->input->hasArgument('sql')->willReturn(false);
-        $this->input->hasOption('file')->willReturn(true);
         $this->input->getOption('file')->willReturn('some-import.sql');
 
-        $this->processTest(['docker', 'cp', 'some-import.sql', 'm2-db:/root/some-import.sql']);
-        $this->processTest([
-            'docker',
-            'exec',
-            'm2-db',
-            'mysql',
-            '-udocker',
-            '-pdocker',
-            'docker',
-            '<',
-            '/root/some-import.sql'
-        ]);
-        $this->processTest(['docker', 'exec', 'm2-db', 'rm', '/root/some-import.sql']);
+        $this->processTest('docker cp some-import.sql m2-db:/root/some-import.sql');
+        $this->processTest('docker exec m2-db mysql -udocker -pdocker docker < /root/some-import.sql');
+        $this->processTest('docker exec m2-db rm /root/some-import.sql');
 
-        $this->output->writeln('<info>DB file import process complete</info>')->shouldBeCalled();
+        $this->output->writeln('<info>DB process complete</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -105,7 +85,6 @@ class SqlTest extends AbstractTestCommand
         $this->useInvalidEnvironment();
 
         $this->input->hasArgument('sql')->willReturn(false);
-        $this->input->hasOption('file')->willReturn(true);
         $this->input->getOption('file')->willReturn('some-import.sql');
 
         $this->expectException(\RuntimeException::class);

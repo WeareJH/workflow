@@ -17,7 +17,7 @@ class BuildTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Build($this->processBuilder->reveal());
+        $this->command = new Build($this->processFactory->reveal());
     }
 
     public function tearDown()
@@ -37,17 +37,9 @@ class BuildTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $expectedArgs = [
-            'docker',
-            'build',
-            '-t',
-            'wearejh/m2',
-            '-f',
-            'app.php.dockerfile',
-            './'
-        ];
+        $expected = 'docker build -t wearejh/m2 -f app.php.dockerfile ./';
 
-        $this->processTest($expectedArgs);
+        $this->processTest($expected);
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -57,21 +49,11 @@ class BuildTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $expectedArgs = [
-            'docker',
-            'build',
-            '-t',
-            'wearejh/m2',
-            '-f',
-            'app.php.dockerfile',
-            '--build-arg',
-            'BUILD_ENV=prod',
-            './'
-        ];
+        $expected = 'docker build -t wearejh/m2 -f app.php.dockerfile --build-arg BUILD_ENV=prod ./';
 
         $this->input->getOption('prod')->willReturn(true);
 
-        $this->processTest($expectedArgs);
+        $this->processTest($expected);
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
