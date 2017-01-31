@@ -34,13 +34,23 @@ class Watch extends Command implements CommandInterface
         $excludes = ['.docker', '.*__jp*', '.swp', '.swpx'];
 
         $output->writeln("<info>Watching for file changes...</info>");
+        $output->writeln('');
 
-        $command = sprintf(
+        (new Process(sprintf(
             'fswatch -r %s -e "%s" | xargs -n1 -I {} workflow sync {}',
             implode(' ', $watches),
             implode('|', $excludes)
-        );
+        )))->setTimeout(null)->run(function ($type, $buffer) use ($output) {
+           $output->write($buffer);
+        });
 
-        $this->runProcessShowingOutput($output, explode(' ', $command));
+//        TODO: This is how it should be but | doesn't work with ProcessBuilder...
+//        $command = sprintf(
+//            'fswatch -r %s -e "%s" | xargs -n1 -I {} workflow sync {}',
+//            implode(' ', $watches),
+//            implode('|', $excludes)
+//        );
+//
+//        $this->runProcessShowingOutput($output, explode(' ', $command));
     }
 }

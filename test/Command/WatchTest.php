@@ -36,6 +36,7 @@ class WatchTest extends AbstractTestCommand
 
     public function testWatch()
     {
+        static::markTestSkipped('Currently untestable');
         $expectedArgs = [
             'fswatch',
             '-r',
