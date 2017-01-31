@@ -50,8 +50,6 @@ class Sql extends Command implements CommandInterface
 
             $this->runFile($container, $file, $output);
         }
-
-        $output->writeln('<info>DB process complete</info>');
     }
 
     private function runRaw(string $container, string $sql, OutputInterface $output)
@@ -62,9 +60,6 @@ class Sql extends Command implements CommandInterface
         $this->processFactory->create($command)->run(function ($type, $buffer) use ($output) {
             $output->write($buffer);
         });
-
-//        $command = sprintf('docker exec -t %s mysql -u%s -p%s %s -e', $container, $user, $pass, $db);
-//        $this->runProcessShowingOutput($output, array_merge($command, [sprintf('"%s"', $sql)]));
     }
 
     private function runFile(string $container, string $file, OutputInterface $output)

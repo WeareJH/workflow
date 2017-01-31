@@ -59,8 +59,7 @@ class SqlTest extends AbstractTestCommand
         $this->processTest(
             'docker exec -t m2-db mysql -udocker -pdocker docker -e "SELECT * FROM core_config_data"'
         );
-        $this->output->writeln('<info>DB process complete</info>')->shouldBeCalled();
-
+        
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
 
@@ -74,8 +73,6 @@ class SqlTest extends AbstractTestCommand
         $this->processTest('docker cp some-import.sql m2-db:/root/some-import.sql');
         $this->processTest('docker exec m2-db mysql -udocker -pdocker docker < /root/some-import.sql');
         $this->processTest('docker exec m2-db rm /root/some-import.sql');
-
-        $this->output->writeln('<info>DB process complete</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
