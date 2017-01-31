@@ -68,8 +68,8 @@ class AbstractTestCommand extends TestCase
             $callback(Process::OUT, 'good output');
         });
 
-        $this->output->writeln('bad output')->shouldBeCalled();
-        $this->output->writeln('good output')->shouldBeCalled();
+        $this->output->write('bad output')->shouldBeCalled();
+        $this->output->write('good output')->shouldBeCalled();
     }
 
     protected function processTestNoOutput(array $expectedArgs, int $timeout = null)

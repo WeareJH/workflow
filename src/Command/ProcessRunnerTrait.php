@@ -40,7 +40,7 @@ trait ProcessRunnerTrait
         $process = $this->processBuilder->setTimeout(null)->getProcess();
 
         $process->run(function ($type, $buffer) use ($output) {
-            $output->writeln($buffer);
+            $output->write($buffer);
         });
     }
 }
