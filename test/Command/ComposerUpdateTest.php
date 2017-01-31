@@ -8,6 +8,7 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -62,6 +63,8 @@ class ComposerUpdateTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
+        $this->output->getVerbosity()->willReturn(OutputInterface::OUTPUT_NORMAL);
+
         $expectedArgs = [
             'docker',
             'exec',
@@ -77,6 +80,44 @@ class ComposerUpdateTest extends AbstractTestCommand
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    /**
+     * @param $verbosity
+     * @param $expectedFlag
+     * @dataProvider composerUpdateVerbosityProvider
+     */
+    public function testComposerUpdatePassesVerbosityCorrectly($verbosity, $expectedFlag)
+    {
+        $this->useValidEnvironment();
+
+        $this->output->getVerbosity()->willReturn($verbosity);
+
+        $expectedArgs = [
+            'docker',
+            'exec',
+            'm2-php',
+            'composer',
+            'update',
+            '-o',
+            $expectedFlag
+        ];
+
+        $this->processTest($expectedArgs);
+
+        $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.lock']]);
+        $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function composerUpdateVerbosityProvider()
+    {
+        return [
+            [OutputInterface::VERBOSITY_VERBOSE, '-v'],
+            [OutputInterface::VERBOSITY_VERY_VERBOSE, '-vv'],
+            [OutputInterface::VERBOSITY_DEBUG, '-vvv'],
+        ];
     }
 
     public function testExceptionThrownIfContainerNameNotFound()

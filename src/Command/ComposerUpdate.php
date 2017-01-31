@@ -34,8 +34,21 @@ class ComposerUpdate extends Command implements CommandInterface
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->phpContainerName();
+        $flags     = ['-o'];
 
-        $command = sprintf('docker exec %s composer update -o', $container);
+        switch ($output->getVerbosity()) {
+            case OutputInterface::VERBOSITY_VERBOSE:
+                $flags[] = '-v';
+                break;
+            case OutputInterface::VERBOSITY_VERY_VERBOSE:
+                $flags[] = '-vv';
+                break;
+            case OutputInterface::VERBOSITY_DEBUG:
+                $flags[] = '-vvv';
+                break;
+        }
+
+        $command = sprintf('docker exec %s composer update %s', $container, implode(' ', $flags));
         $this->runProcessShowingOutput($output, explode(' ', $command));
 
         $pullCommand   = $this->getApplication()->find('pull');
