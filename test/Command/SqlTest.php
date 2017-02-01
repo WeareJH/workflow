@@ -32,15 +32,15 @@ class SqlTest extends AbstractTestCommand
         static::assertEquals('Run arbitary sql against the database', $this->command->getDescription());
     }
 
-    public function testSqlArgumentIsOptional()
+    public function testHasSqlOptionAndIsOptional()
     {
         $definition = $this->command->getDefinition();
 
-        static::assertTrue($definition->hasArgument('sql'));
-        static::assertFalse($definition->getArgument('sql')->isRequired());
+        static::assertTrue($definition->hasOption('sql'));
+        static::assertTrue($definition->getOption('sql')->isValueOptional());
     }
 
-    public function testFileOptionIsOptional()
+    public function testHasFileOptionAndIsOptional()
     {
         $definition = $this->command->getDefinition();
 
@@ -52,8 +52,7 @@ class SqlTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $this->input->hasArgument('sql')->willReturn(true);
-        $this->input->getArgument('sql')->willReturn('SELECT * FROM core_config_data');
+        $this->input->getOption('sql')->willReturn('SELECT * FROM core_config_data');
         $this->input->getOption('file')->willReturn(null);
 
         $this->processTest(
@@ -67,12 +66,11 @@ class SqlTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $this->input->hasArgument('sql')->willReturn(false);
+        $this->input->getOption('sql')->willReturn(null);
         $this->input->getOption('file')->willReturn('some-import.sql');
 
-        $this->processTest('docker cp some-import.sql m2-db:/root/some-import.sql');
-        $this->processTest('docker exec m2-db mysql -udocker -pdocker docker < /root/some-import.sql');
-        $this->processTest('docker exec m2-db rm /root/some-import.sql');
+        $this->processTest('docker exec -i m2-db mysql -udocker -pdocker docker < some-import.sql');
+        $this->output->writeln('<info>DB import complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -81,7 +79,7 @@ class SqlTest extends AbstractTestCommand
     {
         $this->useInvalidEnvironment();
 
-        $this->input->hasArgument('sql')->willReturn(false);
+        $this->input->getOption('sql')->willReturn(null);
         $this->input->getOption('file')->willReturn('some-import.sql');
 
         $this->expectException(\RuntimeException::class);

@@ -29,7 +29,7 @@ class Sql extends Command implements CommandInterface
         $this
             ->setName('sql')
             ->setDescription('Run arbitary sql against the database')
-            ->addArgument('sql', InputArgument::OPTIONAL, 'SQL to run directly to mysql')
+            ->addOption('sql', 's', InputOption::VALUE_OPTIONAL, 'SQL to run directly to mysql')
             ->addOption('file', 'f', InputOption::VALUE_OPTIONAL, 'Path to a file to import');
     }
 
@@ -37,8 +37,8 @@ class Sql extends Command implements CommandInterface
     {
         $container = $this->getContainerName('db');
 
-        if ($input->hasArgument('sql')) {
-            $this->runRaw($container, $input->getArgument('sql'), $output);
+        if ($input->getOption('sql')) {
+            $this->runRaw($container, $input->getOption('sql'), $output);
         }
 
         if ($input->getOption('file')) {
@@ -57,23 +57,16 @@ class Sql extends Command implements CommandInterface
         extract($this->getDbDetails(), EXTR_OVERWRITE);
 
         $command = sprintf('docker exec -t %s mysql -u%s -p%s %s -e "%s"', $container, $user, $pass, $db, $sql);
-        $this->processFactory->create($command)->run(function ($type, $buffer) use ($output) {
-            $output->write($buffer);
-        });
+        $this->runProcessShowingOutput($output, $command);
     }
 
     private function runFile(string $container, string $file, OutputInterface $output)
     {
         extract($this->getDbDetails(), EXTR_OVERWRITE);
 
-        $command = sprintf('docker cp %s %s:/root/%s', $file, $container, $file);
+        $command = sprintf('docker exec -i %s mysql -u%s -p%s %s < %s', $container, $user, $pass, $db, $file);
         $this->runProcessShowingOutput($output, $command);
-
-        $command = sprintf('docker exec %s mysql -u%s -p%s %s < /root/%s', $container, $user, $pass, $db, $file);
-        $this->runProcessShowingOutput($output, $command);
-
-        $command = sprintf('docker exec %s rm /root/%s', $container, $file);
-        $this->runProcessShowingOutput($output, $command);
+        $output->writeln('<info>DB import complete!</info>');
     }
 
     private function getDbDetails() : array
