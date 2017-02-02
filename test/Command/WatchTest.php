@@ -34,15 +34,77 @@ class WatchTest extends AbstractTestCommand
         static::assertEquals($description, $this->command->getDescription());
     }
 
-    public function testWatch()
+    public function testWatchArgumentIsArrayAndOptional()
     {
-        $includes = './app ./pub ./composer.json';
-        $excludes = '.docker|.*__jp*|.swp|.swpx';
-        $expected  = sprintf('fswatch -r %s -e "%s" | xargs -n1 -I {} workflow sync {}', $includes, $excludes);
+        $definition = $this->command->getDefinition();
+
+        static::assertTrue($definition->hasArgument('watches'));
+        static::assertTrue($definition->getArgument('watches')->isArray());
+        static::assertFalse($definition->getArgument('watches')->isRequired());
+    }
+
+    public function testNoDefaultsOptionIsSetAndTakesNoValue()
+    {
+        $definition = $this->command->getDefinition();
+
+        static::assertTrue($definition->hasOption('no-defaults'));
+        static::assertFalse($definition->getOption('no-defaults')->acceptValue());
+    }
+
+    public function testWatchWithDefaultValues()
+    {
+        $this->input->getArgument('watches')->willReturn([]);
+        $this->input->getOption('no-defaults')->willReturn(false);
+
+        $includes = 'app pub composer.json vendor/wearejh';
+        $excludes = '-e ".*__jb_.*$" -e ".*swp$" -e ".*swpx$"';
+        $expected  = sprintf('fswatch -r %s %s | xargs -n1 -I {} workflow sync {}', $includes, $excludes);
+        
+        $this->processTest($expected);
+        $this->output->writeln('<info>Watching for file changes...</info>')->shouldBeCalled();
+        $this->output->writeln('')->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testWatchWithDefaultValuesAndDefinedWatches()
+    {
+        $this->input->getArgument('watches')->willReturn(['custom-dir']);
+        $this->input->getOption('no-defaults')->willReturn(false);
+
+        $includes = 'custom-dir app pub composer.json vendor/wearejh';
+        $excludes = '-e ".*__jb_.*$" -e ".*swp$" -e ".*swpx$"';
+        $expected  = sprintf('fswatch -r %s %s | xargs -n1 -I {} workflow sync {}', $includes, $excludes);
 
         $this->processTest($expected);
         $this->output->writeln('<info>Watching for file changes...</info>')->shouldBeCalled();
         $this->output->writeln('')->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testNoDefaultsOptionRemovesDefaults()
+    {
+        $this->input->getArgument('watches')->willReturn(['custom-dir']);
+        $this->input->getOption('no-defaults')->willReturn(true);
+
+        $includes = 'custom-dir';
+        $excludes = '-e ".*__jb_.*$" -e ".*swp$" -e ".*swpx$"';
+        $expected  = sprintf('fswatch -r %s %s | xargs -n1 -I {} workflow sync {}', $includes, $excludes);
+
+        $this->processTest($expected);
+        $this->output->writeln('<info>Watching for file changes...</info>')->shouldBeCalled();
+        $this->output->writeln('')->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testExceptionIsThrownWhenNoDefaultsSetAndNoArgumentsPassed()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->input->getArgument('watches')->willReturn([]);
+        $this->input->getOption('no-defaults')->willReturn(true);
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
