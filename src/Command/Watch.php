@@ -55,6 +55,5 @@ class Watch extends Command implements CommandInterface
         );
 
         $this->runProcessShowingOutput($output, $command);
-
     }
 }
