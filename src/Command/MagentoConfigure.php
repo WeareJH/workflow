@@ -29,15 +29,15 @@ class MagentoConfigure extends Command implements CommandInterface
             ->setName('magento-configure')
             ->setAliases(['mc'])
             ->setDescription('Configures Magento ready for Docker use')
-            ->addOption('prod', 'p', InputOption::VALUE_OPTIONAL, 'Ommits development configurations');
+            ->addOption('prod', 'p', InputOption::VALUE_NONE, 'Ommits development configurations');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $phpContainer  = $this->phpContainerName();
-        $mailContainer = $this->getContainerName('mail');
+        $phpContainer   = $this->phpContainerName();
+        $mailContainer  = $this->getContainerName('mail');
 
-        $command = sprintf('docker exec %s magento-configure', $phpContainer);
+        $command = sprintf('docker exec %s magento-configure%s', $phpContainer, $input->getOption('prod') ? ' -p' : '');
         $this->runProcessShowingOutput($output, $command);
 
         $pullCommand   = $this->getApplication()->find('pull');
@@ -45,7 +45,7 @@ class MagentoConfigure extends Command implements CommandInterface
 
         $pullCommand->run($pullArguments, $output);
 
-        if (!$input->hasOption('prod')) {
+        if (!$input->getOption('prod')) {
             $this->configureMail($mailContainer, $output);
         }
 
@@ -61,7 +61,7 @@ class MagentoConfigure extends Command implements CommandInterface
         $sql .= "('default', 0, 'system/smtp/port', '1025');";
 
         $sqlCommand   = $this->getApplication()->find('sql');
-        $sqlArguments = new ArrayInput(['sql' => $sql]);
+        $sqlArguments = new ArrayInput(['--sql' => $sql]);
 
         $sqlCommand->run($sqlArguments, $output);
     }

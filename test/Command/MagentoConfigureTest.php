@@ -80,7 +80,7 @@ class MagentoConfigureTest extends AbstractTestCommand
         $expectedSql .= "('default', 0, 'system/smtp/host', 'm2-mail'), ";
         $expectedSql .= "('default', 0, 'system/smtp/port', '1025');";
 
-        $expectedInput = new ArrayInput(['sql' => $expectedSql]);
+        $expectedInput = new ArrayInput(['--sql' => $expectedSql]);
         $this->sqlCommand->run($expectedInput, $this->output)->shouldBeCalled();
 
         $this->output->writeln('Configuration complete!')->shouldBeCalled();
@@ -92,9 +92,9 @@ class MagentoConfigureTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $this->input->hasOption('prod')->willReturn(true);
+        $this->input->getOption('prod')->willReturn(true);
 
-        $this->processTest('docker exec m2-php magento-configure');
+        $this->processTest('docker exec m2-php magento-configure -p');
 
         $expectedInput = new ArrayInput(['files' => ['app/etc/env.php']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
