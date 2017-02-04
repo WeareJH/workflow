@@ -25,6 +25,7 @@ return [
         $app->add($c->get(Command\Sync::class));
         $app->add($c->get(Command\ComposerUpdate::class));
         $app->add($c->get(Command\Sql::class));
+        $app->add($c->get(Command\Ssh::class));
         $app->add($c->get(Command\NginxReload::class));
         $app->add($c->get(Command\XdebugLoopback::class));
 
@@ -48,4 +49,5 @@ return [
     Command\Sql::class                => DI\object(),
     Command\NginxReload::class        => DI\object(),
     Command\XdebugLoopback::class     => DI\object(),
+    Command\Ssh::class     => DI\object(),
 ];
