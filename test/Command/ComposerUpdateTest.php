@@ -65,7 +65,7 @@ class ComposerUpdateTest extends AbstractTestCommand
 
         $this->output->getVerbosity()->willReturn(OutputInterface::OUTPUT_NORMAL);
 
-        $this->processTest('docker exec m2-php composer update -o');
+        $this->processTest('docker exec -u www-data m2-php composer update -o');
 
         $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
@@ -84,7 +84,7 @@ class ComposerUpdateTest extends AbstractTestCommand
 
         $this->output->getVerbosity()->willReturn($verbosity);
 
-        $this->processTest(sprintf('docker exec m2-php composer update -o %s', $expectedFlag));
+        $this->processTest(sprintf('docker exec -u www-data m2-php composer update -o %s', $expectedFlag));
 
         $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
