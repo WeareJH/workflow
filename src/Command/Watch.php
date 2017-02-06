@@ -34,7 +34,7 @@ class Watch extends Command implements CommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $watches  = ['app', 'pub', 'composer.json', 'vendor/wearejh'];
+        $watches  = ['app', 'pub', 'composer.json'];
         $excludes = ['".*__jb_.*$"', '".*swp$"', '".*swpx$"'];
 
         $watches = $input->getOption('no-defaults')

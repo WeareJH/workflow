@@ -56,7 +56,7 @@ class WatchTest extends AbstractTestCommand
         $this->input->getArgument('watches')->willReturn([]);
         $this->input->getOption('no-defaults')->willReturn(false);
 
-        $includes = 'app pub composer.json vendor/wearejh';
+        $includes = 'app pub composer.json';
         $excludes = '-e ".*__jb_.*$" -e ".*swp$" -e ".*swpx$"';
         $expected  = sprintf('fswatch -r %s %s | xargs -n1 -I {} workflow sync {}', $includes, $excludes);
         
@@ -72,7 +72,7 @@ class WatchTest extends AbstractTestCommand
         $this->input->getArgument('watches')->willReturn(['custom-dir']);
         $this->input->getOption('no-defaults')->willReturn(false);
 
-        $includes = 'custom-dir app pub composer.json vendor/wearejh';
+        $includes = 'custom-dir app pub composer.json';
         $excludes = '-e ".*__jb_.*$" -e ".*swp$" -e ".*swpx$"';
         $expected  = sprintf('fswatch -r %s %s | xargs -n1 -I {} workflow sync {}', $includes, $excludes);
 
