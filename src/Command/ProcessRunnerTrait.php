@@ -3,6 +3,7 @@
 namespace Jh\Workflow\Command;
 
 use Jh\Workflow\ProcessFactory;
+use Jh\Workflow\ProcessFailedException;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
@@ -23,21 +24,39 @@ trait ProcessRunnerTrait
         }
     }
 
+    /**
+     * @param string $command
+     * @return Process
+     * @throws ProcessFailedException
+     */
     private function runProcessNoOutput(string $command): Process
     {
         $this->checkProcess();
         $process = $this->processFactory->create($command);
-        $process->run();
+        $exitCode = $process->run();
+
+        if ($exitCode > 0) {
+            throw new ProcessFailedException;
+        }
 
         return $process;
     }
 
+    /**
+     * @param OutputInterface $output
+     * @param string $command
+     * @throws ProcessFailedException
+     */
     private function runProcessShowingOutput(OutputInterface $output, string $command)
     {
         $this->checkProcess();
 
-        $this->processFactory->create($command)->run(function ($type, $buffer) use ($output) {
+        $exitCode = $this->processFactory->create($command)->run(function ($type, $buffer) use ($output) {
             $output->write($buffer);
         });
+
+        if ($exitCode > 0) {
+            throw new ProcessFailedException;
+        }
     }
 }
