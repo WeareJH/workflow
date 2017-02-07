@@ -53,6 +53,7 @@ class PushTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn(['some-file.txt']);
 
         $this->processTest('docker cp some-file.txt m2-php:/var/www/');
+        $this->processTestNoOutput('docker exec m2-php chown -R www-data:www-data /var/www/some-file.txt');
         $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -66,6 +67,7 @@ class PushTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn([$filePath]);
 
         $this->processTest('docker cp some-file.txt m2-php:/var/www/');
+        $this->processTestNoOutput('docker exec m2-php chown -R www-data:www-data /var/www/some-file.txt');
         $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
