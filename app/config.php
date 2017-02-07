@@ -13,6 +13,7 @@ return [
 
         $app->add($c->get(Command\Start::class));
         $app->add($c->get(Command\Stop::class));
+        $app->add($c->get(Command\Restart::class));
         $app->add($c->get(Command\Build::class));
         $app->add($c->get(Command\Up::class));
         $app->add($c->get(Command\Magento::class));
