@@ -43,16 +43,20 @@ class Push extends Command implements CommandInterface
             : [$input->getArgument('files')];
 
         foreach ($files as $file) {
-            $srcPath     = trim(str_replace(getcwd(), '', $file), '/');
-            $destPath    = trim(str_replace(basename($srcPath), '', $srcPath), '/');
+            $srcPath   = trim(str_replace(getcwd(), '', $file), '/');
+            $destFile  = sprintf('/var/www/%s', $srcPath);
+            $destPath  = str_replace(basename($destFile), '', $destFile);
 
             if (!file_exists($srcPath)) {
                 $output->writeln(sprintf('Looks like "%s" doesn\'t exist', $srcPath));
                 return;
             }
 
-            $command = sprintf('docker cp %s %s:/var/www/%s', $srcPath, $container, $destPath);
-            $this->runProcessShowingOutput($output, $command);
+            $copyCommand  = sprintf('docker cp %s %s:%s', $srcPath, $container, $destPath);
+            $chownCommand = sprintf('docker exec %s chown -R www-data:www-data %s', $container, $destFile);
+
+            $this->runProcessShowingOutput($output, $copyCommand);
+            $this->runProcessNoOutput($chownCommand);
 
             $output->writeln(
                 sprintf("<info> + %s > %s </info>", $srcPath, $container)
