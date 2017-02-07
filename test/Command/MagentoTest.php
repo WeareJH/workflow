@@ -36,7 +36,7 @@ class MagentoTest extends AbstractTestCommand
     }
 
     /**
-     * @dataProvider magentoCommandProvidor
+     * @dataProvider magentoCommandProvider
      */
     public function testCommandWorksAsAProxy($args)
     {
@@ -50,7 +50,7 @@ class MagentoTest extends AbstractTestCommand
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
 
-    public function magentoCommandProvidor() : array
+    public function magentoCommandProvider() : array
     {
         return [
             [['cache:flush', 'config']],
@@ -60,13 +60,14 @@ class MagentoTest extends AbstractTestCommand
         ];
     }
 
-    public function testExceptionThrownIfNoCommandDefined()
+    public function testCanRunCommandWithoutArgs()
     {
         $this->useValidEnvironment();
-        $this->expectException(\RuntimeException::class);
 
         // We have to use $_SERVER['argv'] here
         $_SERVER['argv'] = ['workflow', 'magento'];
+
+        $this->processTest('docker exec -u www-data m2-php bin/magento');
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
