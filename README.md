@@ -37,4 +37,4 @@ composer global update wearejh/workflow
 
 Then run `workflow` to see the list of available commands.
 
-Read the [wiki]() for detailed information on each command
+Read the [wiki](https://github.com/WeareJH/workflow/wiki) for detailed information on each command
