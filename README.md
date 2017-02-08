@@ -8,6 +8,12 @@ Some Badges would be nice.
 
 ## Install
 
+Make sure you have `fswatch` installed. You can install via homebrew:
+
+```
+brew install fswatch
+```
+
 Add the following to `~/.composer/composer.json`:
 
 ```
