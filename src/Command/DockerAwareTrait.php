@@ -45,6 +45,12 @@ trait DockerAwareTrait
         $coreComposePath  = $cwd . '/docker-compose.yml';
         $devComposePath   = $cwd . '/docker-compose.dev.yml';
 
+        if (!file_exists($coreComposePath) || !file_exists($devComposePath)) {
+            $message  = 'Could not locate docker files. Are you in the right directory?. Tried to locate ';
+            $message .= 'docker-compose.yml & docker-compose.dev.yml';
+            throw new \RuntimeException($message);
+        }
+
         try {
             $coreYaml  = Yaml::parse(file_get_contents($coreComposePath));
             $devYaml   = Yaml::parse(file_get_contents($devComposePath));
