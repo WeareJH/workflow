@@ -33,7 +33,7 @@ class ComposerUpdate extends Command implements CommandInterface
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->phpContainerName();
-        $flags     = ['-o'];
+        $flags     = ['-o', '--ansi'];
 
         switch ($output->getVerbosity()) {
             case OutputInterface::VERBOSITY_VERBOSE:
