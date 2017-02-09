@@ -35,7 +35,7 @@ class ComposerRequire extends Command implements CommandInterface
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->phpContainerName();
-        $flags     = [];
+        $flags     = ['--ansi'];
 
         switch ($output->getVerbosity()) {
             case OutputInterface::VERBOSITY_VERBOSE:
@@ -50,10 +50,10 @@ class ComposerRequire extends Command implements CommandInterface
         }
 
         $command = sprintf(
-            'docker exec -u www-data %s composer require %s%s',
+            'docker exec -u www-data %s composer require %s %s',
             $container,
             $input->getArgument('package'),
-            count($flags) > 0 ? ' ' . implode(' ', $flags) : ''
+            implode(' ', $flags)
         );
         $this->runProcessShowingOutput($output, $command);
 
