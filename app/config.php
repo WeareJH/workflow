@@ -25,6 +25,7 @@ return [
         $app->add($c->get(Command\Watch::class));
         $app->add($c->get(Command\Sync::class));
         $app->add($c->get(Command\ComposerUpdate::class));
+        $app->add($c->get(Command\ComposerRequire::class));
         $app->add($c->get(Command\Sql::class));
         $app->add($c->get(Command\Ssh::class));
         $app->add($c->get(Command\NginxReload::class));
