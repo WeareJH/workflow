@@ -51,4 +51,16 @@ class DockerAwareTraitTest extends AbstractTestCommand
         $this->expectException(\RuntimeException::class);
         $this->implementation->getDevEnvironmentVarsTest();
     }
+
+    public function testExceptionIsThrownIfLDockerFileDoesntExist()
+    {
+        chdir(__DIR__ . '/../fixtures/missing-docker-files');
+        $this->expectException(\RuntimeException::class);
+
+        $message  = 'Could not locate docker files. Are you in the right directory?. Tried to locate ';
+        $message .= 'docker-compose.yml & docker-compose.dev.yml';
+
+        $this->expectExceptionMessage($message);
+        $this->implementation->containerNameTest('php');
+    }
 }
