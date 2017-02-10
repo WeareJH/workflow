@@ -1,10 +1,9 @@
 <?php
 
 use Interop\Container\ContainerInterface;
-use Jh\Workflow\ArgvInput;
+use Jh\Workflow\Application;
 use Jh\Workflow\Command;
 use Jh\Workflow\ProcessFactory;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Process\ProcessBuilder;
 
 return [

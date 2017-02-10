@@ -1,5 +1,7 @@
 <?php
 
+use Jh\Workflow\Application;
+
 switch (true) {
     case (file_exists(__DIR__ . '/../vendor/autoload.php')):
         // Installed standalone
@@ -17,7 +19,6 @@ switch (true) {
         throw new RuntimeException('Unable to locate Composer autoloader; please run "composer install".');
 }
 
-use Symfony\Component\Console\Application;
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
