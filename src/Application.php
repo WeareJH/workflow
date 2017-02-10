@@ -14,6 +14,20 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Application extends \Symfony\Component\Console\Application
 {
+    private $fallbackCommand = 'magento';
+
+    /**
+     * @param string $commandName
+     * @return void
+     */
+    public function setFallBackCommand(string $commandName)
+    {
+        $this->fallbackCommand = $commandName;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
         try {
@@ -21,7 +35,7 @@ class Application extends \Symfony\Component\Console\Application
             return parent::run($input, $output);
         } catch (CommandNotFoundException $e) {
             $arguments = $_SERVER['argv'];
-            array_splice($arguments, 1, 0, 'magento');
+            array_splice($arguments, 1, 0, $this->fallbackCommand);
 
             $input = new ArgvInput($arguments);
 
