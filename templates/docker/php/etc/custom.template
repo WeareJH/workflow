@@ -1,0 +1,9 @@
+memory_limit = ${PHP_MEMORY_LIMIT};
+session.auto_start=off;
+suhosin.session.cryptua=off;
+sendmail_path=/usr/bin/msmtp -t;
+opcache.enable=1
+opcache.enable_cli=1
+opcache.save_comments=1
+opcache.max_accelerated_files=65406
+opcache.memory_consumption=256

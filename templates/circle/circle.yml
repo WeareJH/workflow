@@ -1,0 +1,25 @@
+general:
+  branches:
+    only:
+      - develop
+dependencies:
+  pre:
+    - gem install bundler
+    - bundle install
+    - sudo apt-get update; sudo apt-get install nmap
+  cache_directories:
+      - ~/.composer/cache
+machine:
+  php:
+    version: 7.0.4
+  ruby:
+    version: 2.1.2
+test:
+  override:
+    - composer test
+deployment:
+  develop:
+    branch: develop
+    commands:
+      - for x in $PORT1 $PORT2 $PORT3; do nmap -Pn --host_timeout 201 --max-retries 0 -p $x 149.86.99.250; done
+      - cap dev deploy

@@ -1,0 +1,44 @@
+# Ignore .docker to prevent it being copied with COPY ./
+.docker
+
+# Unignore these to allow docker build to copy them in
+!.docker/php
+!.docker/nginx
+!.docker/certs
+!.docker/composer-cache
+
+docker-compose*.yml
+*.dockerfile
+.dockerignore
+
+# Ignore some files we don't need in the containers
+pub
+dev
+phpserver
+setup
+var
+LICENSE*.txt
+COPYING.txt
+.user.ini
+.travis.yml
+.php_cs
+.htaccess
+*.sample
+*.md
+
+# Only take custom code from host
+app
+!app/code
+!app/design
+
+Gemfile
+cap
+Capfile
+circle.yml
+.phpstorm.meta.php
+
+.git
+.gitignore
+.idea
+vendor
+

@@ -1,0 +1,68 @@
+#!/usr/bin/env php
+<?php
+
+$config = include 'app/etc/env.php';
+
+$isProduction = array_search('-p', $argv, true);
+
+$config['session'] = [
+    'save'  => 'redis',
+    'redis' =>
+        [
+            'host'                  => 'redis',
+            'port'                  => '6379',
+            'password'              => '',
+            'timeout'               => '2.5',
+            'persistent_identifier' => '',
+            'database'              => '0',
+            'compression_threshold' => '2048',
+            'compression_library'   => 'gzip',
+            'log_level'             => '1',
+            'max_concurrency'       => '6',
+            'break_after_frontend'  => '5',
+            'break_after_adminhtml' => '30',
+            'first_lifetime'        => '600',
+            'bot_first_lifetime'    => '60',
+            'bot_lifetime'          => '7200',
+            'disable_locking'       => '0',
+            'min_lifetime'          => '60',
+            'max_lifetime'          => '2592000'
+        ]
+];
+
+$config['cache'] = [
+    'frontend' =>
+        [
+            'default'    =>
+                [
+                    'backend'         => 'Cm_Cache_Backend_Redis',
+                    'backend_options' =>
+                        [
+                            'server' => 'redis',
+                            'port'   => '6379',
+                            'database'      => '1'
+                        ],
+                ],
+            'page_cache' =>
+                [
+                    'backend'         => 'Cm_Cache_Backend_Redis',
+                    'backend_options' =>
+                        [
+                            'server'        => 'redis',
+                            'port'          => '6379',
+                            'database'      => '2',
+                            'compress_data' => '1'
+                        ]
+                ]
+        ]
+];
+
+$config['MAGE_MODE'] = $isProduction ? 'production' : 'developer';
+
+$contents = <<<FILE
+<?php 
+
+return %s;
+FILE;
+
+file_put_contents('app/etc/env.php', sprintf($contents, var_export($config, true)));

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+cd /var/www
+
+echo "Installing Magento..."
+
+bin/magento setup:install \
+    --db-host=db \
+    --db-name=$MYSQL_DATABASE \
+    --db-user=$MYSQL_USER \
+    --db-password=$MYSQL_PASSWORD \
+    --base-url=$MAGE_HOST \
+    --base-url-secure=$MAGE_HOST \
+    --admin-firstname=$MAGE_ADMIN_FIRSTNAME \
+    --admin-lastname=$MAGE_ADMIN_LASTNAME \
+    --admin-email=$MAGE_ADMIN_EMAIL \
+    --admin-user=$MAGE_ADMIN_USER \
+    --admin-password=$MAGE_ADMIN_PASS \
+    --backend-frontname=$MAGE_BACKEND_FRONTNAME \
+    --use-secure=1 \
+    --use-secure-admin=1 \ ##RABBIT
+    --amqp-host=rabbitmq \
+    --amqp-port=5672 \
+    --amqp-user=$RABBITMQ_DEFAULT_USER \
+    --amqp-password=$RABBITMQ_DEFAULT_PASS \
+    --amqp-virtualhost=/ \ ##RABBIT
+    --cleanup-database -vvv \
+    || { exit 1; }
+
+bin/magento index:reindex && \
+bin/magento dev:source-theme:deploy --area="adminhtml" --theme="Magento/backend" css/styles-old css/styles && \
+bin/magento dev:source-theme:deploy --theme="Magento/blank" css/styles-m css/styles-l css/email css/email-inline && \
+bin/magento dev:source-theme:deploy && \
+bin/magento setup:static-content:deploy
+
+echo "Installation complete  ᕦ( ̿ ̿ - ̿ ̿ )つ"
