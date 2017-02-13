@@ -13,6 +13,7 @@ class Details
     private $version;
     private $pubKey;
     private $privKey;
+    private $accessToken;
     private $rabbitMQ;
 
     public function __construct(
@@ -22,6 +23,7 @@ class Details
         string $version,
         string $pubKey,
         string $privKey,
+        string $accessToken,
         bool $rabbitMQ
     ) {
         $this->repo        = $repo;
@@ -30,63 +32,51 @@ class Details
         $this->version     = $version;
         $this->pubKey      = $pubKey;
         $this->privKey     = $privKey;
+        $this->accessToken = $accessToken;
         $this->rabbitMQ    = $rabbitMQ;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getRepo()
+    public function getRepo() : string
     {
         return $this->repo;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getProjectName()
+    public function getProjectName() : string
     {
         return $this->projectName;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getNamespace()
+    public function getNamespace() : string
     {
         return $this->namespace;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getVersion()
+    public function getVersion() : string
     {
         return $this->version;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getPubKey()
+    public function getPubKey() : string
     {
         return $this->pubKey;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getPrivKey()
+    public function getPrivKey() : string
     {
         return $this->privKey;
     }
 
-    public function getProjectDomain()
+    public function getProjectDomain() : string
     {
         return strtolower($this->projectName) . '.dev';
     }
 
-    public function includeRabbitMQ()
+    public function getAccessToken() : string
+    {
+        return $this->accessToken;
+    }
+
+    public function includeRabbitMQ() : bool
     {
         return $this->rabbitMQ;
     }

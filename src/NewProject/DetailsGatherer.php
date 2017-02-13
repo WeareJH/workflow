@@ -56,6 +56,8 @@ class DetailsGatherer
         $pubKey   = $output->ask('Public auth key?', $defaultPub);
         $privKey  = $output->ask('Private auth key?', $defaultPriv);
 
+        $accessToken = getenv('GITHUB_ACCESS_TOKEN') ?: $output->ask('GitHub Access Token?');
+
         $rabbitMq = $version === $this->versionMap['EE']
             ? $output->confirm('Include Rabbit MQ?')
             : false;
@@ -67,6 +69,7 @@ class DetailsGatherer
             $version,
             $pubKey,
             $privKey,
+            $accessToken,
             $rabbitMq
         );
     }

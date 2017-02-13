@@ -30,8 +30,9 @@ class AuthJson implements StepInterface
             'composer/auth.json',
             'auth.json',
             [
-                'pubkey' => $details->getPubKey(),
-                'prikey' => $details->getPrivKey(),
+                'access-token' => $details->getAccessToken(),
+                'pubkey'       => $details->getPubKey(),
+                'prikey'       => $details->getPrivKey(),
             ]
         );
     }
