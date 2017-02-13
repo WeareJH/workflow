@@ -1,0 +1,32 @@
+version: '2'
+
+volumes:
+    app-var:
+
+services:
+    nginx:
+        volumes:
+            - /etc/letsencrypt:/etc/letsencrypt
+        env_file:
+            - .docker/production.env
+
+    php:
+        env_file:
+            - .docker/production.env
+        volumes:
+            - app-var:/var/www/var
+
+    db:
+        env_file:
+            - .docker/production.env
+
+{use-rabbit}    rabbitmq:
+{use-rabbit}        env_file:
+{use-rabbit}            - ./.docker/production.env
+
+#    varnish:
+#        image: million12/varnish
+#        ports:
+#            - "80:80"
+#        env_file:
+#            - ./.docker/production.env

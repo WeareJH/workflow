@@ -3,6 +3,10 @@
 use Interop\Container\ContainerInterface;
 use Jh\Workflow\Application;
 use Jh\Workflow\Command;
+use Jh\Workflow\NewProject\DetailsGatherer;
+use Jh\Workflow\NewProject\Step;
+use Jh\Workflow\NewProject\StepRunner;
+use Jh\Workflow\NewProject\TemplateWriter;
 use Jh\Workflow\ProcessFactory;
 use Symfony\Component\Process\ProcessBuilder;
 
@@ -29,11 +33,16 @@ return [
         $app->add($c->get(Command\Ssh::class));
         $app->add($c->get(Command\NginxReload::class));
         $app->add($c->get(Command\XdebugLoopback::class));
+        $app->add($c->get(Command\NewProject::class));
 
         return $app;
     },
-    ProcessBuilder::class             => DI\object(),
-    ProcessFactory::class             => DI\object(),
+    ProcessBuilder::class  => DI\object(),
+    ProcessFactory::class  => DI\object(),
+    TemplateWriter::class  => DI\object(),
+    DetailsGatherer::class => DI\object(),
+
+    // Commands
     Command\Build::class              => DI\object(),
     Command\Magento::class            => DI\object(),
     Command\MagentoFullInstall::class => DI\object(),
@@ -50,5 +59,38 @@ return [
     Command\Sql::class                => DI\object(),
     Command\NginxReload::class        => DI\object(),
     Command\XdebugLoopback::class     => DI\object(),
-    Command\Ssh::class     => DI\object(),
+    Command\Ssh::class                => DI\object(),
+    Command\NewProject::class         => DI\object(),
+
+    // New Project Steps
+    StepRunner::class => function (ContainerInterface $c) {
+        return new StepRunner($c->get('steps'));
+    },
+    Step\CreateProject::class => DI\object(),
+    Step\GitInit::class       => DI\object(),
+    Step\AuthJson::class      => DI\object(),
+    Step\ComposerJson::class  => DI\object(),
+    Step\Docker::class        => DI\object(),
+    Step\PrTemplate::class    => DI\object(),
+    Step\Readme::class        => DI\object(),
+    Step\CircleCI::class      => DI\object(),
+    Step\Capistrano::class    => DI\object(),
+    Step\PhpStorm::class      => DI\object(),
+    Step\GitCommit::class     => DI\object(),
+
+    'steps' => function (ContainerInterface $c) {
+        return [
+            $c->get(Step\CreateProject::class),
+            $c->get(Step\GitInit::class),
+            $c->get(Step\AuthJson::class),
+            $c->get(Step\ComposerJson::class),
+            $c->get(Step\Docker::class),
+            $c->get(Step\PrTemplate::class),
+            $c->get(Step\Readme::class),
+            $c->get(Step\CircleCI::class),
+            $c->get(Step\Capistrano::class),
+            $c->get(Step\PhpStorm::class),
+            $c->get(Step\GitCommit::class),
+        ];
+    }
 ];

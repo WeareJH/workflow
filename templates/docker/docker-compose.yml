@@ -1,0 +1,63 @@
+version: '2'
+
+volumes:
+    db-data:
+    app-env:
+
+services:
+    nginx:
+        container_name: {project-name}
+        image: nginx:stable-alpine
+        volumes:
+            - .docker/nginx/sites:/etc/nginx/conf.d
+        volumes_from:
+            - php
+        working_dir: /var/www
+        depends_on:
+            - php
+        ports:
+            - "80:80"
+            - "443:443"
+
+    php:
+        container_name: {project-name}-php
+        image: wearejh/{project-name}
+        build:
+            context: ./
+            dockerfile: app.php.dockerfile
+        volumes:
+            - app-env:/var/www/app/etc
+            - ~/.composer/auth.json:/root/.composer/auth.json
+        depends_on:
+            - db
+        ports:
+            - 9000
+
+    db:
+        container_name: {project-name}-db
+        image: mysql:5.6
+        volumes:
+            - db-data:/var/lib/mysql
+        ports:
+            - "3306:3306"
+        restart: unless-stopped
+
+    redis:
+        container_name: {project-name}-redis
+        image: redis:3-alpine
+        ports:
+            - "6379:6379"
+
+#    elasticsearch:
+#        container_name: {project-name}-elasticsearch
+#        image: elasticsearch
+#        ports:
+#            - "9200:9200"
+#            - "9300:9300"
+
+{use-rabbit}    rabbitmq:
+{use-rabbit}        container_name: {project-name}-rabbitmq
+{use-rabbit}        image: rabbitmq:3.6.1-management
+{use-rabbit}        ports:
+{use-rabbit}            - "15672:15672"
+{use-rabbit}            - "5672:5672"

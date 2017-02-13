@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+    nginx:
+        volumes:
+            - .docker/certs:/etc/letsencrypt
+        env_file:
+            - ./.docker/local.env
+
+    php:
+        env_file:
+            - .docker/local.env
+        volumes:
+            - .docker/composer-cache:/var/www/.docker/composer-cache
+
+    db:
+        env_file:
+            - ./.docker/local.env
+        volumes:
+            - .docker/db/:/docker-entrypoint-initdb.d/
+
+{use-rabbit}    rabbitmq:
+{use-rabbit}        env_file:
+{use-rabbit}            - ./.docker/local.env
+
+    mail:
+        container_name: {project-name}-mail
+        image: mailhog/mailhog
+        ports:
+            - 1025
+            - 8025:8025
+
+    blackfire:
+        container_name: {project-name}-blackfire
+        image: blackfire/blackfire
+        env_file:
+            - .docker/local.env
