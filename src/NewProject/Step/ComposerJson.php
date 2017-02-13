@@ -63,7 +63,7 @@ class ComposerJson implements StepInterface
 
         $output->success('Updating composer lock file');
         try {
-            $this->runProcessShowingOutput($output, 'composer update --ignore-platform-reqs -q');
+            $this->runProcessShowingOutput($output, 'composer update --ignore-platform-reqs --prefer-dist -q');
         } catch (ProcessFailedException $e) {
             throw new \RuntimeException('Could not update composer lock file');
         }

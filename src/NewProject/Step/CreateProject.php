@@ -31,7 +31,7 @@ class CreateProject implements StepInterface
         $output->success(sprintf('Running composer create-project into %s', $details->getProjectName()));
 
         $cmdFormat =  'composer create-project -q --repository-url=https://%s:%s@repo.magento.com/ ';
-        $cmdFormat .= 'magento/project-%s-edition %s --ignore-platform-reqs';
+        $cmdFormat .= 'magento/project-%s-edition %s --prefer-dist --ignore-platform-reqs';
 
         $command = sprintf(
             $cmdFormat,
