@@ -34,6 +34,7 @@ return [
         $app->add($c->get(Command\NginxReload::class));
         $app->add($c->get(Command\XdebugLoopback::class));
         $app->add($c->get(Command\NewProject::class));
+        $app->add($c->get(Command\Php::class));
 
         return $app;
     },
@@ -61,6 +62,7 @@ return [
     Command\XdebugLoopback::class     => DI\object(),
     Command\Ssh::class                => DI\object(),
     Command\NewProject::class         => DI\object(),
+    Command\Php::class                => DI\object(),
 
     // New Project Steps
     StepRunner::class => function (ContainerInterface $c) {
