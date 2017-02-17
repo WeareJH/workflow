@@ -28,7 +28,7 @@ class Exec extends Command implements CommandInterface
         $this
             ->setName('exec')
             ->setDescription('Run an arbitrary command on the app container')
-            ->addArgument('command-line', InputArgument::REQUIRED, 'Path to PHP file')
+            ->addArgument('command-line', InputArgument::REQUIRED, 'Command to execute')
             ->ignoreValidationErrors();
     }
 
