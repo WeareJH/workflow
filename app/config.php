@@ -35,6 +35,7 @@ return [
         $app->add($c->get(Command\XdebugLoopback::class));
         $app->add($c->get(Command\NewProject::class));
         $app->add($c->get(Command\Php::class));
+        $app->add($c->get(Command\Exec::class));
 
         return $app;
     },
@@ -63,6 +64,7 @@ return [
     Command\Ssh::class                => DI\object(),
     Command\NewProject::class         => DI\object(),
     Command\Php::class                => DI\object(),
+    Command\Exec::class                => DI\object(),
 
     // New Project Steps
     StepRunner::class => function (ContainerInterface $c) {
