@@ -71,8 +71,8 @@ RUN chsh -s /bin/bash www-data \
     && chown -R www-data:www-data ./
 
 RUN [ "$BUILD_ENV" = "$PROD_ENV" ] \
-    && su - www-data -c "composer install --no-dev --no-interaction --prefer-dist -o" \
-    || su - www-data -c "composer install --no-interaction --prefer-dist -o"
+    && su - www-data -c "COMPOSER_CACHE_DIR=.docker/composer-cache composer install --no-dev --no-interaction --prefer-dist -o" \
+    || su - www-data -c "COMPOSER_CACHE_DIR=.docker/composer-cache composer install --no-interaction --prefer-dist -o"
 
 COPY app app
 COPY .data-migration .data-migration
