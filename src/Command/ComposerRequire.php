@@ -6,6 +6,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Jh\Workflow\ProcessFactory;
 
@@ -29,6 +30,7 @@ class ComposerRequire extends Command implements CommandInterface
             ->setName('composer-require')
             ->setAliases(['cr'])
             ->addArgument('package', InputArgument::REQUIRED)
+            ->addOption('dev', 'd', InputOption::VALUE_NONE, 'Require as dev dependency')
             ->setDescription('Runs composer require inside the container and pulls back required files to the host');
     }
 
@@ -47,6 +49,10 @@ class ComposerRequire extends Command implements CommandInterface
             case OutputInterface::VERBOSITY_DEBUG:
                 $flags[] = '-vvv';
                 break;
+        }
+
+        if ($input->getOption('dev')) {
+            $flags[] = '--dev';
         }
 
         $command = sprintf(
