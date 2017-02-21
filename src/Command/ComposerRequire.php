@@ -56,7 +56,7 @@ class ComposerRequire extends Command implements CommandInterface
         }
 
         $command = sprintf(
-            'docker exec -u www-data %s composer require %s %s',
+            'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache %s composer require %s %s',
             $container,
             $input->getArgument('package'),
             implode(' ', $flags)

@@ -65,7 +65,8 @@ class ComposerUpdateTest extends AbstractTestCommand
 
         $this->output->getVerbosity()->willReturn(OutputInterface::OUTPUT_NORMAL);
 
-        $this->processTest('docker exec -u www-data m2-php composer update -o --ansi');
+        $cmd = 'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache m2-php composer update -o --ansi';
+        $this->processTest($cmd);
 
         $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
@@ -84,7 +85,11 @@ class ComposerUpdateTest extends AbstractTestCommand
 
         $this->output->getVerbosity()->willReturn($verbosity);
 
-        $this->processTest(sprintf('docker exec -u www-data m2-php composer update -o --ansi %s', $expectedFlag));
+        $cmd = sprintf(
+            'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache m2-php composer update -o --ansi %s',
+            $expectedFlag
+        );
+        $this->processTest($cmd);
 
         $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
