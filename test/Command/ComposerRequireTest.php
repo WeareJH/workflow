@@ -67,7 +67,10 @@ class ComposerRequireTest extends AbstractTestCommand
 
         $this->output->getVerbosity()->willReturn(OutputInterface::OUTPUT_NORMAL);
 
-        $this->processTest('docker exec -u www-data m2-php composer require my/package --ansi');
+        $cmd  = 'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache m2-php composer require';
+        $cmd .= ' my/package --ansi';
+
+        $this->processTest($cmd);
 
         $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.json', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
@@ -84,7 +87,10 @@ class ComposerRequireTest extends AbstractTestCommand
 
         $this->output->getVerbosity()->willReturn(OutputInterface::OUTPUT_NORMAL);
 
-        $this->processTest('docker exec -u www-data m2-php composer require my/package --ansi --dev');
+        $cmd  = 'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache m2-php composer require';
+        $cmd .= ' my/package --ansi --dev';
+
+        $this->processTest($cmd);
 
         $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.json', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
@@ -106,9 +112,10 @@ class ComposerRequireTest extends AbstractTestCommand
 
         $this->output->getVerbosity()->willReturn($verbosity);
 
-        $this->processTest(
-            sprintf('docker exec -u www-data m2-php composer require my/package --ansi %s', $expectedFlag)
-        );
+        $cmd  = 'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache m2-php composer require';
+        $cmd .= ' my/package --ansi %s';
+
+        $this->processTest(sprintf($cmd, $expectedFlag));
 
         $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.json', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();

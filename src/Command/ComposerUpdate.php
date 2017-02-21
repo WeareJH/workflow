@@ -47,7 +47,11 @@ class ComposerUpdate extends Command implements CommandInterface
                 break;
         }
 
-        $command = sprintf('docker exec -u www-data %s composer update %s', $container, implode(' ', $flags));
+        $command = sprintf(
+            'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache %s composer update %s',
+            $container,
+            implode(' ', $flags)
+        );
         $this->runProcessShowingOutput($output, $command);
 
         $pullCommand   = $this->getApplication()->find('pull');
