@@ -31,7 +31,6 @@ class ComposerJson implements StepInterface
         $data['name']                = $details->getProjectName() . '-magento2';
         $data['description']         = 'eCommerce Platform for ' . $details->getProjectName();
         $data['repositories'][]      = ['type' => 'vcs', 'url' => 'git@github.com:WeareJH/php-coding-standards.git'];
-        $data['config']['cache-dir'] = '.docker/composer-cache';
 
         $data['scripts'] = [
             'test'       => ['@cs', '@unit-tests'],
