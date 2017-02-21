@@ -58,6 +58,7 @@ class ComposerRequireTest extends AbstractTestCommand
         static::assertEquals(['cr'], $this->command->getAliases());
         static::assertEquals($description, $this->command->getDescription());
         static::assertArrayHasKey('package', $this->command->getDefinition()->getArguments());
+        static::assertArrayHasKey('dev', $this->command->getDefinition()->getOptions());
     }
 
     public function testComposerRequireCommand()
@@ -72,6 +73,24 @@ class ComposerRequireTest extends AbstractTestCommand
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
 
         $this->input->getArgument('package')->shouldBeCalled()->willReturn('my/package');
+        $this->input->getOption('dev')->shouldBeCalled()->willReturn(false);
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testComposerRequireInDevMode()
+    {
+        $this->useValidEnvironment();
+
+        $this->output->getVerbosity()->willReturn(OutputInterface::OUTPUT_NORMAL);
+
+        $this->processTest('docker exec -u www-data m2-php composer require my/package --ansi --dev');
+
+        $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.json', 'composer.lock']]);
+        $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
+
+        $this->input->getArgument('package')->shouldBeCalled()->willReturn('my/package');
+        $this->input->getOption('dev')->shouldBeCalled()->willReturn(true);
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -95,6 +114,7 @@ class ComposerRequireTest extends AbstractTestCommand
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
 
         $this->input->getArgument('package')->shouldBeCalled()->willReturn('my/package');
+        $this->input->getOption('dev')->shouldBeCalled()->willReturn(false);
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
