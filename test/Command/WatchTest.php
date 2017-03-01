@@ -58,7 +58,12 @@ class WatchTest extends AbstractTestCommand
 
         $includes = 'app pub composer.json';
         $excludes = '-e ".*__jb_.*$" -e ".*swp$" -e ".*swpx$"';
-        $expected  = sprintf('fswatch -r %s %s | xargs -n1 -I {} workflow sync {}', $includes, $excludes);
+        $expected  = sprintf(
+            'fswatch -r %s %s | xargs -n1 -I {} %s sync --ansi {}',
+            $includes,
+            $excludes,
+            realpath(__DIR__ . '/../../bin/workflow')
+        );
         
         $this->processTest($expected);
         $this->output->writeln('<info>Watching for file changes...</info>')->shouldBeCalled();
@@ -74,7 +79,12 @@ class WatchTest extends AbstractTestCommand
 
         $includes = 'custom-dir app pub composer.json';
         $excludes = '-e ".*__jb_.*$" -e ".*swp$" -e ".*swpx$"';
-        $expected  = sprintf('fswatch -r %s %s | xargs -n1 -I {} workflow sync {}', $includes, $excludes);
+        $expected  = sprintf(
+            'fswatch -r %s %s | xargs -n1 -I {} %s sync --ansi {}',
+            $includes,
+            $excludes,
+            realpath(__DIR__ . '/../../bin/workflow')
+        );
 
         $this->processTest($expected);
         $this->output->writeln('<info>Watching for file changes...</info>')->shouldBeCalled();
@@ -90,7 +100,12 @@ class WatchTest extends AbstractTestCommand
 
         $includes = 'custom-dir';
         $excludes = '-e ".*__jb_.*$" -e ".*swp$" -e ".*swpx$"';
-        $expected  = sprintf('fswatch -r %s %s | xargs -n1 -I {} workflow sync {}', $includes, $excludes);
+        $expected  = sprintf(
+            'fswatch -r %s %s | xargs -n1 -I {} %s sync --ansi {}',
+            $includes,
+            $excludes,
+            realpath(__DIR__ . '/../../bin/workflow')
+        );
 
         $this->processTest($expected);
         $this->output->writeln('<info>Watching for file changes...</info>')->shouldBeCalled();

@@ -57,7 +57,7 @@ class PullTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn(['some-file.txt']);
+        $this->input->getArgument('files')->shouldBeCalled()->willReturn(['some-file.txt']);
 
         $this->processTestNoOutput(
             "docker exec m2-php php -r \"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
@@ -76,7 +76,7 @@ class PullTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $this->input->getArgument('files')->shouldBeCalledTimes(2)->willReturn(['some-file.txt']);
+        $this->input->getArgument('files')->shouldBeCalled()->willReturn(['some-file.txt']);
 
         $this->processTestNoOutput(
             "docker exec m2-php php -r \"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""

@@ -49,9 +49,10 @@ class Watch extends Command implements CommandInterface
         $output->writeln('');
 
         $command = sprintf(
-            'fswatch -r %s -e %s | xargs -n1 -I {} workflow sync {}',
+            'fswatch -r %s -e %s | xargs -n1 -I {} %s sync --ansi {}',
             implode(' ', $watches),
-            implode(' -e ', $excludes)
+            implode(' -e ', $excludes),
+            realpath(__DIR__ . '/../../bin/workflow')
         );
 
         $this->runProcessShowingOutput($output, $command);

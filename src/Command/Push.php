@@ -24,23 +24,21 @@ class Push extends Command implements CommandInterface
     }
 
     public function configure()
-{
-    $this
-        ->setName('push')
-        ->setDescription('Push files from host to the container')
-        ->addArgument(
-            'files',
-            InputArgument::REQUIRED | InputArgument::IS_ARRAY,
-            'Files to push, relative to project root'
-        );
-}
+    {
+        $this
+            ->setName('push')
+            ->setDescription('Push files from host to the container')
+            ->addArgument(
+                'files',
+                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+                'Files to push, relative to project root'
+            );
+    }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->phpContainerName();
-        $files     = is_array($input->getArgument('files'))
-            ? $input->getArgument('files')
-            : [$input->getArgument('files')];
+        $files     = (array) $input->getArgument('files');
 
         foreach ($files as $file) {
             $srcPath   = trim(str_replace(getcwd(), '', $file), '/');
@@ -52,9 +50,11 @@ class Push extends Command implements CommandInterface
                 return;
             }
 
+            $mkdirCommand = sprintf('docker exec %s mkdir -p %s', $container, dirname($destFile));
             $copyCommand  = sprintf('docker cp %s %s:%s', $srcPath, $container, $destPath);
             $chownCommand = sprintf('docker exec %s chown -R www-data:www-data %s', $container, $destFile);
 
+            $this->runProcessShowingOutput($output, $mkdirCommand);
             $this->runProcessShowingOutput($output, $copyCommand);
             $this->runProcessNoOutput($chownCommand);
 

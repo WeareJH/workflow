@@ -44,9 +44,7 @@ class Pull extends Command implements CommandInterface
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->phpContainerName();
-        $files     = is_array($input->getArgument('files'))
-            ? $input->getArgument('files')
-            : [$input->getArgument('files')];
+        $files     = (array) $input->getArgument('files');
 
         foreach ($files as $file) {
             $srcPath = ltrim($file, '/');
