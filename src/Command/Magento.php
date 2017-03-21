@@ -37,7 +37,7 @@ class Magento extends Command implements CommandInterface
         $container  = $this->phpContainerName();
         $slicePoint = 1 + (int) array_search($this->getName(), $_SERVER['argv'], true);
         $args       = array_slice($_SERVER['argv'], $slicePoint);
-        $command    = sprintf('docker exec -u www-data %s bin/magento', $container);
+        $command    = sprintf('docker exec -u www-data %s bin/magento --ansi', $container);
 
         if (count($args) > 0) {
             $command .= sprintf(' %s', implode(' ', $args));
