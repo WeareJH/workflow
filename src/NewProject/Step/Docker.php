@@ -26,6 +26,7 @@ class Docker implements StepInterface
         $output->success('Setting up Docker');
 
         $this->setupRequiredDirectories($details);
+        $this->setupEnv($details);
         $this->copyFiles($details);
         $this->setupNginx($details);
         $this->setupMagentoInstallBinary($details);
@@ -49,10 +50,21 @@ class Docker implements StepInterface
         touch($details->getProjectName() . '/.docker/db/.gitkeep');
     }
 
+    private function setupEnv(Details $details)
+    {
+        $this->templateWriter->fillAndWriteTemplate(
+            $details->getProjectName(),
+            'docker/env/local.env.dist',
+            '.docker/local.env.dist',
+            [
+                'project-domain' => $details->getProjectDomain()
+            ]
+        );
+    }
+
     private function copyFiles(Details $details)
     {
         $files = [
-            'env/local.env.dist'        => '.docker/local.env.dist',
             'env/production.env.dist'   => '.docker/production.env.dist',
             'app.php.dockerfile'        => 'app.php.dockerfile',
             '.dockerignore'             => '.dockerignore',
