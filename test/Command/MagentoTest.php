@@ -45,7 +45,7 @@ class MagentoTest extends AbstractTestCommand
         // We have to use $_SERVER['argv'] here
         $_SERVER['argv'] = array_merge(['workflow', 'magento'], $args);
 
-        $this->processTest(sprintf('docker exec -u www-data m2-php bin/magento %s', implode(' ', $args)));
+        $this->processTest(sprintf('docker exec -u www-data m2-php bin/magento --ansi %s', implode(' ', $args)));
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -67,7 +67,7 @@ class MagentoTest extends AbstractTestCommand
         // We have to use $_SERVER['argv'] here
         $_SERVER['argv'] = ['workflow', 'magento'];
 
-        $this->processTest('docker exec -u www-data m2-php bin/magento');
+        $this->processTest('docker exec -u www-data m2-php bin/magento --ansi');
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
