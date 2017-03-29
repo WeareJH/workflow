@@ -23,6 +23,7 @@ return [
         $app->add($c->get(Command\MagentoFullInstall::class));
         $app->add($c->get(Command\MagentoInstall::class));
         $app->add($c->get(Command\MagentoConfigure::class));
+        $app->add($c->get(Command\MagentoCompile::class));
         $app->add($c->get(Command\Pull::class));
         $app->add($c->get(Command\Push::class));
         $app->add($c->get(Command\Watch::class));
