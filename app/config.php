@@ -23,11 +23,13 @@ return [
         $app->add($c->get(Command\MagentoFullInstall::class));
         $app->add($c->get(Command\MagentoInstall::class));
         $app->add($c->get(Command\MagentoConfigure::class));
+        $app->add($c->get(Command\MagentoCompile::class));
         $app->add($c->get(Command\Pull::class));
         $app->add($c->get(Command\Push::class));
         $app->add($c->get(Command\Watch::class));
         $app->add($c->get(Command\Sync::class));
         $app->add($c->get(Command\ComposerUpdate::class));
+        $app->add($c->get(Command\ComposerInstall::class));
         $app->add($c->get(Command\ComposerRequire::class));
         $app->add($c->get(Command\Sql::class));
         $app->add($c->get(Command\Ssh::class));
