@@ -91,7 +91,7 @@ class ComposerInstallTest extends AbstractTestCommand
         );
         $this->processTest($cmd);
 
-        $expectedInput = new ArrayInput(['files' => ['vendor']]);
+        $expectedInput = new ArrayInput(['files' => ['vendor', '.docker/composer-cache']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

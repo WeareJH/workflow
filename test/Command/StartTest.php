@@ -3,12 +3,14 @@
 namespace Jh\WorkflowTest\Command;
 
 use Jh\Workflow\Command\Build;
+use Jh\Workflow\Command\Pull;
 use Jh\Workflow\Command\Start;
 use Jh\Workflow\Command\Up;
 use Jh\Workflow\Command\Watch;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Input\ArrayInput;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -36,6 +38,11 @@ class StartTest extends AbstractTestCommand
     private $upCommand;
 
     /**
+     * @var ObjectProphecy|Pull
+     */
+    private $pullCommand;
+
+    /**
      * @var ObjectProphecy|Build
      */
     private $buildCommand;
@@ -49,11 +56,13 @@ class StartTest extends AbstractTestCommand
         $this->application  = $this->prophesize(Application::class);
         $this->buildCommand = $this->prophesize(Build::class);
         $this->upCommand    = $this->prophesize(Up::class);
+        $this->pullCommand  = $this->prophesize(Pull::class);
         $this->watchCommand = $this->prophesize(Watch::class);
 
         $this->application->getHelperSet()->willReturn(new HelperSet);
         $this->application->find('build')->willReturn($this->buildCommand->reveal());
         $this->application->find('up')->willReturn($this->upCommand->reveal());
+        $this->application->find('pull')->willReturn($this->pullCommand->reveal());
         $this->application->find('watch')->willReturn($this->watchCommand->reveal());
 
         $this->command->setApplication($this->application->reveal());
@@ -76,10 +85,15 @@ class StartTest extends AbstractTestCommand
     {
         $this->application->find('build')->shouldBeCalled();
         $this->application->find('up')->shouldBeCalled();
+        $this->application->find('pull')->shouldBeCalled();
         $this->application->find('watch')->shouldBeCalled();
+
+        $expectedPullInput = new ArrayInput(['files' => ['.docker/composer-cache']]);
 
         $this->buildCommand->run($this->input, $this->output)->shouldBeCalled();
         $this->upCommand->run($this->input, $this->output)->shouldBeCalled();
+        $this->upCommand->run($this->input, $this->output)->shouldBeCalled();
+        $this->pullCommand->run($expectedPullInput, $this->output)->shouldBeCalled();
         $this->watchCommand->run($this->input, $this->output)->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

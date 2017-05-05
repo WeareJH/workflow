@@ -55,7 +55,7 @@ class ComposerInstall extends Command implements CommandInterface
         $this->runProcessShowingOutput($output, $command);
 
         $pullCommand   = $this->getApplication()->find('pull');
-        $pullArguments = new ArrayInput(['files' => ['vendor']]);
+        $pullArguments = new ArrayInput(['files' => ['vendor', '.docker/composer-cache']]);
 
         $pullCommand->run($pullArguments, $output);
     }

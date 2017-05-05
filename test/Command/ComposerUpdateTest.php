@@ -68,7 +68,7 @@ class ComposerUpdateTest extends AbstractTestCommand
         $cmd = 'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache m2-php composer update -o --ansi';
         $this->processTest($cmd);
 
-        $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.lock']]);
+        $expectedInput = new ArrayInput(['files' => ['.docker/composer-cache', 'vendor', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
