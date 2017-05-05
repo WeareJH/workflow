@@ -26,7 +26,6 @@ class MagentoCompile extends Command implements CommandInterface
     {
         $this
             ->setName('magento-compile')
-            ->setAliases(['mc'])
             ->setDescription('Runs the magento DI compile command and pulls back required files to the host');
     }
 

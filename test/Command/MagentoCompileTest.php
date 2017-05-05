@@ -55,7 +55,6 @@ class MagentoCompileTest extends AbstractTestCommand
         $description = 'Runs the magento DI compile command and pulls back required files to the host';
 
         static::assertEquals('magento-compile', $this->command->getName());
-        static::assertEquals(['mc'], $this->command->getAliases());
         static::assertEquals($description, $this->command->getDescription());
     }
 
