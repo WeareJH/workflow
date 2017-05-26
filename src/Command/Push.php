@@ -50,9 +50,22 @@ class Push extends Command implements CommandInterface
                 return;
             }
 
-            $mkdirCommand = sprintf('docker exec %s mkdir -p %s', $container, dirname($destFile));
-            $copyCommand  = sprintf('docker cp %s %s:%s', $srcPath, $container, $destPath);
-            $chownCommand = sprintf('docker exec %s chown -R www-data:www-data %s', $container, $destFile);
+            $mkdirCommand = sprintf(
+                'docker exec %s mkdir -p %s',
+                $container,
+                escapeshellarg(dirname($destFile))
+            );
+            $copyCommand  = sprintf(
+                'docker cp %s %s:%s',
+                escapeshellarg($srcPath),
+                $container,
+                escapeshellarg($destPath)
+            );
+            $chownCommand = sprintf(
+                'docker exec %s chown -R www-data:www-data %s',
+                $container,
+                escapeshellarg($destFile)
+            );
 
             $this->runProcessShowingOutput($output, $mkdirCommand);
             $this->runProcessShowingOutput($output, $copyCommand);
