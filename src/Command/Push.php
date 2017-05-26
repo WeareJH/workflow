@@ -53,7 +53,7 @@ class Push extends Command implements CommandInterface
             $mkdirCommand = sprintf(
                 'docker exec %s mkdir -p %s',
                 $container,
-                dirname($destFile)
+                escapeshellarg(dirname($destFile))
             );
             $copyCommand  = sprintf(
                 'docker cp %s %s:%s',
