@@ -91,7 +91,7 @@ class Push extends Command implements CommandInterface
     private function fileExistsInContainer(string $container, string $destFile) : bool
     {
         try {
-            $this->runProcessNoOutput(sprintf('docker exec %s test -f %s', $container, escapeshellarg($destFile)));
+            $this->runProcessNoOutput(sprintf('docker exec %s test -e %s', $container, escapeshellarg($destFile)));
             return true;
         } catch (ProcessFailedException $e) {
             return false;

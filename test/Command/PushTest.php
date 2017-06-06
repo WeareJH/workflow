@@ -87,7 +87,7 @@ class PushTest extends AbstractTestCommand
 
         $process = $this->prophesize(Process::class);
         $process->run()->willReturn(0);
-        $this->processFactory->create('docker exec m2-php test -f \'/var/www/some-file.txt\'')->willReturn($process);
+        $this->processFactory->create('docker exec m2-php test -e \'/var/www/some-file.txt\'')->willReturn($process);
 
         $this->processTest('docker exec m2-php rm -rf \'/var/www/some-file.txt\'');
         $this->processTest('docker exec m2-php mkdir -p \'/var/www\'');
@@ -108,7 +108,7 @@ class PushTest extends AbstractTestCommand
 
         $process = $this->prophesize(Process::class);
         $process->run()->willReturn(1);
-        $this->processFactory->create('docker exec m2-php test -f \'/var/www/some-file.txt\'')->willReturn($process);
+        $this->processFactory->create('docker exec m2-php test -e \'/var/www/some-file.txt\'')->willReturn($process);
 
         $this->processTest('docker exec m2-php mkdir -p \'/var/www\'');
         $this->processTest('docker cp \'some-file.txt\' m2-php:\'/var/www/\'');
