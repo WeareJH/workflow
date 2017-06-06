@@ -5,6 +5,7 @@ namespace Jh\Workflow\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Jh\Workflow\ProcessFactory;
 
@@ -38,11 +39,13 @@ class Pull extends Command implements CommandInterface
                 'files',
                 InputArgument::REQUIRED | InputArgument::IS_ARRAY,
                 'Files to pull, relative to project root'
-            );
+            )
+            ->addOption('no-overwrite', 'o', InputOption::VALUE_NONE);
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $overwrite = !$input->getOption('no-overwrite');
         $container = $this->phpContainerName();
         $files     = (array) $input->getArgument('files');
 
@@ -61,6 +64,10 @@ class Pull extends Command implements CommandInterface
             }
 
             $destPath = './' . trim(str_replace(basename($srcPath), '', $srcPath), '/');
+
+            if ($overwrite && file_exists($destPath)) {
+                $this->runProcessNoOutput(sprintf('rm -rf %s%s', $destPath, basename($srcPath)));
+            }
 
             $command = sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, $destPath);
             $this->runProcessShowingOutput($output, $command);
