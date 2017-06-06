@@ -2,9 +2,11 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\ProcessFailedException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Jh\Workflow\ProcessFactory;
@@ -32,11 +34,13 @@ class Push extends Command implements CommandInterface
                 'files',
                 InputArgument::REQUIRED | InputArgument::IS_ARRAY,
                 'Files to push, relative to project root'
-            );
+            )
+            ->addOption('no-overwrite', 'o', InputOption::VALUE_NONE);
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $overwrite = !$input->getOption('no-overwrite');
         $container = $this->phpContainerName();
         $files     = (array) $input->getArgument('files');
 
@@ -50,9 +54,29 @@ class Push extends Command implements CommandInterface
                 return;
             }
 
-            $mkdirCommand = sprintf('docker exec %s mkdir -p %s', $container, dirname($destFile));
-            $copyCommand  = sprintf('docker cp %s %s:%s', $srcPath, $container, $destPath);
-            $chownCommand = sprintf('docker exec %s chown -R www-data:www-data %s', $container, $destFile);
+            if ($overwrite && $this->fileExistsInContainer($container, $destFile)) {
+                $this->runProcessShowingOutput(
+                    $output,
+                    sprintf('docker exec %s rm -rf %s', $container, escapeshellarg($destFile))
+                );
+            }
+
+            $mkdirCommand = sprintf(
+                'docker exec %s mkdir -p %s',
+                $container,
+                escapeshellarg(dirname($destFile))
+            );
+            $copyCommand  = sprintf(
+                'docker cp %s %s:%s',
+                escapeshellarg($srcPath),
+                $container,
+                escapeshellarg($destPath)
+            );
+            $chownCommand = sprintf(
+                'docker exec %s chown -R www-data:www-data %s',
+                $container,
+                escapeshellarg($destFile)
+            );
 
             $this->runProcessShowingOutput($output, $mkdirCommand);
             $this->runProcessShowingOutput($output, $copyCommand);
@@ -61,6 +85,16 @@ class Push extends Command implements CommandInterface
             $output->writeln(
                 sprintf("<info> + %s > %s </info>", $srcPath, $container)
             );
+        }
+    }
+
+    private function fileExistsInContainer(string $container, string $destFile) : bool
+    {
+        try {
+            $this->runProcessNoOutput(sprintf('docker exec %s test -e %s', $container, escapeshellarg($destFile)));
+            return true;
+        } catch (ProcessFailedException $e) {
+            return false;
         }
     }
 }
