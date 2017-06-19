@@ -2,6 +2,7 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\ProcessFailedException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -52,29 +53,36 @@ class Pull extends Command implements CommandInterface
         foreach ($files as $file) {
             $srcPath = ltrim($file, '/');
 
-            $fileExistsCheck = $this->runProcessNoOutput(sprintf(
-                "docker exec %s php -r \"echo file_exists('/var/www/%s') ? 'true' : 'false';\"",
-                $container,
-                $srcPath
-            ));
-
-            if ('false' === $fileExistsCheck->getOutput()) {
+            if (!$this->fileExistsInContainer($container, $srcPath)) {
                 $output->writeln(sprintf('Looks like "%s" doesn\'t exist', $srcPath));
                 return;
             }
 
-            $destPath = './' . trim(str_replace(basename($srcPath), '', $srcPath), '/');
-
-            if ($overwrite && file_exists($destPath)) {
-                $this->runProcessNoOutput(sprintf('rm -rf %s%s', $destPath, basename($srcPath)));
+            $destPath = './' . $srcPath;
+            if ($overwrite && is_dir($destPath)) {
+                //we only remove if the file exists and is a directory
+                //as the new directory we push may have a different set of files in it
+                //for files we can just overwrite and save some cycles
+                $this->runProcessNoOutput('rm -rf ' . $destPath);
             }
 
-            $command = sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, $destPath);
+            $command = sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, dirname($destPath) . '/');
             $this->runProcessShowingOutput($output, $command);
 
             $output->writeln(
-                sprintf("<info>Copied '%s' from container into '%s' on the host</info>", $srcPath, $destPath)
+                sprintf(
+                    "<info>Copied '%s' from container into '%s/' on the host</info>", $srcPath, dirname($destPath))
             );
+        }
+    }
+
+    private function fileExistsInContainer(string $container, string $destFile) : bool
+    {
+        try {
+            $this->runProcessNoOutput(sprintf('docker exec %s test -e %s', $container, escapeshellarg($destFile)));
+            return true;
+        } catch (ProcessFailedException $e) {
+            return false;
         }
     }
 }

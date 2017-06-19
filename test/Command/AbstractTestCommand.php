@@ -56,7 +56,7 @@ class AbstractTestCommand extends TestCase
 
     protected function processTest(string $expected)
     {
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
+        $this->processFactory->create($expected)->willReturn($this->process->reveal())->shouldBeCalled();
 
         $this->process->run(Argument::type('callable'))->will(function ($args) {
             $callback = array_shift($args);
@@ -71,7 +71,7 @@ class AbstractTestCommand extends TestCase
 
     protected function processTestNoOutput(string $expected)
     {
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
+        $this->processFactory->create($expected)->willReturn($this->process->reveal())->shouldBeCalled();
 
         $this->process->run()->shouldBeCalled();
     }

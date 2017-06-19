@@ -54,7 +54,10 @@ class Push extends Command implements CommandInterface
                 return;
             }
 
-            if ($overwrite && $this->fileExistsInContainer($container, $destFile)) {
+            if ($overwrite && is_dir($srcPath) && $this->fileExistsInContainer($container, $destFile)) {
+                //we only remove on container first if it is a directory
+                //as the new directory we push may have a different set of files in it
+                //for files we can just overwrite and save some cycles
                 $this->runProcessShowingOutput(
                     $output,
                     sprintf('docker exec %s rm -rf %s', $container, escapeshellarg($destFile))
