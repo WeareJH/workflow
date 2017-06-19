@@ -55,7 +55,7 @@ class ComposerUpdate extends Command implements CommandInterface
         $this->runProcessShowingOutput($output, $command);
 
         $pullCommand   = $this->getApplication()->find('pull');
-        $pullArguments = new ArrayInput(['files' => ['vendor', 'composer.lock']]);
+        $pullArguments = new ArrayInput(['files' => ['.docker/composer-cache', 'vendor', 'composer.lock']]);
 
         $pullCommand->run($pullArguments, $output);
     }

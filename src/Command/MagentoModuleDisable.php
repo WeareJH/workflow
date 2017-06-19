@@ -4,18 +4,19 @@ namespace Jh\Workflow\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Jh\Workflow\ProcessFactory;
 
 /**
- * @author Aydin Hassan <aydin@wearejh.com>
+ * @author Michael Woodward <michael@wearejh.com>
  */
-class MagentoCompile extends Command implements CommandInterface
+class MagentoModuleDisable extends Command implements CommandInterface
 {
     use DockerAwareTrait;
     use ProcessRunnerTrait;
-
+    
     public function __construct(ProcessFactory $processFactory)
     {
         parent::__construct();
@@ -25,19 +26,21 @@ class MagentoCompile extends Command implements CommandInterface
     public function configure()
     {
         $this
-            ->setName('magento-compile')
-            ->setDescription('Runs the magento DI compile command and pulls back required files to the host');
+            ->setName('module:disable')
+            ->setDescription('Disable Magento module and updates the config.php file')
+            ->addArgument('module', InputArgument::REQUIRED, 'Module to disable');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->phpContainerName();
+        $module    = $input->getArgument('module');
 
-        $command = sprintf('docker exec -u www-data %s bin/magento setup:di:compile --ansi', $container);
+        $command = sprintf('docker exec -u www-data %s bin/magento module:disable %s --ansi', $container, $module);
         $this->runProcessShowingOutput($output, $command);
 
         $pullCommand   = $this->getApplication()->find('pull');
-        $pullArguments = new ArrayInput(['files' => ['var/di', 'var/generation']]);
+        $pullArguments = new ArrayInput(['files' => ['app/etc/config.php']]);
 
         $pullCommand->run($pullArguments, $output);
     }

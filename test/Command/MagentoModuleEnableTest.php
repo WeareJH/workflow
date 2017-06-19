@@ -2,18 +2,17 @@
 
 namespace Jh\WorkflowTest\Command;
 
-use Jh\Workflow\Command\MagentoCompile;
+use Jh\Workflow\Command\MagentoModuleEnable;
 use Jh\Workflow\Command\Pull;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @author Aydin Hassan <aydin@wearejh.com>
+ * @author Michael Woodward <michael@wearejh.com>
  */
-class MagentoCompileTest extends AbstractTestCommand
+class MagentoModuleEnableTest extends AbstractTestCommand
 {
     /**
      * @var ComposerUpdate
@@ -35,7 +34,7 @@ class MagentoCompileTest extends AbstractTestCommand
     {
         parent::setUp();
 
-        $this->command     = new MagentoCompile($this->processFactory->reveal());
+        $this->command     = new MagentoModuleEnable($this->processFactory->reveal());
         $this->application = $this->prophesize(Application::class);
         $this->pullCommand = $this->prophesize(Pull::class);
 
@@ -52,20 +51,21 @@ class MagentoCompileTest extends AbstractTestCommand
 
     public function testCommandIsConfigured()
     {
-        $description = 'Runs the magento DI compile command and pulls back required files to the host';
+        $description = 'Enable Magento module and updates the config.php file';
 
-        static::assertEquals('magento-compile', $this->command->getName());
+        static::assertEquals('module:enable', $this->command->getName());
         static::assertEquals($description, $this->command->getDescription());
     }
 
-    public function testComposerInstallCommand()
+    public function testModuleEnableCommand()
     {
         $this->useValidEnvironment();
+        $this->input->getArgument('module')->shouldBeCalled()->willReturn('Jh_Brands');
 
-        $cmd = 'docker exec -u www-data m2-php bin/magento setup:di:compile --ansi';
+        $cmd = 'docker exec -u www-data m2-php bin/magento module:enable Jh_Brands --ansi';
         $this->processTest($cmd);
 
-        $expectedInput = new ArrayInput(['files' => ['var/di', 'var/generation']]);
+        $expectedInput = new ArrayInput(['files' => ['app/etc/config.php']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

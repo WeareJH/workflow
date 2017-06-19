@@ -64,7 +64,8 @@ class ComposerRequire extends Command implements CommandInterface
         $this->runProcessShowingOutput($output, $command);
 
         $pullCommand   = $this->getApplication()->find('pull');
-        $pullArguments = new ArrayInput(['files' => ['vendor', 'composer.json', 'composer.lock']]);
+        $pullFiles     = ['.docker/composer-cache', 'vendor', 'composer.json', 'composer.lock'];
+        $pullArguments = new ArrayInput(['files' => $pullFiles]);
 
         $pullCommand->run($pullArguments, $output);
     }
