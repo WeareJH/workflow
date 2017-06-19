@@ -77,7 +77,7 @@ class PushTest extends AbstractTestCommand
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
 
-    public function testPushCommandRemovesRemoteFileIfItExistsAlready()
+    public function testPushCommandDoesNotRemoveFileFirstIfItExistsAlready()
     {
         $this->useValidEnvironment();
 
@@ -89,11 +89,33 @@ class PushTest extends AbstractTestCommand
         $process->run()->willReturn(0);
         $this->processFactory->create('docker exec m2-php test -e \'/var/www/some-file.txt\'')->willReturn($process);
 
-        $this->processTest('docker exec m2-php rm -rf \'/var/www/some-file.txt\'');
+        $this->processFactory->create('docker exec m2-php rm -rf \'/var/www/some-file.txt\'')->shouldNotBeCalled();
+
         $this->processTest('docker exec m2-php mkdir -p \'/var/www\'');
         $this->processTest('docker cp \'some-file.txt\' m2-php:\'/var/www/\'');
         $this->processTestNoOutput('docker exec m2-php chown -R www-data:www-data \'/var/www/some-file.txt\'');
         $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testPushCommandRemovesRemoteFolderIfItExistsAlready()
+    {
+        $this->useValidEnvironment();
+
+        $filePath = realpath('some-folder');
+        $this->input->getArgument('files')->shouldBeCalled()->willReturn([$filePath]);
+        $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(false);
+
+        $process = $this->prophesize(Process::class);
+        $process->run()->willReturn(0);
+        $this->processFactory->create('docker exec m2-php test -e \'/var/www/some-folder\'')->willReturn($process);
+
+        $this->processTest('docker exec m2-php rm -rf \'/var/www/some-folder\'');
+        $this->processTest('docker exec m2-php mkdir -p \'/var/www\'');
+        $this->processTest('docker cp \'some-folder\' m2-php:\'/var/www/\'');
+        $this->processTestNoOutput('docker exec m2-php chown -R www-data:www-data \'/var/www/some-folder\'');
+        $this->output->writeln("<info> + some-folder > m2-php </info>")->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }

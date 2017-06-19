@@ -3,6 +3,7 @@
 namespace Jh\WorkflowTest\Command;
 
 use Jh\Workflow\Command\Pull;
+use Jh\Workflow\ProcessFailedException;
 use Prophecy\Argument;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Process\Process;
@@ -61,9 +62,8 @@ class PullTest extends AbstractTestCommand
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(true);
 
         $this->processTestNoOutput(
-            "docker exec m2-php php -r \"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
+            "docker exec m2-php test -e 'some-file.txt'"
         );
-        $this->process->getOutput()->willReturn('true');
 
         $this->processTest('docker cp m2-php:/var/www/some-file.txt ./');
         $this->output
@@ -73,7 +73,7 @@ class PullTest extends AbstractTestCommand
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
 
-    public function testPullCommandRemovesLocalFileIfItExistsAlready()
+    public function testPullCommandDoesNotRemoveLocalFileIfItExistsAlready()
     {
         $this->useValidEnvironment();
 
@@ -81,14 +81,32 @@ class PullTest extends AbstractTestCommand
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(false);
 
         $this->processTestNoOutput(
-            "docker exec m2-php php -r \"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
+            "docker exec m2-php test -e 'some-file.txt'"
         );
-        $this->process->getOutput()->willReturn('true');
 
-        $this->processTest('rm -rf ./some-file.txt');
         $this->processTest('docker cp m2-php:/var/www/some-file.txt ./');
         $this->output
             ->writeln("<info>Copied 'some-file.txt' from container into './' on the host</info>")
+            ->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testPullCommandRemovesLocalFolderIfItExistsAlready()
+    {
+        $this->useValidEnvironment();
+
+        $this->input->getArgument('files')->shouldBeCalled()->willReturn(['some-folder']);
+        $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(false);
+
+        $this->processTestNoOutput(
+            "docker exec m2-php test -e 'some-folder'"
+        );
+
+        $this->processTestNoOutput('rm -rf ./some-folder');
+        $this->processTest('docker cp m2-php:/var/www/some-folder ./');
+        $this->output
+            ->writeln("<info>Copied 'some-folder' from container into './' on the host</info>")
             ->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -101,10 +119,10 @@ class PullTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalled()->willReturn(['some-file.txt']);
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(true);
 
-        $this->processTestNoOutput(
-            "docker exec m2-php php -r \"echo file_exists('/var/www/some-file.txt') ? 'true' : 'false';\""
-        );
-        $this->process->getOutput()->willReturn('false');
+        $this->processFactory
+            ->create('docker exec m2-php test -e \'some-file.txt\'')
+            ->willReturn($this->process->reveal());
+        $this->process->run()->willReturn(1);
 
         $this->output->writeln('Looks like "some-file.txt" doesn\'t exist')->shouldBeCalled();
 
