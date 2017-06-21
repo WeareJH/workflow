@@ -30,7 +30,8 @@ class Sql extends Command implements CommandInterface
             ->setName('sql')
             ->setDescription('Run arbitary sql against the database')
             ->addOption('sql', 's', InputOption::VALUE_OPTIONAL, 'SQL to run directly to mysql')
-            ->addOption('file', 'f', InputOption::VALUE_OPTIONAL, 'Path to a file to import');
+            ->addOption('file', 'f', InputOption::VALUE_OPTIONAL, 'Path to a file to import')
+            ->addOption('database', 'd', InputOption::VALUE_REQUIRED, 'Optional database to run SQL');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
@@ -38,7 +39,7 @@ class Sql extends Command implements CommandInterface
         $container = $this->getContainerName('db');
 
         if ($input->getOption('sql')) {
-            $this->runRaw($container, $input->getOption('sql'), $output);
+            $this->runRaw($container, $input->getOption('sql'), $input, $output);
         }
 
         if ($input->getOption('file')) {
@@ -48,35 +49,35 @@ class Sql extends Command implements CommandInterface
                 throw new \RuntimeException('SQL file does not exist!');
             }
 
-            $this->runFile($container, $file, $output);
+            $this->runFile($container, $file, $input, $output);
         }
     }
 
-    private function runRaw(string $container, string $sql, OutputInterface $output)
+    private function runRaw(string $container, string $sql, InputInterface $input, OutputInterface $output)
     {
-        extract($this->getDbDetails(), EXTR_OVERWRITE);
+        extract($this->getDbDetails($input), EXTR_OVERWRITE);
 
         $command = sprintf('docker exec -t %s mysql -u%s -p%s %s -e "%s"', $container, $user, $pass, $db, $sql);
         $this->runProcessShowingOutput($output, $command);
     }
 
-    private function runFile(string $container, string $file, OutputInterface $output)
+    private function runFile(string $container, string $file, InputInterface $input, OutputInterface $output)
     {
-        extract($this->getDbDetails(), EXTR_OVERWRITE);
+        extract($this->getDbDetails($input), EXTR_OVERWRITE);
 
         $command = sprintf('docker exec -i %s mysql -u%s -p%s %s < %s', $container, $user, $pass, $db, $file);
         $this->runProcessShowingOutput($output, $command);
         $output->writeln('<info>DB import complete!</info>');
     }
 
-    private function getDbDetails() : array
+    private function getDbDetails(InputInterface $input) : array
     {
         $envVars   = $this->getDevEnvironmentVars();
         $dbDetails = [];
 
         $dbDetails['user'] = $envVars['MYSQL_USER'] ?? 'docker';
         $dbDetails['pass'] = $envVars['MYSQL_PASSWORD'] ?? 'docker';
-        $dbDetails['db']   = $envVars['MYSQL_DATABASE'] ?? 'docker';
+        $dbDetails['db']   = $input->getOption('database') ?? $envVars['MYSQL_DATABASE'] ?? 'docker';
 
         return $dbDetails;
     }
