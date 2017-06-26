@@ -2,7 +2,14 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\BufferWithTime;
+use Jh\Workflow\Files;
+use Rx\Observable;
+use Rx\React\FsWatch;
+use Rx\React\WatchEvent;
+use Rx\Scheduler;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,12 +22,18 @@ use Jh\Workflow\ProcessFactory;
  */
 class Watch extends Command implements CommandInterface
 {
-    use ProcessRunnerTrait;
+    use DockerAwareTrait;
 
-    public function __construct(ProcessFactory $processFactory)
+    /**
+     * @var Files
+     */
+    private $files;
+
+    public function __construct(ProcessFactory $processFactory, Files $files)
     {
         parent::__construct();
         $this->processFactory = $processFactory;
+        $this->files = $files;
     }
 
     public function configure()
@@ -42,19 +55,32 @@ class Watch extends Command implements CommandInterface
             : array_merge($input->getArgument('watches'), $watches);
 
         if (!$watches) {
-            throw new \InvalidArgumentException('You must watch atleast something...');
+            throw new \InvalidArgumentException('You must watch at least something...');
         }
 
-        $output->writeln("<info>Watching for file changes...</info>");
+        $output->writeln('<info>Watching for file changes...</info>');
         $output->writeln('');
 
-        $command = sprintf(
-            'fswatch -r %s -e %s | xargs -n1 -I {} %s sync --ansi {}',
-            implode(' ', $watches),
-            implode(' -e ', $excludes),
-            realpath(__DIR__ . '/../../bin/workflow')
-        );
+        $phpContainer = $this->phpContainerName();
 
-        $this->runProcessShowingOutput($output, $command);
+        $fsWatch = new FsWatch(implode(' ', $watches), implode(' -e ', $excludes) . ' -l 0.5', null);
+        $fsWatch->lift(function () {
+            return new BufferWithTime(500, Scheduler::getAsync());
+        })->subscribe(function (array $watches) use ($phpContainer) {
+            $files = collect($watches)
+                ->reject(function (WatchEvent $event) {
+                    return $event->isDir();
+                })
+                ->map(function (WatchEvent $event) {
+                    return $event->getFile();
+                });
+
+            list($exists, $removed) = $files->partition(function ($item) {
+                return file_exists($item);
+            });
+
+            $this->files->delete($phpContainer, $removed->all());
+            $this->files->upload($phpContainer, $exists->all());
+        });
     }
 }

@@ -3,11 +3,14 @@
 use Interop\Container\ContainerInterface;
 use Jh\Workflow\Application;
 use Jh\Workflow\Command;
+use Jh\Workflow\Files;
 use Jh\Workflow\NewProject\DetailsGatherer;
 use Jh\Workflow\NewProject\Step;
 use Jh\Workflow\NewProject\StepRunner;
 use Jh\Workflow\NewProject\TemplateWriter;
 use Jh\Workflow\ProcessFactory;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\ProcessBuilder;
 
 return [
@@ -40,13 +43,20 @@ return [
         $app->add($c->get(Command\NewProject::class));
         $app->add($c->get(Command\Php::class));
         $app->add($c->get(Command\Exec::class));
+        $app->add($c->get(Command\Delete::class));
 
         return $app;
+    },
+    OutputInterface::class => function () {
+        return new ConsoleOutput;
     },
     ProcessBuilder::class  => DI\object(),
     ProcessFactory::class  => DI\object(),
     TemplateWriter::class  => DI\object(),
     DetailsGatherer::class => DI\object(),
+    Files::class => function (ContainerInterface $c) {
+        return new Files($c->get(ProcessFactory::class), $c->get(OutputInterface::class));
+    },
 
     // Commands
     Command\Build::class              => DI\object(),
@@ -59,7 +69,9 @@ return [
     Command\Start::class              => DI\object(),
     Command\Stop::class               => DI\object(),
     Command\Up::class                 => DI\object(),
-    Command\Watch::class              => DI\object(),
+    Command\Watch::class              => function (ContainerInterface $c) {
+        return new Command\Watch($c->get(ProcessFactory::class), $c->get(Files::class));
+    },
     Command\Sync::class               => DI\object(),
     Command\ComposerUpdate::class     => DI\object(),
     Command\Sql::class                => DI\object(),
@@ -68,7 +80,7 @@ return [
     Command\Ssh::class                => DI\object(),
     Command\NewProject::class         => DI\object(),
     Command\Php::class                => DI\object(),
-    Command\Exec::class                => DI\object(),
+    Command\Exec::class               => DI\object(),
 
     // New Project Steps
     StepRunner::class => function (ContainerInterface $c) {
