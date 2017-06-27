@@ -63,7 +63,8 @@ class Watch extends Command implements CommandInterface
 
         $phpContainer = $this->phpContainerName();
 
-        $fsWatch = new FsWatch(implode(' ', $watches), implode(' -e ', $excludes) . ' -l 0.5', null);
+        $options = sprintf('-e %s -l 0.5', implode(' -e ', $excludes));
+        $fsWatch = new FsWatch(implode(' ', $watches), $options, null);
         $fsWatch->lift(function () {
             return new BufferWithTime(500, Scheduler::getAsync());
         })->subscribe(function (array $watches) use ($phpContainer) {
