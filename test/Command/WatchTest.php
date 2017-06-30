@@ -2,7 +2,21 @@
 
 namespace Jh\WorkflowTest\Command;
 
+use EventLoop\EventLoop;
 use Jh\Workflow\Command\Watch;
+use Jh\Workflow\Files;
+use Jh\Workflow\WatchFactory;
+use Prophecy\Argument;
+use React\EventLoop\LoopInterface;
+use React\EventLoop\StreamSelectLoop;
+use React\EventLoop\Timer\TimerInterface;
+use Rx\Observable;
+use Rx\React\FsWatch;
+use Rx\Scheduler;
+use Rx\Scheduler\EventLoopScheduler;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -14,10 +28,43 @@ class WatchTest extends AbstractTestCommand
      */
     private $command;
 
+    /**
+     * @var WatchFactory
+     */
+    private $watchFactory;
+
+    /**
+     * @var Files
+     */
+    private $files;
+
+    /**
+     * @var Filesystem
+     */
+    private $fileSystem;
+
+    /**
+     * @var LoopInterface
+     */
+    private static $loop;
+
+    public static function setUpBeforeClass()
+    {
+        self::$loop = new StreamSelectLoop;
+        Scheduler::setDefaultFactory(function() {
+            return new EventLoopScheduler(self::$loop);
+        });
+    }
+
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Watch($this->processFactory->reveal());
+        $this->watchFactory = $this->prophesize(WatchFactory::class);
+        $this->files = $this->prophesize(Files::class);
+
+        $this->command = new Watch($this->watchFactory->reveal(), $this->files->reveal());
+
+        $this->fileSystem = new Filesystem;
     }
 
     public function tearDown()
@@ -56,18 +103,15 @@ class WatchTest extends AbstractTestCommand
         $this->input->getArgument('watches')->willReturn([]);
         $this->input->getOption('no-defaults')->willReturn(false);
 
-        $includes = 'app/code app/design composer.json phpcs.xml phpunit.xml';
-        $excludes = '-e ".*__jb_.*$" -e ".*swp$" -e ".*swpx$"';
-        $expected  = sprintf(
-            'fswatch -r %s %s | xargs -n1 -I {} %s sync --ansi {}',
-            $includes,
-            $excludes,
-            realpath(__DIR__ . '/../../bin/workflow')
-        );
-        
-        $this->processTest($expected);
         $this->output->writeln('<info>Watching for file changes...</info>')->shouldBeCalled();
         $this->output->writeln('')->shouldBeCalled();
+
+        $this->watchFactory
+            ->create(
+                ['app/code', 'app/design', 'composer.json', 'phpcs.xml', 'phpunit.xml'],
+                ['".*__jb_.*$"', '".*swp$"', '".*swpx$"']
+            )
+            ->willReturn(Observable::empty());
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -77,18 +121,15 @@ class WatchTest extends AbstractTestCommand
         $this->input->getArgument('watches')->willReturn(['custom-dir']);
         $this->input->getOption('no-defaults')->willReturn(false);
 
-        $includes = 'custom-dir app/code app/design composer.json phpcs.xml phpunit.xml';
-        $excludes = '-e ".*__jb_.*$" -e ".*swp$" -e ".*swpx$"';
-        $expected  = sprintf(
-            'fswatch -r %s %s | xargs -n1 -I {} %s sync --ansi {}',
-            $includes,
-            $excludes,
-            realpath(__DIR__ . '/../../bin/workflow')
-        );
-
-        $this->processTest($expected);
         $this->output->writeln('<info>Watching for file changes...</info>')->shouldBeCalled();
         $this->output->writeln('')->shouldBeCalled();
+
+        $this->watchFactory
+            ->create(
+                ['custom-dir', 'app/code', 'app/design', 'composer.json', 'phpcs.xml', 'phpunit.xml'],
+                ['".*__jb_.*$"', '".*swp$"', '".*swpx$"']
+            )
+            ->willReturn(Observable::empty());
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -98,18 +139,15 @@ class WatchTest extends AbstractTestCommand
         $this->input->getArgument('watches')->willReturn(['custom-dir']);
         $this->input->getOption('no-defaults')->willReturn(true);
 
-        $includes = 'custom-dir';
-        $excludes = '-e ".*__jb_.*$" -e ".*swp$" -e ".*swpx$"';
-        $expected  = sprintf(
-            'fswatch -r %s %s | xargs -n1 -I {} %s sync --ansi {}',
-            $includes,
-            $excludes,
-            realpath(__DIR__ . '/../../bin/workflow')
-        );
-
-        $this->processTest($expected);
         $this->output->writeln('<info>Watching for file changes...</info>')->shouldBeCalled();
         $this->output->writeln('')->shouldBeCalled();
+
+        $this->watchFactory
+            ->create(
+                ['custom-dir'],
+                ['".*__jb_.*$"', '".*swp$"', '".*swpx$"']
+            )
+            ->willReturn(Observable::empty());
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -122,5 +160,157 @@ class WatchTest extends AbstractTestCommand
         $this->input->getOption('no-defaults')->willReturn(true);
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testCreatedDirectoryIsNotUploaded()
+    {
+        $this->useValidEnvironment();
+
+        $folderToCreate = __DIR__ . '/../fixtures/valid-env/app/some-folder';
+
+        $watch = (new WatchFactory(self::$loop))->create(['app']);
+        $this->watchFactory->create(Argument::any(), Argument::any())->willReturn($watch);
+
+        $this->command->run(new ArrayInput([]), new NullOutput);
+
+        self::$loop->addTimer(1, function () use ($folderToCreate, $watch) {
+            @mkdir($folderToCreate, 0777, true);
+
+            self::$loop->addTimer(2, function () use ($watch) {
+                self::$loop->stop();
+                $watch->getSubject()->dispose();
+            });
+        });
+
+        self::$loop->run();
+
+        $this->files->upload('m2-php', [$folderToCreate])->shouldNotHaveBeenCalled();
+        $this->files->delete('m2-php', [$folderToCreate])->shouldNotHaveBeenCalled();
+
+        $this->fileSystem->remove(dirname($folderToCreate));
+    }
+
+    public function testNewFileIsUploaded()
+    {
+        $this->useValidEnvironment();
+
+        @mkdir(__DIR__ . '/../fixtures/valid-env/app', 0777, true);
+        $fileToCreate = __DIR__ . '/../fixtures/valid-env/app/file.php';
+
+        $watch = (new WatchFactory(self::$loop))->create(['app']);
+        $this->watchFactory->create(Argument::any(), Argument::any())->willReturn($watch);
+
+        $this->command->run(new ArrayInput([]), new NullOutput);
+
+        self::$loop->addTimer(1, function () use ($fileToCreate, $watch) {
+            touch($fileToCreate);
+
+            self::$loop->addTimer(2, function () use ($watch) {
+                self::$loop->stop();
+                $watch->getSubject()->dispose();
+            });
+        });
+
+        self::$loop->run();
+
+        $this->files->upload('m2-php', [realpath($fileToCreate)])->shouldHaveBeenCalled();
+        $this->files->delete('m2-php', [realpath($fileToCreate)])->shouldNotHaveBeenCalled();
+
+        $this->fileSystem->remove(__DIR__ . '/../fixtures/valid-env/app');
+    }
+
+    public function testNewFileIsDeleted()
+    {
+        $this->useValidEnvironment();
+
+        @mkdir(__DIR__ . '/../fixtures/valid-env/app', 0777, true);
+        $file = __DIR__ . '/../fixtures/valid-env/app/file.php';
+        touch($file);
+        $file = realpath($file);
+
+        $watch = (new WatchFactory(self::$loop))->create(['app']);
+        $this->watchFactory->create(Argument::any(), Argument::any())->willReturn($watch);
+
+        $this->command->run(new ArrayInput([]), new NullOutput);
+
+        self::$loop->addTimer(1, function () use ($file, $watch) {
+            unlink($file);
+
+            self::$loop->addTimer(2, function () use ($watch) {
+                self::$loop->stop();
+                $watch->getSubject()->dispose();
+            });
+        });
+
+        self::$loop->run();
+
+        $this->files->upload('m2-php', [$file])->shouldNotHaveBeenCalled();
+        $this->files->delete('m2-php', [$file])->shouldHaveBeenCalled();
+
+        $this->fileSystem->remove(__DIR__ . '/../fixtures/valid-env/app');
+    }
+
+    public function testNewFileIsCreatedAndDeleted()
+    {
+        $this->useValidEnvironment();
+
+        @mkdir(__DIR__ . '/../fixtures/valid-env/app', 0777, true);
+        $fileToCreate = __DIR__ . '/../fixtures/valid-env/app/create-me.php';
+        $fileToDelete = __DIR__ . '/../fixtures/valid-env/app/delete-me.php';
+        touch($fileToDelete);
+        $fileToDelete = realpath($fileToDelete);
+
+        $watch = (new WatchFactory(self::$loop))->create(['app']);
+        $this->watchFactory->create(Argument::any(), Argument::any())->willReturn($watch);
+
+        self::$loop->addTimer(1, function () use ($fileToDelete, $fileToCreate, $watch) {
+            unlink($fileToDelete);
+            touch($fileToCreate);
+
+            self::$loop->addTimer(1, function () use ($watch) {
+                self::$loop->stop();
+                $watch->getSubject()->dispose();
+            });
+        });
+
+        $this->command->run(new ArrayInput([]), new NullOutput);
+
+        self::$loop->run();
+
+        $this->files->upload('m2-php', [realpath($fileToCreate)])->shouldHaveBeenCalled();
+        $this->files->delete('m2-php', [$fileToDelete])->shouldHaveBeenCalled();
+
+        $this->fileSystem->remove(__DIR__ . '/../fixtures/valid-env/app');
+    }
+
+    public function testModifiedFileIsUploaded()
+    {
+        $this->useValidEnvironment();
+
+        @mkdir(__DIR__ . '/../fixtures/valid-env/app', 0777, true);
+        $fileToModify = __DIR__ . '/../fixtures/valid-env/app/file.php';
+        touch($fileToModify);
+        $fileToModify = realpath($fileToModify);
+
+        $watch = (new WatchFactory(self::$loop))->create(['app']);
+        $this->watchFactory->create(Argument::any(), Argument::any())->willReturn($watch);
+
+        $this->command->run(new ArrayInput([]), new NullOutput);
+
+        self::$loop->addTimer(1, function () use ($watch, $fileToModify) {
+            file_put_contents($fileToModify, 'wow so much watch');
+
+            self::$loop->addTimer(2, function () use ($watch) {
+                self::$loop->stop();
+                $watch->getSubject()->dispose();
+            });
+        });
+
+        self::$loop->run();
+
+        $this->files->upload('m2-php', [realpath($fileToModify)])->shouldHaveBeenCalled();
+        $this->files->delete('m2-php', [realpath($fileToModify)])->shouldNotHaveBeenCalled();
+
+        $this->fileSystem->remove(__DIR__ . '/../fixtures/valid-env/app');
     }
 }

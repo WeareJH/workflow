@@ -9,6 +9,11 @@ use Jh\Workflow\NewProject\Step;
 use Jh\Workflow\NewProject\StepRunner;
 use Jh\Workflow\NewProject\TemplateWriter;
 use Jh\Workflow\ProcessFactory;
+use Jh\Workflow\WatchFactory;
+use React\EventLoop\LoopInterface;
+use React\EventLoop\StreamSelectLoop;
+use Rx\Scheduler;
+use Rx\Scheduler\EventLoopScheduler;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\ProcessBuilder;
@@ -45,15 +50,33 @@ return [
         $app->add($c->get(Command\Exec::class));
         $app->add($c->get(Command\Delete::class));
 
+        $eventLoop = $c->get(LoopInterface::class);
+
+        Scheduler::setDefaultFactory(function() use ($eventLoop) {
+            return new EventLoopScheduler($eventLoop);
+        });
+
+        register_shutdown_function(function () use ($eventLoop) {
+             $eventLoop->run();
+        });
+
         return $app;
     },
     OutputInterface::class => function () {
         return new ConsoleOutput;
     },
     ProcessBuilder::class  => DI\object(),
-    ProcessFactory::class  => DI\object(),
     TemplateWriter::class  => DI\object(),
     DetailsGatherer::class => DI\object(),
+    LoopInterface::class => function () {
+        return new StreamSelectLoop;
+    },
+    ProcessFactory::class  => function (ContainerInterface $c) {
+        return new ProcessFactory($c->get(LoopInterface::class));
+    },
+    WatchFactory::class => function (ContainerInterface $c) {
+        return new WatchFactory($c->get(LoopInterface::class));
+    },
     Files::class => function (ContainerInterface $c) {
         return new Files($c->get(ProcessFactory::class), $c->get(OutputInterface::class));
     },
@@ -70,7 +93,7 @@ return [
     Command\Stop::class               => DI\object(),
     Command\Up::class                 => DI\object(),
     Command\Watch::class              => function (ContainerInterface $c) {
-        return new Command\Watch($c->get(ProcessFactory::class), $c->get(Files::class));
+        return new Command\Watch($c->get(WatchFactory::class), $c->get(Files::class));
     },
     Command\Sync::class               => DI\object(),
     Command\ComposerUpdate::class     => DI\object(),

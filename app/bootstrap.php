@@ -20,13 +20,6 @@ switch (true) {
         throw new RuntimeException('Unable to locate Composer autoloader; please run "composer install".');
 }
 
-function toMap($function)
-{
-    return function ($item, $key) use ($function) {
-        return $function($item);
-    };
-}
-
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 

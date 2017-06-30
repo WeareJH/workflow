@@ -39,6 +39,24 @@ class BuildTest extends AbstractTestCommand
 
         $expected = 'docker build -t wearejh/m2 -f app.php.dockerfile ./';
 
+        $this->input->getOption('prod')->willReturn(false);
+        $this->input->getOption('no-cache')->willReturn(false);
+
+        $this->processTest($expected);
+        $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testBuildForDevelopmentWithNoCache()
+    {
+        $this->useValidEnvironment();
+
+        $expected = 'docker build -t wearejh/m2 -f app.php.dockerfile ./ --no-cache';
+
+        $this->input->getOption('prod')->willReturn(false);
+        $this->input->getOption('no-cache')->willReturn(true);
+
         $this->processTest($expected);
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
 
@@ -52,6 +70,22 @@ class BuildTest extends AbstractTestCommand
         $expected = 'docker build -t wearejh/m2 -f app.php.dockerfile --build-arg BUILD_ENV=prod ./';
 
         $this->input->getOption('prod')->willReturn(true);
+        $this->input->getOption('no-cache')->willReturn(false);
+
+        $this->processTest($expected);
+        $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testBuildForProductionWithNoCache()
+    {
+        $this->useValidEnvironment();
+
+        $expected = 'docker build -t wearejh/m2 -f app.php.dockerfile --build-arg BUILD_ENV=prod ./ --no-cache';
+
+        $this->input->getOption('prod')->willReturn(true);
+        $this->input->getOption('no-cache')->willReturn(true);
 
         $this->processTest($expected);
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();

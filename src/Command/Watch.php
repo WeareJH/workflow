@@ -4,35 +4,37 @@ namespace Jh\Workflow\Command;
 
 use Jh\Workflow\BufferWithTime;
 use Jh\Workflow\Files;
-use Rx\Observable;
+use Jh\Workflow\WatchFactory;
 use Rx\React\FsWatch;
 use Rx\React\WatchEvent;
 use Rx\Scheduler;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Process;
-use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
+ * @author Aydin Hassan <aydin@wearejh.com>
  */
 class Watch extends Command implements CommandInterface
 {
     use DockerAwareTrait;
 
     /**
+     * @var WatchFactory
+     */
+    private $watchFactory;
+
+    /**
      * @var Files
      */
     private $files;
 
-    public function __construct(ProcessFactory $processFactory, Files $files)
+    public function __construct(WatchFactory $watchFactory, Files $files)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->watchFactory = $watchFactory;
         $this->files = $files;
     }
 
@@ -62,9 +64,7 @@ class Watch extends Command implements CommandInterface
         $output->writeln('');
 
         $phpContainer = $this->phpContainerName();
-
-        $options = sprintf('-e %s -l 0.5', implode(' -e ', $excludes));
-        $fsWatch = new FsWatch(implode(' ', $watches), $options, null);
+        $fsWatch = $this->watchFactory->create($watches, $excludes);
         $fsWatch->lift(function () {
             return new BufferWithTime(500, Scheduler::getAsync());
         })->subscribe(function (array $watches) use ($phpContainer) {
@@ -80,8 +80,13 @@ class Watch extends Command implements CommandInterface
                 return file_exists($item);
             });
 
-            $this->files->delete($phpContainer, $removed->all());
-            $this->files->upload($phpContainer, $exists->all());
+            if ($removed->isNotEmpty()) {
+                $this->files->delete($phpContainer, $removed->values()->all());
+            }
+
+            if ($exists->isNotEmpty()) {
+                $this->files->upload($phpContainer, $exists->values()->all());
+            }
         });
     }
 }

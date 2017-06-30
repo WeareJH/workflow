@@ -27,13 +27,19 @@ class Build extends Command implements CommandInterface
         $this
             ->setName('build')
             ->setDescription('Runs docker build to create an image ready for use')
-            ->addOption('prod', 'p', InputOption::VALUE_NONE, 'Ommits development configurations');
+            ->addOption('prod', 'p', InputOption::VALUE_NONE, 'Ommits development configurations')
+            ->addOption('no-cache', null, InputOption::VALUE_NONE, 'Skip the build cache');
+
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $service  = $this->getServiceConfig('php');
         $buildArg = $input->getOption('prod') ? '--build-arg BUILD_ENV=prod ./' : './';
+
+        if ($input->getOption('no-cache')) {
+            $buildArg .= ' --no-cache';
+        }
 
         if (!isset($service['image'])) {
             throw new \RuntimeException('No image specified for PHP container');

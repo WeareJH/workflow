@@ -2,14 +2,12 @@
 
 namespace Jh\Workflow\Command;
 
-use Jh\Workflow\ProcessFailedException;
+use Jh\Workflow\Files;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Process;
-use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -17,12 +15,16 @@ use Jh\Workflow\ProcessFactory;
 class Push extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-    use ProcessRunnerTrait;
 
-    public function __construct(ProcessFactory $processFactory)
+    /**
+     * @var Files
+     */
+    private $files;
+
+    public function __construct(Files $files)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->files = $files;
     }
 
     public function configure()
@@ -44,60 +46,21 @@ class Push extends Command implements CommandInterface
         $container = $this->phpContainerName();
         $files     = (array) $input->getArgument('files');
 
-        foreach ($files as $file) {
-            $srcPath   = trim(str_replace(getcwd(), '', $file), '/');
-            $destFile  = sprintf('/var/www/%s', $srcPath);
-            $destPath  = str_replace(basename($destFile), '', $destFile);
 
-            if (!file_exists($srcPath)) {
-                $output->writeln(sprintf('Looks like "%s" doesn\'t exist', $srcPath));
+        foreach ($files as $file) {
+            if (!file_exists($file)) {
+                $output->writeln(sprintf('Looks like "%s" doesn\'t exist', $file));
                 return;
             }
 
-            if ($overwrite && is_dir($srcPath) && $this->fileExistsInContainer($container, $destFile)) {
+            if ($overwrite && is_dir($file) && $this->files->existsInContainer($container, $file)) {
                 //we only remove on container first if it is a directory
                 //as the new directory we push may have a different set of files in it
                 //for files we can just overwrite and save some cycles
-                $this->runProcessShowingOutput(
-                    $output,
-                    sprintf('docker exec %s rm -rf %s', $container, escapeshellarg($destFile))
-                );
+                $this->files->delete($container, [$file]);
             }
-
-            $mkdirCommand = sprintf(
-                'docker exec %s mkdir -p %s',
-                $container,
-                escapeshellarg(dirname($destFile))
-            );
-            $copyCommand  = sprintf(
-                'docker cp %s %s:%s',
-                escapeshellarg($srcPath),
-                $container,
-                escapeshellarg($destPath)
-            );
-            $chownCommand = sprintf(
-                'docker exec %s chown -R www-data:www-data %s',
-                $container,
-                escapeshellarg($destFile)
-            );
-
-            $this->runProcessShowingOutput($output, $mkdirCommand);
-            $this->runProcessShowingOutput($output, $copyCommand);
-            $this->runProcessNoOutput($chownCommand);
-
-            $output->writeln(
-                sprintf("<info> + %s > %s </info>", $srcPath, $container)
-            );
         }
-    }
 
-    private function fileExistsInContainer(string $container, string $destFile) : bool
-    {
-        try {
-            $this->runProcessNoOutput(sprintf('docker exec %s test -e %s', $container, escapeshellarg($destFile)));
-            return true;
-        } catch (ProcessFailedException $e) {
-            return false;
-        }
+        $this->files->upload($container, $files);
     }
 }

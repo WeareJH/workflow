@@ -3,9 +3,8 @@
 namespace Jh\WorkflowTest\Command;
 
 use Jh\Workflow\Command\Push;
-use Prophecy\Argument;
+use Jh\Workflow\Files;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Process\Process;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -17,10 +16,16 @@ class PushTest extends AbstractTestCommand
      */
     private $command;
 
+    /**
+     * @var Files
+     */
+    private $files;
+
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Push($this->processFactory->reveal());
+        $this->files = $this->prophesize(Files::class);
+        $this->command = new Push($this->files->reveal());
     }
 
     public function tearDown()
@@ -53,10 +58,7 @@ class PushTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalled()->willReturn(['some-file.txt']);
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(true);
 
-        $this->processTest('docker exec m2-php mkdir -p \'/var/www\'');
-        $this->processTest('docker cp \'some-file.txt\' m2-php:\'/var/www/\'');
-        $this->processTestNoOutput('docker exec m2-php chown -R www-data:www-data \'/var/www/some-file.txt\'');
-        $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
+        $this->files->upload('m2-php', ['some-file.txt'])->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -69,10 +71,7 @@ class PushTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalled()->willReturn([$filePath]);
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(true);
 
-        $this->processTest('docker exec m2-php mkdir -p \'/var/www\'');
-        $this->processTest('docker cp \'some-file.txt\' m2-php:\'/var/www/\'');
-        $this->processTestNoOutput('docker exec m2-php chown -R www-data:www-data \'/var/www/some-file.txt\'');
-        $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
+        $this->files->upload('m2-php', [$filePath])->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -85,16 +84,8 @@ class PushTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalled()->willReturn([$filePath]);
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(false);
 
-        $process = $this->prophesize(Process::class);
-        $process->run()->willReturn(0);
-        $this->processFactory->create('docker exec m2-php test -e \'/var/www/some-file.txt\'')->willReturn($process);
-
-        $this->processFactory->create('docker exec m2-php rm -rf \'/var/www/some-file.txt\'')->shouldNotBeCalled();
-
-        $this->processTest('docker exec m2-php mkdir -p \'/var/www\'');
-        $this->processTest('docker cp \'some-file.txt\' m2-php:\'/var/www/\'');
-        $this->processTestNoOutput('docker exec m2-php chown -R www-data:www-data \'/var/www/some-file.txt\'');
-        $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
+        $this->files->delete('m2-php', [$filePath])->shouldNotBeCalled();
+        $this->files->upload('m2-php', [$filePath])->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -107,40 +98,29 @@ class PushTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalled()->willReturn([$filePath]);
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(false);
 
-        $process = $this->prophesize(Process::class);
-        $process->run()->willReturn(0);
-        $this->processFactory->create('docker exec m2-php test -e \'/var/www/some-folder\'')->willReturn($process);
-
-        $this->processTest('docker exec m2-php rm -rf \'/var/www/some-folder\'');
-        $this->processTest('docker exec m2-php mkdir -p \'/var/www\'');
-        $this->processTest('docker cp \'some-folder\' m2-php:\'/var/www/\'');
-        $this->processTestNoOutput('docker exec m2-php chown -R www-data:www-data \'/var/www/some-folder\'');
-        $this->output->writeln("<info> + some-folder > m2-php </info>")->shouldBeCalled();
+        $this->files->existsInContainer('m2-php', $filePath)->willReturn(true)->shouldBeCalled();
+        $this->files->delete('m2-php', [$filePath])->shouldBeCalled();
+        $this->files->upload('m2-php', [$filePath])->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
 
-    public function testPushCommandDoesNotRemoveRemoteFileIfItDoesNotExistsAlready()
+    public function testPushCommandDoesNotRemoveRemoteFolderIfItDoesNotExistsAlready()
     {
         $this->useValidEnvironment();
 
-        $filePath = realpath('some-file.txt');
+        $filePath = realpath('some-folder');
         $this->input->getArgument('files')->shouldBeCalled()->willReturn([$filePath]);
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(false);
 
-        $process = $this->prophesize(Process::class);
-        $process->run()->willReturn(1);
-        $this->processFactory->create('docker exec m2-php test -e \'/var/www/some-file.txt\'')->willReturn($process);
-
-        $this->processTest('docker exec m2-php mkdir -p \'/var/www\'');
-        $this->processTest('docker cp \'some-file.txt\' m2-php:\'/var/www/\'');
-        $this->processTestNoOutput('docker exec m2-php chown -R www-data:www-data \'/var/www/some-file.txt\'');
-        $this->output->writeln("<info> + some-file.txt > m2-php </info>")->shouldBeCalled();
+        $this->files->existsInContainer('m2-php', $filePath)->willReturn(false)->shouldBeCalled();
+        $this->files->delete('m2-php', [$filePath])->shouldNotBeCalled();
+        $this->files->upload('m2-php', [$filePath])->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
 
-    public function testOutputWhenFileDoesntExistInContainer()
+    public function testOutputWhenFileDoesNotExistInContainer()
     {
         $this->useValidEnvironment();
 

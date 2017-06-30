@@ -18,7 +18,8 @@
         "tightenco/collect": "^5.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6"
+        "phpunit/phpunit": "^6",
+        "symfony/filesystem": "^3.3"
     },
     "repositories": [
         {
@@ -34,7 +35,8 @@
     "autoload-dev": {
         "psr-4": {
             "Jh\\WorkflowTest\\": "test"
-        }
+        },
+        "files": ["src/functions.php"]
     },
     "bin": [
         "bin/workflow"

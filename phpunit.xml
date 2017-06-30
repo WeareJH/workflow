@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit colors="true">
+<phpunit colors="true" stopOnFailure="true">
     <testsuite name="Workflow Test Suite">
         <directory>./test</directory>
     </testsuite>
