@@ -2,7 +2,6 @@
 
 namespace Jh\WorkflowTest;
 
-use EventLoop\EventLoop;
 use Jh\Workflow\ProcessFactory;
 use Jh\Workflow\Files;
 use Jh\Workflow\Test\WorkflowTest;
@@ -10,7 +9,6 @@ use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
-
 
 class FilesTest extends WorkflowTest
 {

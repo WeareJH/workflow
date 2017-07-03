@@ -14,19 +14,11 @@ class WorkflowTest extends TestCase
 
     public static function assertFileExistsInContainer(string $filePath, string $container, string $message = '')
     {
-        if ($filePath[0] !== '/') {
-            $filePath = '/var/www/' . $filePath;
-        }
-
         self::assertThat($filePath, new FileExistsInContainer($container), $message);
     }
 
     public static function assertFileNotExistsInContainer(string $filePath, string $container, string $message = '')
     {
-        if ($filePath[0] !== '/') {
-            $filePath = '/var/www/' . $filePath;
-        }
-
         self::assertThat($filePath, new LogicalNot(new FileExistsInContainer($container)), $message);
     }
 

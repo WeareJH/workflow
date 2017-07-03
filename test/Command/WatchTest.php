@@ -20,6 +20,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
+ * @author Aydin Hassan <aydin@wearejh.com>
+ * @runTestsInSeparateProcesses
  */
 class WatchTest extends AbstractTestCommand
 {
@@ -46,15 +48,7 @@ class WatchTest extends AbstractTestCommand
     /**
      * @var LoopInterface
      */
-    private static $loop;
-
-    public static function setUpBeforeClass()
-    {
-        self::$loop = new StreamSelectLoop;
-        Scheduler::setDefaultFactory(function() {
-            return new EventLoopScheduler(self::$loop);
-        });
-    }
+    private $loop;
 
     public function setUp()
     {
@@ -65,6 +59,11 @@ class WatchTest extends AbstractTestCommand
         $this->command = new Watch($this->watchFactory->reveal(), $this->files->reveal());
 
         $this->fileSystem = new Filesystem;
+
+        $this->loop = new StreamSelectLoop;
+        Scheduler::setDefaultFactory(function() {
+            return new EventLoopScheduler($this->loop);
+        });
     }
 
     public function tearDown()
@@ -168,21 +167,21 @@ class WatchTest extends AbstractTestCommand
 
         $folderToCreate = __DIR__ . '/../fixtures/valid-env/app/some-folder';
 
-        $watch = (new WatchFactory(self::$loop))->create(['app']);
+        $watch = (new WatchFactory($this->loop))->create(['app']);
         $this->watchFactory->create(Argument::any(), Argument::any())->willReturn($watch);
 
         $this->command->run(new ArrayInput([]), new NullOutput);
 
-        self::$loop->addTimer(1, function () use ($folderToCreate, $watch) {
+        $this->loop->addTimer(1, function () use ($folderToCreate, $watch) {
             @mkdir($folderToCreate, 0777, true);
 
-            self::$loop->addTimer(2, function () use ($watch) {
-                self::$loop->stop();
+            $this->loop->addTimer(2, function () use ($watch) {
+                $this->loop->stop();
                 $watch->getSubject()->dispose();
             });
         });
 
-        self::$loop->run();
+        $this->loop->run();
 
         $this->files->upload('m2-php', [$folderToCreate])->shouldNotHaveBeenCalled();
         $this->files->delete('m2-php', [$folderToCreate])->shouldNotHaveBeenCalled();
@@ -197,21 +196,21 @@ class WatchTest extends AbstractTestCommand
         @mkdir(__DIR__ . '/../fixtures/valid-env/app', 0777, true);
         $fileToCreate = __DIR__ . '/../fixtures/valid-env/app/file.php';
 
-        $watch = (new WatchFactory(self::$loop))->create(['app']);
+        $watch = (new WatchFactory($this->loop))->create(['app']);
         $this->watchFactory->create(Argument::any(), Argument::any())->willReturn($watch);
 
         $this->command->run(new ArrayInput([]), new NullOutput);
 
-        self::$loop->addTimer(1, function () use ($fileToCreate, $watch) {
+        $this->loop->addTimer(1, function () use ($fileToCreate, $watch) {
             touch($fileToCreate);
 
-            self::$loop->addTimer(2, function () use ($watch) {
-                self::$loop->stop();
+            $this->loop->addTimer(2, function () use ($watch) {
+                $this->loop->stop();
                 $watch->getSubject()->dispose();
             });
         });
 
-        self::$loop->run();
+        $this->loop->run();
 
         $this->files->upload('m2-php', [realpath($fileToCreate)])->shouldHaveBeenCalled();
         $this->files->delete('m2-php', [realpath($fileToCreate)])->shouldNotHaveBeenCalled();
@@ -228,21 +227,21 @@ class WatchTest extends AbstractTestCommand
         touch($file);
         $file = realpath($file);
 
-        $watch = (new WatchFactory(self::$loop))->create(['app']);
+        $watch = (new WatchFactory($this->loop))->create(['app']);
         $this->watchFactory->create(Argument::any(), Argument::any())->willReturn($watch);
 
         $this->command->run(new ArrayInput([]), new NullOutput);
 
-        self::$loop->addTimer(1, function () use ($file, $watch) {
+        $this->loop->addTimer(1, function () use ($file, $watch) {
             unlink($file);
 
-            self::$loop->addTimer(2, function () use ($watch) {
-                self::$loop->stop();
+            $this->loop->addTimer(2, function () use ($watch) {
+                $this->loop->stop();
                 $watch->getSubject()->dispose();
             });
         });
 
-        self::$loop->run();
+        $this->loop->run();
 
         $this->files->upload('m2-php', [$file])->shouldNotHaveBeenCalled();
         $this->files->delete('m2-php', [$file])->shouldHaveBeenCalled();
@@ -260,22 +259,22 @@ class WatchTest extends AbstractTestCommand
         touch($fileToDelete);
         $fileToDelete = realpath($fileToDelete);
 
-        $watch = (new WatchFactory(self::$loop))->create(['app']);
+        $watch = (new WatchFactory($this->loop))->create(['app']);
         $this->watchFactory->create(Argument::any(), Argument::any())->willReturn($watch);
 
-        self::$loop->addTimer(1, function () use ($fileToDelete, $fileToCreate, $watch) {
+        $this->loop->addTimer(1, function () use ($fileToDelete, $fileToCreate, $watch) {
             unlink($fileToDelete);
             touch($fileToCreate);
 
-            self::$loop->addTimer(1, function () use ($watch) {
-                self::$loop->stop();
+            $this->loop->addTimer(1, function () use ($watch) {
+                $this->loop->stop();
                 $watch->getSubject()->dispose();
             });
         });
 
         $this->command->run(new ArrayInput([]), new NullOutput);
 
-        self::$loop->run();
+        $this->loop->run();
 
         $this->files->upload('m2-php', [realpath($fileToCreate)])->shouldHaveBeenCalled();
         $this->files->delete('m2-php', [$fileToDelete])->shouldHaveBeenCalled();
@@ -292,21 +291,21 @@ class WatchTest extends AbstractTestCommand
         touch($fileToModify);
         $fileToModify = realpath($fileToModify);
 
-        $watch = (new WatchFactory(self::$loop))->create(['app']);
+        $watch = (new WatchFactory($this->loop))->create(['app']);
         $this->watchFactory->create(Argument::any(), Argument::any())->willReturn($watch);
 
         $this->command->run(new ArrayInput([]), new NullOutput);
 
-        self::$loop->addTimer(1, function () use ($watch, $fileToModify) {
+        $this->loop->addTimer(1, function () use ($watch, $fileToModify) {
             file_put_contents($fileToModify, 'wow so much watch');
 
-            self::$loop->addTimer(2, function () use ($watch) {
-                self::$loop->stop();
+            $this->loop->addTimer(2, function () use ($watch) {
+                $this->loop->stop();
                 $watch->getSubject()->dispose();
             });
         });
 
-        self::$loop->run();
+        $this->loop->run();
 
         $this->files->upload('m2-php', [realpath($fileToModify)])->shouldHaveBeenCalled();
         $this->files->delete('m2-php', [realpath($fileToModify)])->shouldNotHaveBeenCalled();
