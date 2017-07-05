@@ -13,15 +13,26 @@
         "php-di/php-di": "^5.4",
         "symfony/yaml": "^3.2",
         "symfony/process": "^3.2",
-        "m1/env": "^2.1"
+        "m1/env": "^2.1",
+        "rx/fswatch": "dev-deal-with-multiple-events-in-one-read",
+        "tightenco/collect": "^5.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6"
+        "phpunit/phpunit": "^6",
+        "symfony/filesystem": "^3.3",
+        "php-mock/php-mock-phpunit": "^2.0"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:AydinHassan/RxFsWatch.git"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Jh\\Workflow\\": "src"
-        }
+        },
+        "files": ["src/functions.php"]
     },
     "autoload-dev": {
         "psr-4": {

@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+    php:
+        container_name: m2-php
+        image: workflow-test
+        build:
+            context: ./
+            dockerfile: app.php.dockerfile
+        working_dir: /var/www
+        ports:
+            - 9000

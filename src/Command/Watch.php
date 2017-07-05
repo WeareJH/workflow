@@ -2,25 +2,40 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\BufferWithTime;
+use Jh\Workflow\Files;
+use Jh\Workflow\WatchFactory;
+use Rx\React\FsWatch;
+use Rx\React\WatchEvent;
+use Rx\Scheduler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Process;
-use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
+ * @author Aydin Hassan <aydin@wearejh.com>
  */
 class Watch extends Command implements CommandInterface
 {
-    use ProcessRunnerTrait;
+    use DockerAwareTrait;
 
-    public function __construct(ProcessFactory $processFactory)
+    /**
+     * @var WatchFactory
+     */
+    private $watchFactory;
+
+    /**
+     * @var Files
+     */
+    private $files;
+
+    public function __construct(WatchFactory $watchFactory, Files $files)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->watchFactory = $watchFactory;
+        $this->files = $files;
     }
 
     public function configure()
@@ -42,19 +57,36 @@ class Watch extends Command implements CommandInterface
             : array_merge($input->getArgument('watches'), $watches);
 
         if (!$watches) {
-            throw new \InvalidArgumentException('You must watch atleast something...');
+            throw new \InvalidArgumentException('You must watch at least something...');
         }
 
-        $output->writeln("<info>Watching for file changes...</info>");
+        $output->writeln('<info>Watching for file changes...</info>');
         $output->writeln('');
 
-        $command = sprintf(
-            'fswatch -r %s -e %s | xargs -n1 -I {} %s sync --ansi {}',
-            implode(' ', $watches),
-            implode(' -e ', $excludes),
-            realpath(__DIR__ . '/../../bin/workflow')
-        );
+        $phpContainer = $this->phpContainerName();
+        $fsWatch = $this->watchFactory->create($watches, $excludes);
+        $fsWatch->lift(function () {
+            return new BufferWithTime(500, Scheduler::getAsync());
+        })->subscribe(function (array $watches) use ($phpContainer) {
+            $files = collect($watches)
+                ->reject(function (WatchEvent $event) {
+                    return $event->isDir();
+                })
+                ->map(function (WatchEvent $event) {
+                    return $event->getFile();
+                });
 
-        $this->runProcessShowingOutput($output, $command);
+            list($exists, $removed) = $files->partition(function ($item) {
+                return file_exists($item);
+            });
+
+            if ($removed->isNotEmpty()) {
+                $this->files->delete($phpContainer, $removed->values()->all());
+            }
+
+            if ($exists->isNotEmpty()) {
+                $this->files->upload($phpContainer, $exists->values()->all());
+            }
+        });
     }
 }

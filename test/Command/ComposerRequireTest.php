@@ -93,7 +93,7 @@ class ComposerRequireTest extends AbstractTestCommand
 
         $this->processTest($cmd);
 
-        $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.json', 'composer.lock']]);
+        $expectedInput = new ArrayInput(['files' => ['.docker/composer-cache', 'vendor', 'composer.json', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
 
         $this->input->getArgument('package')->shouldBeCalled()->willReturn('my/package');
@@ -118,7 +118,7 @@ class ComposerRequireTest extends AbstractTestCommand
 
         $this->processTest(sprintf($cmd, $expectedFlag));
 
-        $expectedInput = new ArrayInput(['files' => ['vendor', 'composer.json', 'composer.lock']]);
+        $expectedInput = new ArrayInput(['files' => ['.docker/composer-cache', 'vendor', 'composer.json', 'composer.lock']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
 
         $this->input->getArgument('package')->shouldBeCalled()->willReturn('my/package');

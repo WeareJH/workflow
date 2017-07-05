@@ -2,13 +2,12 @@
 
 namespace Jh\Workflow\Command;
 
-use Jh\Workflow\ProcessFailedException;
+use Jh\Workflow\Files;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -16,12 +15,16 @@ use Jh\Workflow\ProcessFactory;
 class Pull extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-    use ProcessRunnerTrait;
 
-    public function __construct(ProcessFactory $processFactory)
+    /**
+     * @var Files
+     */
+    private $files;
+
+    public function __construct(Files $files)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->files = $files;
     }
 
     public function configure()
@@ -51,38 +54,20 @@ class Pull extends Command implements CommandInterface
         $files     = (array) $input->getArgument('files');
 
         foreach ($files as $file) {
-            $srcPath = ltrim($file, '/');
 
-            if (!$this->fileExistsInContainer($container, $srcPath)) {
-                $output->writeln(sprintf('Looks like "%s" doesn\'t exist', $srcPath));
+            if (!$this->files->existsInContainer($container, $file)) {
+                $output->writeln(sprintf('Looks like "%s" doesn\'t exist', $file));
                 return;
             }
 
-            $destPath = './' . $srcPath;
-            if ($overwrite && is_dir($destPath)) {
+            if ($overwrite && is_dir($file)) {
                 //we only remove if the file exists and is a directory
                 //as the new directory we push may have a different set of files in it
                 //for files we can just overwrite and save some cycles
-                $this->runProcessNoOutput('rm -rf ' . $destPath);
+                $this->files->deleteLocally([$file]);
             }
-
-            $command = sprintf('docker cp %s:/var/www/%s %s', $container, $srcPath, dirname($destPath) . '/');
-            $this->runProcessShowingOutput($output, $command);
-
-            $output->writeln(
-                sprintf(
-                    "<info>Copied '%s' from container into '%s/' on the host</info>", $srcPath, dirname($destPath))
-            );
         }
-    }
 
-    private function fileExistsInContainer(string $container, string $destFile) : bool
-    {
-        try {
-            $this->runProcessNoOutput(sprintf('docker exec %s test -e %s', $container, escapeshellarg($destFile)));
-            return true;
-        } catch (ProcessFailedException $e) {
-            return false;
-        }
+        $this->files->download($container, $files);
     }
 }

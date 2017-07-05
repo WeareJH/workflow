@@ -3,10 +3,8 @@
 namespace Jh\WorkflowTest\Command;
 
 use Jh\Workflow\Command\Pull;
-use Jh\Workflow\ProcessFailedException;
-use Prophecy\Argument;
+use Jh\Workflow\Files;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Process\Process;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -18,10 +16,16 @@ class PullTest extends AbstractTestCommand
      */
     private $command;
 
+    /**
+     * @var Files
+     */
+    private $files;
+
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Pull($this->processFactory->reveal());
+        $this->files = $this->prophesize(Files::class);
+        $this->command = new Pull($this->files->reveal());
     }
 
     public function tearDown()
@@ -61,14 +65,8 @@ class PullTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalled()->willReturn(['some-file.txt']);
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(true);
 
-        $this->processTestNoOutput(
-            "docker exec m2-php test -e 'some-file.txt'"
-        );
-
-        $this->processTest('docker cp m2-php:/var/www/some-file.txt ./');
-        $this->output
-            ->writeln("<info>Copied 'some-file.txt' from container into './' on the host</info>")
-            ->shouldBeCalled();
+        $this->files->existsInContainer('m2-php', 'some-file.txt')->willReturn(true)->shouldBeCalled();
+        $this->files->download('m2-php', ['some-file.txt'])->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -80,14 +78,9 @@ class PullTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalled()->willReturn(['some-file.txt']);
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(false);
 
-        $this->processTestNoOutput(
-            "docker exec m2-php test -e 'some-file.txt'"
-        );
-
-        $this->processTest('docker cp m2-php:/var/www/some-file.txt ./');
-        $this->output
-            ->writeln("<info>Copied 'some-file.txt' from container into './' on the host</info>")
-            ->shouldBeCalled();
+        $this->files->existsInContainer('m2-php', 'some-file.txt')->willReturn(true)->shouldBeCalled();
+        $this->files->deleteLocally(['some-file.txt'])->shouldNotBeCalled();
+        $this->files->download('m2-php', ['some-file.txt'])->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -99,30 +92,21 @@ class PullTest extends AbstractTestCommand
         $this->input->getArgument('files')->shouldBeCalled()->willReturn(['some-folder']);
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(false);
 
-        $this->processTestNoOutput(
-            "docker exec m2-php test -e 'some-folder'"
-        );
-
-        $this->processTestNoOutput('rm -rf ./some-folder');
-        $this->processTest('docker cp m2-php:/var/www/some-folder ./');
-        $this->output
-            ->writeln("<info>Copied 'some-folder' from container into './' on the host</info>")
-            ->shouldBeCalled();
+        $this->files->existsInContainer('m2-php', 'some-folder')->willReturn(true)->shouldBeCalled();
+        $this->files->deleteLocally(['some-folder'])->shouldBeCalled();
+        $this->files->download('m2-php', ['some-folder'])->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
 
-    public function testOutputWhenFileDoesntExistInContainer()
+    public function testOutputWhenFileDoesNotExistInContainer()
     {
         $this->useValidEnvironment();
 
         $this->input->getArgument('files')->shouldBeCalled()->willReturn(['some-file.txt']);
         $this->input->getOption('no-overwrite')->shouldBeCalled()->willReturn(true);
 
-        $this->processFactory
-            ->create('docker exec m2-php test -e \'some-file.txt\'')
-            ->willReturn($this->process->reveal());
-        $this->process->run()->willReturn(1);
+        $this->files->existsInContainer('m2-php', 'some-file.txt')->willReturn(false)->shouldBeCalled();
 
         $this->output->writeln('Looks like "some-file.txt" doesn\'t exist')->shouldBeCalled();
 
