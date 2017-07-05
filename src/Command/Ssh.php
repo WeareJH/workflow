@@ -27,13 +27,17 @@ class Ssh extends Command implements CommandInterface
         $this
             ->setName('ssh')
             ->setDescription('Open up bash into the app container')
-            ->addOption('root', 'r', InputOption::VALUE_NONE, 'Open as root user');
+            ->addOption('root', 'r', InputOption::VALUE_NONE, 'Open as root user')
+            ->addOption('container', 'c', InputOption::VALUE_REQUIRED, 'Container to SSH into');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $container = $this->phpContainerName();
-        $user      = $input->getOption('root') ? 'root' : 'www-data';
+        $container = $input->getOption('container')
+            ? $this->getContainerName($input->getOption('container'))
+            : $this->phpContainerName();
+
+        $user = $input->getOption('root') ? 'root' : 'www-data';
 
         $command = sprintf('docker exec -it -u %s %s bash', $user, $container);
 

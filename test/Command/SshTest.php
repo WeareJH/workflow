@@ -39,6 +39,7 @@ class SshTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
         $this->input->getOption('root')->willReturn(false);
+        $this->input->getOption('container')->willReturn(false);
 
         $expected = 'docker exec -it -u www-data m2-php bash';
 
@@ -58,12 +59,61 @@ class SshTest extends AbstractTestCommand
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
 
-    public function testBuildForProduction()
+    public function testSshWithRoot()
     {
         $this->useValidEnvironment();
         $this->input->getOption('root')->willReturn(true);
+        $this->input->getOption('container')->willReturn(false);
 
         $expected = 'docker exec -it -u root m2-php bash';
+
+        $this->processFactory->create($expected)->willReturn($this->process->reveal());
+        $this->process->setTty(true)->shouldBeCalled();
+
+        $this->process->run(Argument::type('callable'))->will(function ($args) {
+            $callback = array_shift($args);
+
+            $callback(Process::ERR, 'bad output');
+            $callback(Process::OUT, 'good output');
+        });
+
+        $this->output->write('bad output')->shouldBeCalled();
+        $this->output->write('good output')->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testSshWithCustomContainerName()
+    {
+        $this->useValidEnvironment();
+        $this->input->getOption('root')->willReturn(false);
+        $this->input->getOption('container')->willReturn('db');
+
+        $expected = 'docker exec -it -u www-data m2-db bash';
+
+        $this->processFactory->create($expected)->willReturn($this->process->reveal());
+        $this->process->setTty(true)->shouldBeCalled();
+
+        $this->process->run(Argument::type('callable'))->will(function ($args) {
+            $callback = array_shift($args);
+
+            $callback(Process::ERR, 'bad output');
+            $callback(Process::OUT, 'good output');
+        });
+
+        $this->output->write('bad output')->shouldBeCalled();
+        $this->output->write('good output')->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testSshWithCustomContainerNameAndRoot()
+    {
+        $this->useValidEnvironment();
+        $this->input->getOption('root')->willReturn(true);
+        $this->input->getOption('container')->willReturn('db');
+
+        $expected = 'docker exec -it -u root m2-db bash';
 
         $this->processFactory->create($expected)->willReturn($this->process->reveal());
         $this->process->setTty(true)->shouldBeCalled();
