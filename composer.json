@@ -31,13 +31,13 @@
     "autoload": {
         "psr-4": {
             "Jh\\Workflow\\": "src"
-        }
+        },
+        "files": ["src/functions.php"]
     },
     "autoload-dev": {
         "psr-4": {
             "Jh\\WorkflowTest\\": "test"
-        },
-        "files": ["src/functions.php"]
+        }
     },
     "bin": [
         "bin/workflow"
