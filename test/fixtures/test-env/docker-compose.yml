@@ -1,11 +1,5 @@
 version: '2'
 
-volumes:
-    db-data:
-    app-pub:
-    app-var:
-    app-env:
-
 services:
     php:
         container_name: m2-php
@@ -13,10 +7,6 @@ services:
         build:
             context: ./
             dockerfile: app.php.dockerfile
-        volumes:
-            - app-pub:/var/www/pub
-            - app-env:/var/www/app/etc
-            - ~/.composer/auth.json:/root/.composer/auth.json
         working_dir: /var/www
         ports:
             - 9000
