@@ -65,7 +65,7 @@ class SqlTest extends AbstractTestCommand
         $this->input->getOption('database')->willReturn(null);
 
         $this->processTest(
-            'docker exec -t m2-db mysql -udocker -pdocker docker -e "SELECT * FROM core_config_data"'
+            'docker exec -t m2-db mysql -uroot -pdocker docker -e "SELECT * FROM core_config_data"'
         );
         
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -79,7 +79,7 @@ class SqlTest extends AbstractTestCommand
         $this->input->getOption('file')->willReturn('some-import.sql');
         $this->input->getOption('database')->willReturn(null);
 
-        $this->processTest('docker exec -i m2-db mysql -udocker -pdocker docker < some-import.sql');
+        $this->processTest('docker exec -i m2-db mysql -uroot -pdocker docker < some-import.sql');
         $this->output->writeln('<info>DB import complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -93,7 +93,7 @@ class SqlTest extends AbstractTestCommand
         $this->input->getOption('file')->willReturn('some-import.sql');
         $this->input->getOption('database')->willReturn('custom_db');
 
-        $this->processTest('docker exec -i m2-db mysql -udocker -pdocker custom_db < some-import.sql');
+        $this->processTest('docker exec -i m2-db mysql -uroot -pdocker custom_db < some-import.sql');
         $this->output->writeln('<info>DB import complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

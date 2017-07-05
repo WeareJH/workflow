@@ -73,12 +73,11 @@ class Sql extends Command implements CommandInterface
     private function getDbDetails(InputInterface $input) : array
     {
         $envVars   = $this->getDevEnvironmentVars();
-        $dbDetails = [];
 
-        $dbDetails['user'] = $envVars['MYSQL_USER'] ?? 'docker';
-        $dbDetails['pass'] = $envVars['MYSQL_PASSWORD'] ?? 'docker';
-        $dbDetails['db']   = $input->getOption('database') ?? $envVars['MYSQL_DATABASE'] ?? 'docker';
-
-        return $dbDetails;
+        return [
+            'user' => 'root',
+            'pass' => $envVars['MYSQL_ROOT_PASSWORD'] ?? 'docker',
+            'db'   => $input->getOption('database') ?? $envVars['MYSQL_DATABASE'] ?? 'docker'
+        ];
     }
 }
