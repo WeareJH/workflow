@@ -14,7 +14,7 @@
         "symfony/yaml": "^3.2",
         "symfony/process": "^3.2",
         "m1/env": "^2.1",
-        "rx/fswatch": "dev-deal-with-multiple-events-in-one-read",
+        "aydin-hassan/osx-rx-fswatch": "^1.0",
         "tightenco/collect": "^5.4"
     },
     "require-dev": {
@@ -22,12 +22,6 @@
         "symfony/filesystem": "^3.3",
         "php-mock/php-mock-phpunit": "^2.0"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:AydinHassan/RxFsWatch.git"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "Jh\\Workflow\\": "src"
