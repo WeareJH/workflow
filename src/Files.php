@@ -99,7 +99,7 @@ class Files
         $makeDirectoriesCommand = sprintf(
             'docker exec %s mkdir -p %s',
             $container,
-            $files->map(toMap('dirname'))->map(toMap('escapeshellarg'))->implode(' ')
+            $destinations->map(toMap('dirname'))->map(toMap('escapeshellarg'))->implode(' ')
         );
 
         $this->runCommand($makeDirectoriesCommand, function () use ($container, $sources, $destinations) {
