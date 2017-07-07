@@ -327,6 +327,65 @@ class FilesTest extends WorkflowTest
         $this->fileSystem->remove('some-file4.php');
     }
 
+    public function testUploadCreatesParentDirectoryStructureIfItDoesNotExistWithAbsolutePaths()
+    {
+        @mkdir($this->containerDirectory('/some/path'), 0777, true);
+        @mkdir($this->containerDirectory('/some/path2'), 0777, true);
+        copy($this->getFile('some-file.php'), $this->containerDirectory('some/path/some-file1.php'));
+        copy($this->getFile('some-file.php'), $this->containerDirectory('some/path/some-file2.php'));
+        copy($this->getFile('some-file.php'), $this->containerDirectory('some/path2/some-file3.php'));
+        copy($this->getFile('some-file.php'), $this->containerDirectory('some-file4.php'));
+
+        $this->files->upload('m2-php',[
+            $this->containerDirectory('some/path/some-file1.php'),
+            $this->containerDirectory('some/path/some-file2.php'),
+            $this->containerDirectory('some/path2/some-file3.php'),
+            $this->containerDirectory('some-file4.php')
+        ]);
+        $this->loop->run();
+
+        self::assertFileExistsInContainer('/var/www/some/path/some-file1.php', 'm2-php');
+        self::assertFileExistsInContainer('/var/www/some/path/some-file2.php', 'm2-php');
+        self::assertFileExistsInContainer('/var/www/some/path2/some-file3.php', 'm2-php');
+        self::assertFileExistsInContainer('/var/www/some-file4.php', 'm2-php');
+
+        $this->output
+            ->writeln("<info> + 'some/path/some-file1.php' > m2-php </info>")
+            ->shouldHaveBeenCalled();
+        $this->output
+            ->writeln("<info> + 'some/path/some-file2.php' > m2-php </info>")
+            ->shouldHaveBeenCalled();
+        $this->output
+            ->writeln("<info> + 'some/path2/some-file3.php' > m2-php </info>")
+            ->shouldHaveBeenCalled();
+        $this->output
+            ->writeln("<info> + 'some-file4.php' > m2-php </info>")
+            ->shouldHaveBeenCalled();
+
+        $this->fileSystem->remove($this->containerDirectory('/some/path'));
+        $this->fileSystem->remove($this->containerDirectory('/some/path2'));
+        $this->fileSystem->remove('some-file4.php');
+    }
+
+    public function testParentDirectoryIsCreatedIfItDoesNotExistWhenUploadingSingleFile()
+    {
+        @mkdir($this->containerDirectory('/some/path'), 0777, true);
+        copy($this->getFile('some-file.php'), $this->containerDirectory('some/path/some-file.php'));
+
+        $this->files->upload('m2-php',[
+            $this->containerDirectory('some/path/some-file.php'),
+        ]);
+        $this->loop->run();
+
+        self::assertFileExistsInContainer('/var/www/some/path/some-file.php', 'm2-php');
+
+        $this->output
+            ->writeln("<info> + 'some/path/some-file.php' > m2-php </info>")
+            ->shouldHaveBeenCalled();
+
+        $this->fileSystem->remove($this->containerDirectory('/some/path'));
+    }
+
     private static function getFile(string $filePath) : string
     {
         return __DIR__ . '/fixtures/test-env-files/' . $filePath;
