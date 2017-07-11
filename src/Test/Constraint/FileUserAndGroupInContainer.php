@@ -53,7 +53,7 @@ class FileUserAndGroupInContainer extends Constraint
             throw new \RuntimeException('Command failed with exit code: ' . $exitCode);
         }
         
-        return $output;
+        return trim(implode("\n", $output));
     }
 
     /**

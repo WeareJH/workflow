@@ -378,6 +378,7 @@ class FilesTest extends WorkflowTest
         $this->loop->run();
 
         self::assertFileExistsInContainer('/var/www/some/path/some-file.php', 'm2-php');
+        self::assertFileUserAndGroupInContainer('/var/www/some/path', 'www-data', 'www-data', 'm2-php');
 
         $this->output
             ->writeln("<info> + 'some/path/some-file.php' > m2-php </info>")
