@@ -7,7 +7,7 @@ use PHPUnit\Framework\Constraint\Constraint;
 /**
  * @author Aydin Hassan <aydin@hotmail.co.uk>
  */
-class FileGroupAndOwnerInContainer extends Constraint
+class FileUserAndGroupInContainer extends Constraint
 {
     /**
      * @var string

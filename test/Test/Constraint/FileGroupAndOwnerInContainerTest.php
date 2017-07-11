@@ -2,7 +2,7 @@
 
 namespace Jh\WorkflowTest\Test\Constraint;
 
-use Jh\Workflow\Test\Constraint\FileGroupAndOwnerInContainer;
+use Jh\Workflow\Test\Constraint\FileUserAndGroupInContainer;
 use phpmock\phpunit\PHPMock;
 use PHPUnit\Framework\TestCase;
 
@@ -26,7 +26,7 @@ class FileGroupAndOwnerInContainerTest extends TestCase
         );
 
         self::assertTrue(
-            (new FileGroupAndOwnerInContainer('m2-php', 'www-data', 'www-data'))->matches('some-file.txt')
+            (new FileUserAndGroupInContainer('m2-php', 'www-data', 'www-data'))->matches('some-file.txt')
         );
     }
 
@@ -42,7 +42,7 @@ class FileGroupAndOwnerInContainerTest extends TestCase
         );
 
         self::assertFalse(
-            (new FileGroupAndOwnerInContainer('m2-php', 'www-data', 'www-data'))->matches('some-file.txt')
+            (new FileUserAndGroupInContainer('m2-php', 'www-data', 'www-data'))->matches('some-file.txt')
         );
     }
 
@@ -57,7 +57,7 @@ class FileGroupAndOwnerInContainerTest extends TestCase
         );
 
         self::assertFalse(
-            (new FileGroupAndOwnerInContainer('m2-php', 'www-data', 'www-data'))->matches('some-file.txt')
+            (new FileUserAndGroupInContainer('m2-php', 'www-data', 'www-data'))->matches('some-file.txt')
         );
     }
 
@@ -65,7 +65,7 @@ class FileGroupAndOwnerInContainerTest extends TestCase
     {
         self::assertEquals(
             'has correct group and user in container m2-php',
-            (new FileGroupAndOwnerInContainer('m2-php', 'www-data', 'www-data'))->toString()
+            (new FileUserAndGroupInContainer('m2-php', 'www-data', 'www-data'))->toString()
         );
     }
 }
