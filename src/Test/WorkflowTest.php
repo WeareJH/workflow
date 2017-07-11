@@ -3,6 +3,7 @@
 namespace Jh\Workflow\Test;
 
 use Jh\Workflow\Test\Constraint\FileExistsInContainer;
+use Jh\Workflow\Test\Constraint\FileUserAndGroupInContainer;
 use PHPUnit\Framework\Constraint\LogicalNot;
 use PHPUnit\Framework\TestCase;
 
@@ -20,6 +21,11 @@ class WorkflowTest extends TestCase
     public static function assertFileNotExistsInContainer(string $filePath, string $container, string $message = '')
     {
         self::assertThat($filePath, new LogicalNot(new FileExistsInContainer($container)), $message);
+    }
+
+    public static function assertFileUserAndGroupInContainer(string $filePath, string $group, string $user, string $container, string $message = '')
+    {
+        self::assertThat($filePath, new FileUserAndGroupInContainer($container, $group, $user));
     }
 
     protected function copyFileInToContainer(string $source, string $destination)
