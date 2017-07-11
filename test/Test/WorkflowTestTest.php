@@ -79,7 +79,7 @@ class WorkflowTestTest extends TestCase
             function ($command, &$output, &$exitCode) {
                 self::assertEquals('docker exec m2-php stat -c "%G:%U" some-file.txt', $command);
                 $exitCode = 0;
-                $output = 'www-data:www-data';
+                $output = ['www-data:www-data'];
             }
         );
 
@@ -96,7 +96,7 @@ class WorkflowTestTest extends TestCase
             function ($command, &$output, &$exitCode) {
                 self::assertEquals('docker exec m2-php test -e some-file.txt', $command);
                 $exitCode = 0;
-                $output = 'root:root';
+                $output = ['root:root'];
             }
         );
 
