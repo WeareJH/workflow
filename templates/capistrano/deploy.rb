@@ -9,7 +9,7 @@ set :branch,        'master'
 set :domain,        ->{ fetch(:app_domain) }
 
 set :linked_files, %w{app/etc/config.php app/etc/env.php}
-set :linked_dirs, %w{pub/media pub/sitemap var/log var/report var/import var/session}
+set :linked_dirs, %w{pub/info pub/media pub/sitemap var/log var/report var/import var/export var/session pub/feeds}
 
 set :composer_install_flags, '--ignore-platform-reqs --no-interaction --quiet --optimize-autoloader'
 set :log_level, :info
