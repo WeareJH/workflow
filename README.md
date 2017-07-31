@@ -31,7 +31,11 @@ Then run:
 composer global require wearejh/workflow:dev-master
 ```
 
-Make sure your composer global bin directory `~/.composer/vendor/bin` is available in your `$PATH` environment variable.
+Notes: 
+
+- Make sure your composer global bin directory `~/.composer/vendor/bin` is available in your `$PATH` environment variable.
+- Because packages installed globally with composer share dependencies, you may need to run `composer global update` if the 
+previous command failed.
 
 ## Usage
 
