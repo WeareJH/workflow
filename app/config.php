@@ -25,7 +25,7 @@ use Symfony\Component\Process\ProcessBuilder;
 return [
     Application::class => function (ContainerInterface $c) {
         $app = new Application('JH Workflow Tool');
-        $app->getDefinition()->addOption(new InputOption('--debug', '-d', InputOption::VALUE_NONE, 'Debug Mode'));
+        $app->getDefinition()->addOption(new InputOption('--debug', null, InputOption::VALUE_NONE, 'Debug Mode'));
 
         $app->add($c->get(Command\Start::class));
         $app->add($c->get(Command\Stop::class));
@@ -81,8 +81,8 @@ return [
         return new StreamSelectLoop;
     },
     CommandLine::class  => function (ContainerInterface $c) {
-        if (in_array('-d', $GLOBALS['argv'], true) || in_array('--debug', $GLOBALS['argv'], true)) {
-            $logger = new \Jh\Workflow\Logger;
+        if (in_array('--debug', $GLOBALS['argv'], true)) {
+            $logger = new \Jh\Workflow\Logger($c->get(OutputInterface::class));
         } else {
             $logger = new \Psr\Log\NullLogger;
         }
