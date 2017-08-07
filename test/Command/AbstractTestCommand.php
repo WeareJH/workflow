@@ -35,16 +35,6 @@ class AbstractTestCommand extends TestCase
     protected $output;
 
     /**
-     * @var ObjectProphecy|Process
-     */
-    protected $process;
-
-    /**
-     * @var ObjectProphecy|ProcessFactory
-     */
-    protected $processFactory;
-
-    /**
      * @var ObjectProphecy|CommandLine
      */
     protected $commandLine;
@@ -56,29 +46,7 @@ class AbstractTestCommand extends TestCase
         $this->input  = $this->prophesize(ArgvInput::class);
         $this->output = $this->prophesize(Output::class);
 
-        $this->process        = $this->prophesize(Process::class);
-        $this->processFactory = $this->prophesize(ProcessFactory::class);
-        $this->commandLine    = $this->prophesize(CommandLine::class);
-    }
-
-    protected function processTest(string $expected)
-    {
-        $this->processFactory->runSynchronous($expected, getcwd(), Argument::type('callable'))->shouldBeCalled();
-
-//        $this->process->run(Argument::type('callable'))->will(function ($args) {
-//            $callback = array_shift($args);
-//
-//            $callback(Process::ERR, 'bad output');
-//            $callback(Process::OUT, 'good output');
-//        });
-//
-//        $this->output->write('bad output')->shouldBeCalled();
-//        $this->output->write('good output')->shouldBeCalled();
-    }
-
-    protected function processTestNoOutput(string $expected)
-    {
-        $this->processFactory->runSynchronous($expected, getcwd(), null);
+        $this->commandLine = $this->prophesize(CommandLine::class);
     }
 
     protected function useInvalidEnvironment()
@@ -91,7 +59,7 @@ class AbstractTestCommand extends TestCase
         chdir(__DIR__ . '/../fixtures/valid-env');
     }
 
-    protected function useBrokenEnvironemt()
+    protected function useBrokenEnvironment()
     {
         chdir(__DIR__ . '/../fixtures/broken-env');
     }
