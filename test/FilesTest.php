@@ -4,8 +4,8 @@ namespace Jh\WorkflowTest;
 
 use Jh\Workflow\CommandLine;
 use Jh\Workflow\Files;
+use Jh\Workflow\NullLogger;
 use Jh\Workflow\Test\WorkflowTest;
-use Psr\Log\NullLogger;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
 use Symfony\Component\Console\Output\OutputInterface;

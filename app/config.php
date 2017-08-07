@@ -9,7 +9,7 @@ use Jh\Workflow\NewProject\DetailsGatherer;
 use Jh\Workflow\NewProject\Step;
 use Jh\Workflow\NewProject\StepRunner;
 use Jh\Workflow\NewProject\TemplateWriter;
-use Jh\Workflow\ProcessFactory;
+use Jh\Workflow\NullLogger;
 use Jh\Workflow\WatchFactory;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
@@ -84,7 +84,7 @@ return [
         if (in_array('--debug', $GLOBALS['argv'], true)) {
             $logger = new \Jh\Workflow\Logger($c->get(OutputInterface::class));
         } else {
-            $logger = new \Psr\Log\NullLogger;
+            $logger = new NullLogger;
         }
 
         return new CommandLine($c->get(LoopInterface::class), $logger, $c->get(OutputInterface::class));
@@ -96,8 +96,8 @@ return [
         return new Files($c->get(CommandLine::class), $c->get(OutputInterface::class));
     },
 
-    \Psr\Log\LoggerInterface::class => function () {
-        return new \Jh\Workflow\Logger;
+    \Psr\Log\LoggerInterface::class => function (ContainerInterface $c) {
+        return new \Jh\Workflow\Logger($c->get(OutputInterface::class));
     },
 
     // Commands

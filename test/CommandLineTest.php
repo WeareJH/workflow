@@ -3,11 +3,11 @@
 namespace Jh\WorkflowTest;
 
 use Jh\Workflow\CommandLine;
+use Jh\Workflow\Logger;
+use Jh\Workflow\NullLogger;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 use React\EventLoop\StreamSelectLoop;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Debug\BufferingLogger;
 
 class CommandLineTest extends TestCase
@@ -73,28 +73,31 @@ class CommandLineTest extends TestCase
 
     public function testRunLogsCommand()
     {
-        $this->commandLine = new CommandLine($this->loop, $log = new BufferingLogger, $this->output);
+        $logger = $this->prophesize(Logger::class);
+        $this->commandLine = new CommandLine($this->loop, $logger->reveal(), $this->output);
 
         $this->commandLine->run('echo "yes"');
 
-        self::assertEquals([['debug', 'Running command [normal]: "echo "yes""', []]], $log->cleanLogs());
+        $logger->logCommand('echo "yes"', 'normal')->shouldHaveBeenCalled();
     }
 
     public function testRunQuietlyLogsCommand()
     {
-        $this->commandLine = new CommandLine($this->loop, $log = new BufferingLogger, $this->output);
+        $logger = $this->prophesize(Logger::class);
+        $this->commandLine = new CommandLine($this->loop, $logger->reveal(), $this->output);
 
         $this->commandLine->runQuietly('echo "yes"');
 
-        self::assertEquals([['debug', 'Running command [quiet]: "echo "yes""', []]], $log->cleanLogs());
+        $logger->logCommand('echo "yes"', 'quiet')->shouldHaveBeenCalled();
     }
 
     public function testRunAsyncLogsCommand()
     {
-        $this->commandLine = new CommandLine($this->loop, $log = new BufferingLogger, $this->output);
+        $logger = $this->prophesize(Logger::class);
+        $this->commandLine = new CommandLine($this->loop, $logger->reveal(), $this->output);
 
         $this->commandLine->runAsync('echo "yes"');
 
-        self::assertEquals([['debug', 'Running command [async]: "echo "yes""', []]], $log->cleanLogs());
+        $logger->logCommand('echo "yes"', 'async')->shouldHaveBeenCalled();
     }
 }

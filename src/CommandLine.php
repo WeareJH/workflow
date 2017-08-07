@@ -2,11 +2,11 @@
 
 namespace Jh\Workflow;
 
-use Psr\Log\LoggerInterface;
 use React\EventLoop\LoopInterface;
 use Rx\React\ProcessSubject;
 use Rx\Subject\Subject;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
 /**
@@ -106,6 +106,11 @@ class CommandLine
 
     private function logCommand(string $command, string $type)
     {
-        $this->logger->debug(sprintf('Running command [%s]: "%s"', $type, $command));
+        $this->logger->logCommand($command, $type);
+    }
+
+    public function commandExists(string $executable) : bool
+    {
+        return (bool) (new ExecutableFinder)->find($executable, false);
     }
 }

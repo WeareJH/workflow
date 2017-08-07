@@ -4,6 +4,7 @@ namespace Jh\WorkflowTest;
 
 use Jh\Workflow\Logger;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 class LoggerTest extends TestCase
 {
@@ -15,7 +16,7 @@ class LoggerTest extends TestCase
     }
     public function testLogger()
     {
-        $logger  = new Logger;
+        $logger  = new Logger(new BufferedOutput);
         $logger->setLogFile($this->log);
 
         $logger->debug('DEBUG MESSAGE');
@@ -23,6 +24,19 @@ class LoggerTest extends TestCase
         $expected  = "/\d{2}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \(DEBUG\) DEBUG MESSAGE\\n/";
 
         self::assertRegExp($expected, file_get_contents($this->log));
+    }
+
+    public function testLogCommandLogsAndPrints()
+    {
+        $logger  = new Logger($output = new BufferedOutput);
+        $logger->setLogFile($this->log);
+
+        $logger->logCommand('echo "yes"', 'async');
+
+        $expected  = "/\d{2}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \(DEBUG\) Executing command \[async\]: \"echo \"yes\"\"\n/";
+
+        self::assertRegExp($expected, file_get_contents($this->log));
+        self::assertEquals("Executing [async] echo \"yes\"\n", $output->fetch());
     }
 
     public function tearDown()
