@@ -17,7 +17,7 @@ class NginxReloadTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new NginxReload($this->processFactory->reveal());
+        $this->command = new NginxReload($this->commandLine->reveal());
     }
 
     public function tearDown()
@@ -36,7 +36,7 @@ class NginxReloadTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $this->processTest('docker exec m2 nginx -s "reload"');
+        $this->commandLine->run('docker exec m2 nginx -s "reload"')->shouldBeCalled();
         $this->output->writeln('Reload signal sent')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

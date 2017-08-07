@@ -2,12 +2,11 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\CommandLine;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Process;
-use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -15,12 +14,16 @@ use Jh\Workflow\ProcessFactory;
 class Stop extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-    use ProcessRunnerTrait;
 
-    public function __construct(ProcessFactory $processFactory)
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
+
+    public function __construct(CommandLine $commandLine)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
     }
 
     public function configure()
@@ -37,8 +40,7 @@ class Stop extends Command implements CommandInterface
             ? 'docker-compose.prod.yml'
             : 'docker-compose.dev.yml';
 
-        $command = sprintf('docker-compose -f docker-compose.yml -f %s down', $envDockerFile);
-        $this->runProcessShowingOutput($output, $command);
+        $this->commandLine->run(sprintf('docker-compose -f docker-compose.yml -f %s down', $envDockerFile));
 
         $output->writeln('<info>Containers stopped</info>');
     }

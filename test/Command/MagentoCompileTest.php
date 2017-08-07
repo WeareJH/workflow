@@ -35,7 +35,7 @@ class MagentoCompileTest extends AbstractTestCommand
     {
         parent::setUp();
 
-        $this->command     = new MagentoCompile($this->processFactory->reveal());
+        $this->command     = new MagentoCompile($this->commandLine->reveal());
         $this->application = $this->prophesize(Application::class);
         $this->pullCommand = $this->prophesize(Pull::class);
 
@@ -62,8 +62,7 @@ class MagentoCompileTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $cmd = 'docker exec -u www-data m2-php bin/magento setup:di:compile --ansi';
-        $this->processTest($cmd);
+        $this->commandLine->run('docker exec -u www-data m2-php bin/magento setup:di:compile --ansi')->shouldBeCalled();
 
         $expectedInput = new ArrayInput(['files' => ['var/di', 'var/generation']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();

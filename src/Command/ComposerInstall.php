@@ -2,11 +2,11 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\CommandLine;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Aydin Hassan <aydin@wearejh.com>
@@ -14,12 +14,16 @@ use Jh\Workflow\ProcessFactory;
 class ComposerInstall extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-    use ProcessRunnerTrait;
 
-    public function __construct(ProcessFactory $processFactory)
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
+
+    public function __construct(CommandLine $commandLine)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
     }
 
     protected function configure()
@@ -47,12 +51,13 @@ class ComposerInstall extends Command implements CommandInterface
                 break;
         }
 
-        $command = sprintf(
-            'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache %s composer install %s',
-            $container,
-            implode(' ', $flags)
+        $this->commandLine->run(
+            sprintf(
+                'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache %s composer install %s',
+                $container,
+                implode(' ', $flags)
+            )
         );
-        $this->runProcessShowingOutput($output, $command);
 
         $pullCommand   = $this->getApplication()->find('pull');
         $pullArguments = new ArrayInput(['files' => ['vendor', '.docker/composer-cache']]);

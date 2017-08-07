@@ -11,9 +11,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Files
 {
     /**
-     * @var ProcessFactory
+     * @var CommandLine
      */
-    private $processFactory;
+    private $commandLine;
 
     /**
      * @var OutputInterface
@@ -25,9 +25,9 @@ class Files
      */
     private $currentWorkingDirectory;
 
-    public function __construct(ProcessFactory $processFactory, OutputInterface $output)
+    public function __construct(CommandLine $commandLine, OutputInterface $output)
     {
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
         $this->output = $output;
         $this->currentWorkingDirectory = getcwd();
     }
@@ -102,16 +102,16 @@ class Files
             $destinations->map(toMap('dirname'))->unique()->map(toMap('escapeshellarg'))->implode(' ')
         );
         
-        $this->runCommand($makeDirectoriesCommand, function () use ($container, $sources, $destinations) {
-            $this->runCommand(
+        $this->commandLine->runAsync($makeDirectoriesCommand, function () use ($container, $sources, $destinations) {
+            $this->commandLine->runAsync(
                 $this->getUploadCommand($sources, $container),
                 function () use ($container, $sources, $destinations) {
                     $sources->each(function ($file) use ($container) {
-                        $this->output->writeln(sprintf('<info> + \'%s\' > %s </info>', $file,  $container));
+                        $this->output->writeln(sprintf('<info> 🚀  \'%s\' > %s </info>', $file,  $container));
                     });
 
                     //chown
-                    $this->runCommand(sprintf(
+                    $this->commandLine->runAsync(sprintf(
                         'docker exec %s chown -R www-data:www-data %s',
                         $container,
                         $destinations->map(toMap('escapeshellarg'))->implode(' ')
@@ -133,14 +133,14 @@ class Files
             return $this->getRelativePath($file);
         });
 
-        $this->runCommand(sprintf(
+        $this->commandLine->runAsync(sprintf(
             'docker exec %s rm -rf  %s',
             $container,
             $sources->map(toMap('escapeshellarg'))->implode(' ')
         ));
 
         $sources->each(function (string $file) use ($container) {
-            $this->output->writeln(sprintf('<fg=red> x %s > %s </fg=red>', $file, $container));
+            $this->output->writeln(sprintf('<fg=red> 💥  \'%s\' > %s </fg=red>', $file, $container));
         });
     }
 
@@ -149,7 +149,7 @@ class Files
         collect($files)
             ->each(function ($file) {
                 $file = $this->getRelativePath($file);
-                $this->runCommandSync('rm -rf ' . $this->currentWorkingDirectory . '/' . $file);
+                $this->commandLine->run('rm -rf ' . $this->currentWorkingDirectory . '/' . $file);
             });
     }
 
@@ -158,7 +158,7 @@ class Files
         $file = $this->getContainerLocationFromSource($file);
 
         try {
-            $this->runCommandSync(sprintf('docker exec %s test -e %s', $container, escapeshellarg($file)));
+            $this->commandLine->run(sprintf('docker exec %s test -e %s', $container, escapeshellarg($file)));
             return true;
         } catch (ProcessFailedException $e) {
             return false;
@@ -183,28 +183,7 @@ class Files
 
     private function runCommand(string $command, callable $onComplete = null)
     {
-        $this->processFactory
-            ->createAsynchronous(
-                $command,
-                $this->currentWorkingDirectory,
-                function ($output) {
-                    $this->output->write($output);
-                },
-                $onComplete,
-                function (\Exception $e) {
-                    throw new ProcessFailedException($e->getMessage());
-                }
-            );
-    }
-
-    public function runCommandSync(string $command)
-    {
-        $process = new \Symfony\Component\Process\Process($command, $this->currentWorkingDirectory);
-        $exitCode = $process->run();
-
-        if ($exitCode > 0) {
-            throw new ProcessFailedException($process->getErrorOutput());
-        }
+        $this->commandLine->runAsync($command, $onComplete);
     }
 
     private function compressFiles(Collection $relativeFiles) : string

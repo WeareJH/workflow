@@ -3,6 +3,7 @@
 use Interop\Container\ContainerInterface;
 use Jh\Workflow\Application;
 use Jh\Workflow\Command;
+use Jh\Workflow\CommandLine;
 use Jh\Workflow\Files;
 use Jh\Workflow\NewProject\DetailsGatherer;
 use Jh\Workflow\NewProject\Step;
@@ -14,6 +15,9 @@ use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
 use Rx\Scheduler;
 use Rx\Scheduler\EventLoopScheduler;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\ProcessBuilder;
@@ -21,6 +25,7 @@ use Symfony\Component\Process\ProcessBuilder;
 return [
     Application::class => function (ContainerInterface $c) {
         $app = new Application('JH Workflow Tool');
+        $app->getDefinition()->addOption(new InputOption('--debug', '-d', InputOption::VALUE_NONE, 'Debug Mode'));
 
         $app->add($c->get(Command\Start::class));
         $app->add($c->get(Command\Stop::class));
@@ -63,6 +68,9 @@ return [
 
         return $app;
     },
+    InputInterface::class => function () {
+        return new ArgvInput();
+    },
     OutputInterface::class => function () {
         return new ConsoleOutput;
     },
@@ -72,14 +80,24 @@ return [
     LoopInterface::class => function () {
         return new StreamSelectLoop;
     },
-    ProcessFactory::class  => function (ContainerInterface $c) {
-        return new ProcessFactory($c->get(LoopInterface::class));
+    CommandLine::class  => function (ContainerInterface $c) {
+        if (in_array('-d', $GLOBALS['argv'], true) || in_array('--debug', $GLOBALS['argv'], true)) {
+            $logger = new \Jh\Workflow\Logger;
+        } else {
+            $logger = new \Psr\Log\NullLogger;
+        }
+
+        return new CommandLine($c->get(LoopInterface::class), $logger, $c->get(OutputInterface::class));
     },
     WatchFactory::class => function (ContainerInterface $c) {
         return new WatchFactory($c->get(LoopInterface::class));
     },
     Files::class => function (ContainerInterface $c) {
-        return new Files($c->get(ProcessFactory::class), $c->get(OutputInterface::class));
+        return new Files($c->get(CommandLine::class), $c->get(OutputInterface::class));
+    },
+
+    \Psr\Log\LoggerInterface::class => function () {
+        return new \Jh\Workflow\Logger;
     },
 
     // Commands

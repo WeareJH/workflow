@@ -3,6 +3,7 @@
 namespace Jh\Workflow\NewProject\Step;
 
 use Jh\Workflow\Command\ProcessRunnerTrait;
+use Jh\Workflow\CommandLine;
 use Jh\Workflow\NewProject\Details;
 use Jh\Workflow\ProcessFactory;
 use Symfony\Component\Console\Style\OutputStyle;
@@ -12,11 +13,14 @@ use Symfony\Component\Console\Style\OutputStyle;
  */
 class GitCommit implements StepInterface
 {
-    use ProcessRunnerTrait;
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
 
-    public function __construct(ProcessFactory $processFactory)
+    public function __construct(CommandLine $commandLine)
     {
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
     }
 
     public function run(Details $details, OutputStyle $output)
@@ -30,7 +34,7 @@ class GitCommit implements StepInterface
         $command .= ' && git commit -m "Project Config"';
         $command .= ' && git push origin master';
 
-        $this->runProcessNoOutput($command);
+        $this->commandLine->runQuietly($command);
 
         chdir($cwd);
     }

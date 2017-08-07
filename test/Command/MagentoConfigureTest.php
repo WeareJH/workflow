@@ -40,7 +40,7 @@ class MagentoConfigureTest extends AbstractTestCommand
     {
         parent::setUp();
 
-        $this->command     = new MagentoConfigure($this->processFactory->reveal());
+        $this->command     = new MagentoConfigure($this->commandLine->reveal());
         $this->application = $this->prophesize(Application::class);
         $this->pullCommand = $this->prophesize(Pull::class);
         $this->sqlCommand  = $this->prophesize(Sql::class);
@@ -69,7 +69,7 @@ class MagentoConfigureTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $this->processTest('docker exec -u www-data m2-php magento-configure');
+        $this->commandLine->run('docker exec -u www-data m2-php magento-configure')->shouldBeCalled();
 
         $expectedInput = new ArrayInput(['files' => ['app/etc/env.php']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
@@ -94,7 +94,7 @@ class MagentoConfigureTest extends AbstractTestCommand
 
         $this->input->getOption('prod')->willReturn(true);
 
-        $this->processTest('docker exec -u www-data m2-php magento-configure -p');
+        $this->commandLine->run('docker exec -u www-data m2-php magento-configure -p')->shouldBeCalled();
 
         $expectedInput = new ArrayInput(['files' => ['app/etc/env.php']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();

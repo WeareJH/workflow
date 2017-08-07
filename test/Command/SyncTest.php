@@ -35,7 +35,7 @@ class SyncTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command     = new Sync($this->processFactory->reveal());
+        $this->command     = new Sync($this->commandLine->reveal());
         $this->application = $this->prophesize(Application::class);
         $this->pushCommand = $this->prophesize(Push::class);
 
@@ -77,7 +77,7 @@ class SyncTest extends AbstractTestCommand
 
         $this->input->getArgument('file')->willReturn('some-deleted-file.txt');
 
-        $this->processTest('docker exec m2-php rm -rf /var/www/some-deleted-file.txt');
+        $this->commandLine->run('docker exec m2-php rm -rf /var/www/some-deleted-file.txt')->shouldBeCalled();
         $this->output->writeln('<fg=red> x some-deleted-file.txt > m2-php </fg=red>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

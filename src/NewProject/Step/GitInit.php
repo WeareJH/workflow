@@ -3,6 +3,7 @@
 namespace Jh\Workflow\NewProject\Step;
 
 use Jh\Workflow\Command\ProcessRunnerTrait;
+use Jh\Workflow\CommandLine;
 use Jh\Workflow\NewProject\Details;
 use Jh\Workflow\ProcessFactory;
 use Symfony\Component\Console\Style\OutputStyle;
@@ -12,11 +13,14 @@ use Symfony\Component\Console\Style\OutputStyle;
  */
 class GitInit implements StepInterface
 {
-    use ProcessRunnerTrait;
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
 
-    public function __construct(ProcessFactory $processFactory)
+    public function __construct(CommandLine $commandLine)
     {
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
     }
 
     public function run(Details $details, OutputStyle $output)
@@ -31,7 +35,7 @@ class GitInit implements StepInterface
         $command .= ' && git add .';
         $command .= ' && git commit -m "Add magento"';
 
-        $this->runProcessNoOutput($command);
+        $this->commandLine->run($command);
 
         chdir($cwd);
 

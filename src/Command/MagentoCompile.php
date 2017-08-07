@@ -2,11 +2,11 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\CommandLine;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Aydin Hassan <aydin@wearejh.com>
@@ -14,12 +14,16 @@ use Jh\Workflow\ProcessFactory;
 class MagentoCompile extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-    use ProcessRunnerTrait;
 
-    public function __construct(ProcessFactory $processFactory)
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
+
+    public function __construct(CommandLine $commandLine)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
     }
 
     public function configure()
@@ -33,8 +37,7 @@ class MagentoCompile extends Command implements CommandInterface
     {
         $container = $this->phpContainerName();
 
-        $command = sprintf('docker exec -u www-data %s bin/magento setup:di:compile --ansi', $container);
-        $this->runProcessShowingOutput($output, $command);
+        $this->commandLine->run(sprintf('docker exec -u www-data %s bin/magento setup:di:compile --ansi', $container));
 
         $pullCommand   = $this->getApplication()->find('pull');
         $pullArguments = new ArrayInput(['files' => ['var/di', 'var/generation']]);

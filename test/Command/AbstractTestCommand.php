@@ -2,6 +2,7 @@
 
 namespace Jh\WorkflowTest\Command;
 
+use Jh\Workflow\CommandLine;
 use Jh\Workflow\ProcessFactory;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -43,6 +44,11 @@ class AbstractTestCommand extends TestCase
      */
     protected $processFactory;
 
+    /**
+     * @var ObjectProphecy|CommandLine
+     */
+    protected $commandLine;
+
     public function setUp()
     {
         $this->prophet = new Prophet();
@@ -52,28 +58,27 @@ class AbstractTestCommand extends TestCase
 
         $this->process        = $this->prophesize(Process::class);
         $this->processFactory = $this->prophesize(ProcessFactory::class);
+        $this->commandLine    = $this->prophesize(CommandLine::class);
     }
 
     protected function processTest(string $expected)
     {
-        $this->processFactory->create($expected)->willReturn($this->process->reveal())->shouldBeCalled();
+        $this->processFactory->runSynchronous($expected, getcwd(), Argument::type('callable'))->shouldBeCalled();
 
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
+//        $this->process->run(Argument::type('callable'))->will(function ($args) {
+//            $callback = array_shift($args);
+//
+//            $callback(Process::ERR, 'bad output');
+//            $callback(Process::OUT, 'good output');
+//        });
+//
+//        $this->output->write('bad output')->shouldBeCalled();
+//        $this->output->write('good output')->shouldBeCalled();
     }
 
     protected function processTestNoOutput(string $expected)
     {
-        $this->processFactory->create($expected)->willReturn($this->process->reveal())->shouldBeCalled();
-
-        $this->process->run()->shouldBeCalled();
+        $this->processFactory->runSynchronous($expected, getcwd(), null);
     }
 
     protected function useInvalidEnvironment()

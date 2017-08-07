@@ -3,8 +3,6 @@
 namespace Jh\WorkflowTest\Command;
 
 use Jh\Workflow\Command\Php;
-use Prophecy\Argument;
-use Symfony\Component\Process\Process;
 
 /**
  * @author Aydin Hassan <aydin@wearejh.com>
@@ -19,7 +17,7 @@ class PhpTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Php($this->processFactory->reveal());
+        $this->command = new Php($this->commandLine->reveal());
     }
 
     public function tearDown()
@@ -40,20 +38,7 @@ class PhpTest extends AbstractTestCommand
         $this->useValidEnvironment();
         $this->input->getArgument('php-file')->willReturn('my-file.php');
 
-        $expected = 'docker exec -it -u www-data m2-php php my-file.php';
-
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
-        $this->process->setTty(true)->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
+        $this->commandLine->runInteractively('docker exec -it -u www-data m2-php php my-file.php')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }

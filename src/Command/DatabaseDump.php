@@ -2,8 +2,7 @@
 
 namespace Jh\Workflow\Command;
 
-use Jh\Workflow\Files;
-use Jh\Workflow\ProcessFactory;
+use Jh\Workflow\CommandLine;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,12 +14,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DatabaseDump extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-    use ProcessRunnerTrait;
 
-    public function __construct(ProcessFactory $processFactory)
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
+
+    public function __construct(CommandLine $commandLine)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
     }
 
     public function configure()
@@ -45,7 +48,7 @@ class DatabaseDump extends Command implements CommandInterface
         extract($this->getDbDetails($input), EXTR_OVERWRITE);
 
         $command = sprintf('docker exec -i %s mysqldump -u%s -p%s %s > dump.sql', $container, $user, $pass, $db);
-        $this->runProcessNoOutput($command);
+        $this->commandLine->runQuietly($command);
     }
 
     private function getDbDetails(InputInterface $input) : array
