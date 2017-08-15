@@ -34,7 +34,7 @@ class MagentoModuleDisableTest extends AbstractTestCommand
     {
         parent::setUp();
 
-        $this->command     = new MagentoModuleDisable($this->processFactory->reveal());
+        $this->command     = new MagentoModuleDisable($this->commandLine->reveal());
         $this->application = $this->prophesize(Application::class);
         $this->pullCommand = $this->prophesize(Pull::class);
 
@@ -63,7 +63,7 @@ class MagentoModuleDisableTest extends AbstractTestCommand
         $this->input->getArgument('module')->shouldBeCalled()->willReturn('Jh_Brands');
 
         $cmd = 'docker exec -u www-data m2-php bin/magento module:disable Jh_Brands --ansi';
-        $this->processTest($cmd);
+        $this->commandLine->run($cmd);
 
         $expectedInput = new ArrayInput(['files' => ['app/etc/config.php']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();

@@ -2,22 +2,25 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\CommandLine;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
 class XdebugLoopback extends Command implements CommandInterface
 {
-    use ProcessRunnerTrait;
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
 
-    public function __construct(ProcessFactory $processFactory)
+    public function __construct(CommandLine $commandLine)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
     }
 
     public function configure()
@@ -30,6 +33,6 @@ class XdebugLoopback extends Command implements CommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->runProcessShowingOutput($output, 'sudo ifconfig lo0 alias 10.254.254.254');
+        $this->commandLine->run('sudo ifconfig lo0 alias 10.254.254.254');
     }
 }

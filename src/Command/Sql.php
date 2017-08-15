@@ -2,13 +2,11 @@
 
 namespace Jh\Workflow\Command;
 
-use Jh\Workflow\ProcessFactory;
+use Jh\Workflow\CommandLine;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Process;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -16,12 +14,16 @@ use Symfony\Component\Process\Process;
 class Sql extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-    use ProcessRunnerTrait;
 
-    public function __construct(ProcessFactory $processFactory)
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
+
+    public function __construct(CommandLine $commandLine)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
     }
 
     public function configure()
@@ -57,16 +59,18 @@ class Sql extends Command implements CommandInterface
     {
         extract($this->getDbDetails($input), EXTR_OVERWRITE);
 
-        $command = sprintf('docker exec -t %s mysql -u%s -p%s %s -e "%s"', $container, $user, $pass, $db, $sql);
-        $this->runProcessShowingOutput($output, $command);
+        $this->commandLine->run(
+            sprintf('docker exec -t %s mysql -u%s -p%s %s -e "%s"', $container, $user, $pass, $db, $sql)
+        );
     }
 
     private function runFile(string $container, string $file, InputInterface $input, OutputInterface $output)
     {
         extract($this->getDbDetails($input), EXTR_OVERWRITE);
 
-        $command = sprintf('docker exec -i %s mysql -u%s -p%s %s < %s', $container, $user, $pass, $db, $file);
-        $this->runProcessShowingOutput($output, $command);
+        $this->commandLine->run(
+            sprintf('docker exec -i %s mysql -u%s -p%s %s < %s', $container, $user, $pass, $db, $file)
+        );
         $output->writeln('<info>DB import complete!</info>');
     }
 

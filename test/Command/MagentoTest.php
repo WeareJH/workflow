@@ -17,7 +17,7 @@ class MagentoTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Magento($this->processFactory->reveal());
+        $this->command = new Magento($this->commandLine->reveal());
     }
 
     public function tearDown()
@@ -45,7 +45,9 @@ class MagentoTest extends AbstractTestCommand
         // We have to use $_SERVER['argv'] here
         $_SERVER['argv'] = array_merge(['workflow', 'magento'], $args);
 
-        $this->processTest(sprintf('docker exec -u www-data m2-php bin/magento --ansi %s', implode(' ', $args)));
+        $this->commandLine
+            ->run(sprintf('docker exec -u www-data m2-php bin/magento --ansi %s', implode(' ', $args)))
+            ->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -67,7 +69,7 @@ class MagentoTest extends AbstractTestCommand
         // We have to use $_SERVER['argv'] here
         $_SERVER['argv'] = ['workflow', 'magento'];
 
-        $this->processTest('docker exec -u www-data m2-php bin/magento --ansi');
+        $this->commandLine->run('docker exec -u www-data m2-php bin/magento --ansi')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }

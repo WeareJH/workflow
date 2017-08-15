@@ -2,8 +2,9 @@
 
 namespace Jh\WorkflowTest;
 
-use Jh\Workflow\ProcessFactory;
+use Jh\Workflow\CommandLine;
 use Jh\Workflow\Files;
+use Jh\Workflow\NullLogger;
 use Jh\Workflow\Test\WorkflowTest;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
@@ -12,7 +13,6 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class FilesTest extends WorkflowTest
 {
-
     /**
      * @var Files
      */
@@ -45,7 +45,7 @@ class FilesTest extends WorkflowTest
         $this->output = $this->prophesize(OutputInterface::class);
 
         $this->files = new Files(
-            new ProcessFactory($this->loop = new StreamSelectLoop),
+            new CommandLine($this->loop = new StreamSelectLoop, new NullLogger, $this->output->reveal()),
             $this->output->reveal()
         );
 
@@ -238,7 +238,7 @@ class FilesTest extends WorkflowTest
         self::assertFileExistsInContainer('/var/www/some-file.php', 'm2-php');
 
         $this->output
-            ->writeln("<info> + 'some-file.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some-file.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
 
         $this->fileSystem->remove('some-file.php');
@@ -253,7 +253,7 @@ class FilesTest extends WorkflowTest
         self::assertFileExistsInContainer('/var/www/some-file.php', 'm2-php');
 
         $this->output
-            ->writeln("<info> + 'some-file.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some-file.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
 
         $this->fileSystem->remove('some-file.php');
@@ -273,13 +273,13 @@ class FilesTest extends WorkflowTest
         self::assertFileExistsInContainer('/var/www/some-file3.php', 'm2-php');
 
         $this->output
-            ->writeln("<info> + 'some-file1.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some-file1.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
         $this->output
-            ->writeln("<info> + 'some-file2.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some-file2.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
         $this->output
-            ->writeln("<info> + 'some-file3.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some-file3.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
 
         $this->fileSystem->remove('some-file1.php');
@@ -310,16 +310,16 @@ class FilesTest extends WorkflowTest
         self::assertFileExistsInContainer('/var/www/some-file4.php', 'm2-php');
 
         $this->output
-            ->writeln("<info> + 'some/path/some-file1.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some/path/some-file1.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
         $this->output
-            ->writeln("<info> + 'some/path/some-file2.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some/path/some-file2.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
         $this->output
-            ->writeln("<info> + 'some/path2/some-file3.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some/path2/some-file3.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
         $this->output
-            ->writeln("<info> + 'some-file4.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some-file4.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
 
         $this->fileSystem->remove($this->containerDirectory('/some/path'));
@@ -350,16 +350,16 @@ class FilesTest extends WorkflowTest
         self::assertFileExistsInContainer('/var/www/some-file4.php', 'm2-php');
 
         $this->output
-            ->writeln("<info> + 'some/path/some-file1.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some/path/some-file1.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
         $this->output
-            ->writeln("<info> + 'some/path/some-file2.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some/path/some-file2.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
         $this->output
-            ->writeln("<info> + 'some/path2/some-file3.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some/path2/some-file3.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
         $this->output
-            ->writeln("<info> + 'some-file4.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some-file4.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
 
         $this->fileSystem->remove($this->containerDirectory('/some/path'));
@@ -381,7 +381,7 @@ class FilesTest extends WorkflowTest
         self::assertFileUserAndGroupInContainer('/var/www/some/path', 'www-data', 'www-data', 'm2-php');
 
         $this->output
-            ->writeln("<info> + 'some/path/some-file.php' > m2-php </info>")
+            ->writeln("<info> 🚀  'some/path/some-file.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
 
         $this->fileSystem->remove($this->containerDirectory('/some/path'));

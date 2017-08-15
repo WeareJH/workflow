@@ -19,7 +19,7 @@ class SshTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Ssh($this->processFactory->reveal());
+        $this->command = new Ssh($this->commandLine->reveal());
     }
 
     public function tearDown()
@@ -41,20 +41,7 @@ class SshTest extends AbstractTestCommand
         $this->input->getOption('root')->willReturn(false);
         $this->input->getOption('container')->willReturn(false);
 
-        $expected = 'docker exec -it -u www-data m2-php bash';
-
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
-        $this->process->setTty(true)->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
+        $this->commandLine->runInteractively('docker exec -it -u www-data m2-php bash')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -65,20 +52,7 @@ class SshTest extends AbstractTestCommand
         $this->input->getOption('root')->willReturn(true);
         $this->input->getOption('container')->willReturn(false);
 
-        $expected = 'docker exec -it -u root m2-php bash';
-
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
-        $this->process->setTty(true)->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
+        $this->commandLine->runInteractively('docker exec -it -u root m2-php bash')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -89,20 +63,7 @@ class SshTest extends AbstractTestCommand
         $this->input->getOption('root')->willReturn(false);
         $this->input->getOption('container')->willReturn('db');
 
-        $expected = 'docker exec -it -u www-data m2-db bash';
-
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
-        $this->process->setTty(true)->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
+        $this->commandLine->runInteractively('docker exec -it -u www-data m2-db bash')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -113,20 +74,7 @@ class SshTest extends AbstractTestCommand
         $this->input->getOption('root')->willReturn(true);
         $this->input->getOption('container')->willReturn('db');
 
-        $expected = 'docker exec -it -u root m2-db bash';
-
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
-        $this->process->setTty(true)->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
+        $this->commandLine->runInteractively('docker exec -it -u root m2-db bash')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }

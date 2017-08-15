@@ -2,6 +2,7 @@
 
 namespace Jh\WorkflowTest\Command;
 
+use Jh\Workflow\CommandLine;
 use Jh\Workflow\ProcessFactory;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -34,14 +35,9 @@ class AbstractTestCommand extends TestCase
     protected $output;
 
     /**
-     * @var ObjectProphecy|Process
+     * @var ObjectProphecy|CommandLine
      */
-    protected $process;
-
-    /**
-     * @var ObjectProphecy|ProcessFactory
-     */
-    protected $processFactory;
+    protected $commandLine;
 
     public function setUp()
     {
@@ -50,30 +46,7 @@ class AbstractTestCommand extends TestCase
         $this->input  = $this->prophesize(ArgvInput::class);
         $this->output = $this->prophesize(Output::class);
 
-        $this->process        = $this->prophesize(Process::class);
-        $this->processFactory = $this->prophesize(ProcessFactory::class);
-    }
-
-    protected function processTest(string $expected)
-    {
-        $this->processFactory->create($expected)->willReturn($this->process->reveal())->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
-    }
-
-    protected function processTestNoOutput(string $expected)
-    {
-        $this->processFactory->create($expected)->willReturn($this->process->reveal())->shouldBeCalled();
-
-        $this->process->run()->shouldBeCalled();
+        $this->commandLine = $this->prophesize(CommandLine::class);
     }
 
     protected function useInvalidEnvironment()
@@ -86,7 +59,7 @@ class AbstractTestCommand extends TestCase
         chdir(__DIR__ . '/../fixtures/valid-env');
     }
 
-    protected function useBrokenEnvironemt()
+    protected function useBrokenEnvironment()
     {
         chdir(__DIR__ . '/../fixtures/broken-env');
     }

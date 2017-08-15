@@ -2,11 +2,11 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\CommandLine;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Aydin Hassan <aydin@wearejh.com>
@@ -14,12 +14,16 @@ use Jh\Workflow\ProcessFactory;
 class Php extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-    use ProcessRunnerTrait;
 
-    public function __construct(ProcessFactory $processFactory)
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
+
+    public function __construct(CommandLine $commandLine)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
     }
 
     protected function configure()
@@ -32,15 +36,12 @@ class Php extends Command implements CommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $container = $this->phpContainerName();
-
-        $command = sprintf('docker exec -it -u www-data %s php %s', $container, $input->getArgument('php-file'));
-
-        $process = $this->processFactory->create($command);
-        $process->setTty(true);
-
-        $process->run(function ($type, $out) use ($output) {
-            $output->write($out);
-        });
+        $this->commandLine->runInteractively(
+            sprintf(
+                'docker exec -it -u www-data %s php %s',
+                $this->phpContainerName(),
+                $input->getArgument('php-file')
+            )
+        );
     }
 }

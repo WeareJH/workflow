@@ -3,6 +3,7 @@
 namespace Jh\Workflow\NewProject\Step;
 
 use Jh\Workflow\Command\ProcessRunnerTrait;
+use Jh\Workflow\CommandLine;
 use Jh\Workflow\NewProject\Details;
 use Jh\Workflow\ProcessFactory;
 use Jh\Workflow\ProcessFailedException;
@@ -13,11 +14,14 @@ use Symfony\Component\Console\Style\OutputStyle;
  */
 class ComposerJson implements StepInterface
 {
-    use ProcessRunnerTrait;
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
 
-    public function __construct(ProcessFactory $processFactory)
+    public function __construct(CommandLine $commandLine)
     {
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
     }
 
     public function run(Details $details, OutputStyle $output)
@@ -62,7 +66,7 @@ class ComposerJson implements StepInterface
 
         $output->success('Updating composer lock file');
         try {
-            $this->runProcessShowingOutput($output, 'composer update --ignore-platform-reqs --prefer-dist -q');
+            $this->commandLine->run('composer update --ignore-platform-reqs --prefer-dist -q');
         } catch (ProcessFailedException $e) {
             throw new \RuntimeException('Could not update composer lock file');
         }

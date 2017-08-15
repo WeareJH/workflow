@@ -18,7 +18,7 @@ class DatabaseDumpTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new DatabaseDump($this->processFactory->reveal());
+        $this->command = new DatabaseDump($this->commandLine->reveal());
     }
 
     public function tearDown()
@@ -47,7 +47,9 @@ class DatabaseDumpTest extends AbstractTestCommand
 
         $this->input->getOption('database')->willReturn(null);
 
-        $this->processTestNoOutput('docker exec -i m2-db mysqldump -udocker -pdocker docker > dump.sql');
+        $this->commandLine->runQuietly('docker exec -i m2-db mysqldump -udocker -pdocker docker > dump.sql')
+            ->shouldBeCalled();
+
         $this->output->writeln('<info>Database dump saved to ./dump.sql</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -59,7 +61,8 @@ class DatabaseDumpTest extends AbstractTestCommand
 
         $this->input->getOption('database')->willReturn('custom_db');
 
-        $this->processTestNoOutput('docker exec -i m2-db mysqldump -udocker -pdocker custom_db > dump.sql');
+        $this->commandLine->runQuietly('docker exec -i m2-db mysqldump -udocker -pdocker custom_db > dump.sql')
+            ->shouldBeCalled();
         $this->output->writeln('<info>Database dump saved to ./dump.sql</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

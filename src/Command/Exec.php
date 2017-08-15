@@ -2,12 +2,12 @@
 
 namespace Jh\Workflow\Command;
 
+use Jh\Workflow\CommandLine;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Jh\Workflow\ProcessFactory;
 
 /**
  * @author Aydin Hassan <aydin@wearejh.com>
@@ -15,12 +15,16 @@ use Jh\Workflow\ProcessFactory;
 class Exec extends Command implements CommandInterface
 {
     use DockerAwareTrait;
-    use ProcessRunnerTrait;
 
-    public function __construct(ProcessFactory $processFactory)
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
+
+    public function __construct(CommandLine $commandLine)
     {
         parent::__construct();
-        $this->processFactory = $processFactory;
+        $this->commandLine = $commandLine;
     }
 
     protected function configure()
@@ -53,11 +57,6 @@ class Exec extends Command implements CommandInterface
         $user       = $root ? 'root' : 'www-data';
         $command    = sprintf('docker exec -it -u %s %s %s', $user, $container, implode(' ', $args));
 
-        $process = $this->processFactory->create($command);
-        $process->setTty(true);
-
-        $process->run(function ($type, $out) use ($output) {
-            $output->write($out);
-        });
+        $this->commandLine->runInteractively($command);
     }
 }

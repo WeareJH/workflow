@@ -1,6 +1,7 @@
 <?php
 
 use Jh\Workflow\Application;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 switch (true) {
@@ -23,8 +24,8 @@ switch (true) {
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-$container = (new \DI\ContainerBuilder())
+$c = (new \DI\ContainerBuilder())
     ->addDefinitions(__DIR__ . '/config.php')
     ->build();
 
-exit($container->get(Application::class)->run(null, $container->get(OutputInterface::class)));
+exit($c->get(Application::class)->run($c->get(InputInterface::class), $c->get(OutputInterface::class)));

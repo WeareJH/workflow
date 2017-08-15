@@ -3,6 +3,7 @@
 namespace Jh\Workflow\NewProject\Step;
 
 use Jh\Workflow\Command\ProcessRunnerTrait;
+use Jh\Workflow\CommandLine;
 use Jh\Workflow\NewProject\Details;
 use Jh\Workflow\NewProject\TemplateWriter;
 use Jh\Workflow\ProcessFactory;
@@ -13,17 +14,20 @@ use Symfony\Component\Console\Style\OutputStyle;
  */
 class CreateProject implements StepInterface
 {
-    use ProcessRunnerTrait;
-
     /**
      * @var TemplateWriter
      */
     private $templateWriter;
 
-    public function __construct(ProcessFactory $processFactory, TemplateWriter $templateWriter)
+    /**
+     * @var CommandLine
+     */
+    private $commandLine;
+
+    public function __construct(CommandLine $commandLine, TemplateWriter $templateWriter)
     {
-        $this->processFactory = $processFactory;
         $this->templateWriter = $templateWriter;
+        $this->commandLine = $commandLine;
     }
 
     public function run(Details $details, OutputStyle $output)
@@ -41,7 +45,7 @@ class CreateProject implements StepInterface
             $details->getProjectName()
         );
 
-        $this->runProcessShowingOutput($output, $command);
+        $this->commandLine->run($command);
 
         $filesToRemove = [
             '/ISSUE_TEMPLATE.md',

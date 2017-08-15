@@ -40,7 +40,7 @@ class DockerAwareTraitTest extends AbstractTestCommand
 
     public function testExceptionIsThrownWhenComposeFileUnParsable()
     {
-        $this->useBrokenEnvironemt();
+        $this->useBrokenEnvironment();
         $this->expectException(\RuntimeException::class);
         $this->implementation->containerNameTest('php');
     }

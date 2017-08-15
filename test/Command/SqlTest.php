@@ -17,7 +17,7 @@ class SqlTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Sql($this->processFactory->reveal());
+        $this->command = new Sql($this->commandLine->reveal());
     }
 
     public function tearDown()
@@ -64,9 +64,9 @@ class SqlTest extends AbstractTestCommand
         $this->input->getOption('file')->willReturn(null);
         $this->input->getOption('database')->willReturn(null);
 
-        $this->processTest(
-            'docker exec -t m2-db mysql -uroot -pdocker docker -e "SELECT * FROM core_config_data"'
-        );
+        $this->commandLine
+            ->run('docker exec -t m2-db mysql -uroot -pdocker docker -e "SELECT * FROM core_config_data"')
+            ->shouldBeCalled();
         
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -79,7 +79,10 @@ class SqlTest extends AbstractTestCommand
         $this->input->getOption('file')->willReturn('some-import.sql');
         $this->input->getOption('database')->willReturn(null);
 
-        $this->processTest('docker exec -i m2-db mysql -uroot -pdocker docker < some-import.sql');
+        $this->commandLine
+            ->run('docker exec -i m2-db mysql -uroot -pdocker docker < some-import.sql')
+            ->shouldBeCalled();
+
         $this->output->writeln('<info>DB import complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -93,7 +96,10 @@ class SqlTest extends AbstractTestCommand
         $this->input->getOption('file')->willReturn('some-import.sql');
         $this->input->getOption('database')->willReturn('custom_db');
 
-        $this->processTest('docker exec -i m2-db mysql -uroot -pdocker custom_db < some-import.sql');
+        $this->commandLine
+            ->run('docker exec -i m2-db mysql -uroot -pdocker custom_db < some-import.sql')
+            ->shouldBeCalled();
+
         $this->output->writeln('<info>DB import complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

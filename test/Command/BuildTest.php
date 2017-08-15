@@ -17,7 +17,7 @@ class BuildTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Build($this->processFactory->reveal());
+        $this->command = new Build($this->commandLine->reveal());
     }
 
     public function tearDown()
@@ -42,7 +42,7 @@ class BuildTest extends AbstractTestCommand
         $this->input->getOption('prod')->willReturn(false);
         $this->input->getOption('no-cache')->willReturn(false);
 
-        $this->processTest($expected);
+        $this->commandLine->run($expected)->shouldBeCalled();
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -57,7 +57,7 @@ class BuildTest extends AbstractTestCommand
         $this->input->getOption('prod')->willReturn(false);
         $this->input->getOption('no-cache')->willReturn(true);
 
-        $this->processTest($expected);
+        $this->commandLine->run($expected)->shouldBeCalled();
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -72,7 +72,7 @@ class BuildTest extends AbstractTestCommand
         $this->input->getOption('prod')->willReturn(true);
         $this->input->getOption('no-cache')->willReturn(false);
 
-        $this->processTest($expected);
+        $this->commandLine->run($expected)->shouldBeCalled();
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -87,7 +87,7 @@ class BuildTest extends AbstractTestCommand
         $this->input->getOption('prod')->willReturn(true);
         $this->input->getOption('no-cache')->willReturn(true);
 
-        $this->processTest($expected);
+        $this->commandLine->run($expected)->shouldBeCalled();
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

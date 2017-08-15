@@ -35,7 +35,7 @@ class ComposerInstallTest extends AbstractTestCommand
     {
         parent::setUp();
 
-        $this->command     = new ComposerInstall($this->processFactory->reveal());
+        $this->command     = new ComposerInstall($this->commandLine->reveal());
         $this->application = $this->prophesize(Application::class);
         $this->pullCommand = $this->prophesize(Pull::class);
 
@@ -66,7 +66,7 @@ class ComposerInstallTest extends AbstractTestCommand
         $this->output->getVerbosity()->willReturn(OutputInterface::OUTPUT_NORMAL);
 
         $cmd = 'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache m2-php composer install -o --ansi';
-        $this->processTest($cmd);
+        $this->commandLine->run($cmd)->shouldBeCalled();
 
         $expectedInput = new ArrayInput(['files' => ['vendor', '.docker/composer-cache']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();
@@ -89,7 +89,7 @@ class ComposerInstallTest extends AbstractTestCommand
             'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache m2-php composer install -o --ansi %s',
             $expectedFlag
         );
-        $this->processTest($cmd);
+        $this->commandLine->run($cmd)->shouldBeCalled();
 
         $expectedInput = new ArrayInput(['files' => ['vendor', '.docker/composer-cache']]);
         $this->pullCommand->run($expectedInput, $this->output)->shouldBeCalled();

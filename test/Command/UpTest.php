@@ -17,12 +17,7 @@ class UpTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Up($this->processFactory->reveal());
-    }
-
-    public function tearDown()
-    {
-        $this->prophet->checkPredictions();
+        $this->command = new Up($this->commandLine->reveal());
     }
 
     public function testCommandIsConfigured()
@@ -39,7 +34,10 @@ class UpTest extends AbstractTestCommand
 
         $this->input->getOption('prod')->willReturn(false);
 
-        $this->processTest('docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d');
+        $this->commandLine
+            ->run('docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d')
+            ->shouldBeCalled();
+
         $this->output->writeln('<info>Containers started</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
@@ -51,7 +49,10 @@ class UpTest extends AbstractTestCommand
 
         $this->input->getOption('prod')->willReturn(true);
 
-        $this->processTest('docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d');
+        $this->commandLine
+            ->run('docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d')
+            ->shouldBeCalled();
+
         $this->output->writeln('<info>Containers started</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());

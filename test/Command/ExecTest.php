@@ -3,8 +3,6 @@
 namespace Jh\WorkflowTest\Command;
 
 use Jh\Workflow\Command\Exec;
-use Prophecy\Argument;
-use Symfony\Component\Process\Process;
 
 /**
  * @author Aydin Hassan <aydin@wearejh.com>
@@ -19,7 +17,7 @@ class ExecTest extends AbstractTestCommand
     public function setUp()
     {
         parent::setUp();
-        $this->command = new Exec($this->processFactory->reveal());
+        $this->command = new Exec($this->commandLine->reveal());
     }
 
     public function tearDown()
@@ -42,20 +40,7 @@ class ExecTest extends AbstractTestCommand
         // We have to use $_SERVER['argv'] here
         $_SERVER['argv'] = ['workflow', 'exec', 'ls', '-la'];
 
-        $expected = 'docker exec -it -u www-data m2-php ls -la';
-
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
-        $this->process->setTty(true)->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
+        $this->commandLine->runInteractively('docker exec -it -u www-data m2-php ls -la')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -67,20 +52,7 @@ class ExecTest extends AbstractTestCommand
         // We have to use $_SERVER['argv'] here
         $_SERVER['argv'] = ['workflow', 'exec', '-r', 'ls', '-la'];
 
-        $expected = 'docker exec -it -u root m2-php ls -la';
-
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
-        $this->process->setTty(true)->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
+        $this->commandLine->runInteractively('docker exec -it -u root m2-php ls -la')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -92,20 +64,7 @@ class ExecTest extends AbstractTestCommand
         // We have to use $_SERVER['argv'] here
         $_SERVER['argv'] = ['workflow', 'exec', '--root', 'ls', '-la'];
 
-        $expected = 'docker exec -it -u root m2-php ls -la';
-
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
-        $this->process->setTty(true)->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
+        $this->commandLine->runInteractively('docker exec -it -u root m2-php ls -la')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -117,20 +76,7 @@ class ExecTest extends AbstractTestCommand
         // We have to use $_SERVER['argv'] here
         $_SERVER['argv'] = ['workflow', 'exec', 'ls', '-la', '-r'];
 
-        $expected = 'docker exec -it -u www-data m2-php ls -la -r';
-
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
-        $this->process->setTty(true)->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
+        $this->commandLine->runInteractively('docker exec -it -u www-data m2-php ls -la -r')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -142,20 +88,7 @@ class ExecTest extends AbstractTestCommand
         // We have to use $_SERVER['argv'] here
         $_SERVER['argv'] = ['workflow', 'exec', 'ls', '-la', '--root'];
 
-        $expected = 'docker exec -it -u www-data m2-php ls -la --root';
-
-        $this->processFactory->create($expected)->willReturn($this->process->reveal());
-        $this->process->setTty(true)->shouldBeCalled();
-
-        $this->process->run(Argument::type('callable'))->will(function ($args) {
-            $callback = array_shift($args);
-
-            $callback(Process::ERR, 'bad output');
-            $callback(Process::OUT, 'good output');
-        });
-
-        $this->output->write('bad output')->shouldBeCalled();
-        $this->output->write('good output')->shouldBeCalled();
+        $this->commandLine->runInteractively('docker exec -it -u www-data m2-php ls -la --root')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
