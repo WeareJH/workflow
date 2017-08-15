@@ -309,6 +309,9 @@ class FilesTest extends WorkflowTest
         self::assertFileExistsInContainer('/var/www/some/path2/some-file3.php', 'm2-php');
         self::assertFileExistsInContainer('/var/www/some-file4.php', 'm2-php');
 
+        self::assertFileUserAndGroupInContainer('/var/www/some', 'www-data', 'www-data', 'm2-php');
+        self::assertFileUserAndGroupInContainer('/var/www/some/path', 'www-data', 'www-data', 'm2-php');
+
         $this->output
             ->writeln("<info> 🚀  'some/path/some-file1.php' > m2-php </info>")
             ->shouldHaveBeenCalled();
