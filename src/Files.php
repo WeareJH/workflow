@@ -97,7 +97,7 @@ class Files
         });
 
         $makeDirectoriesCommand = sprintf(
-            'docker exec %1$s mkdir -p %2$s && docker exec %1$s chown www-data:www-data %2$s',
+            'docker exec -u www-data:www-data %1$s mkdir -p %2$s',
             $container,
             $destinations->map(toMap('dirname'))->unique()->map(toMap('escapeshellarg'))->implode(' ')
         );
