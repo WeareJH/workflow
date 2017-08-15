@@ -47,7 +47,7 @@ class DatabaseDumpTest extends AbstractTestCommand
 
         $this->input->getOption('database')->willReturn(null);
 
-        $this->commandLine->runQuietly('docker exec -i m2-db mysqldump -udocker -pdocker docker > dump.sql')
+        $this->commandLine->runQuietly('docker exec -i m2-db mysqldump -uroot -pdocker docker > dump.sql')
             ->shouldBeCalled();
 
         $this->output->writeln('<info>Database dump saved to ./dump.sql</info>')->shouldBeCalled();
@@ -61,7 +61,7 @@ class DatabaseDumpTest extends AbstractTestCommand
 
         $this->input->getOption('database')->willReturn('custom_db');
 
-        $this->commandLine->runQuietly('docker exec -i m2-db mysqldump -udocker -pdocker custom_db > dump.sql')
+        $this->commandLine->runQuietly('docker exec -i m2-db mysqldump -uroot -pdocker custom_db > dump.sql')
             ->shouldBeCalled();
         $this->output->writeln('<info>Database dump saved to ./dump.sql</info>')->shouldBeCalled();
 
