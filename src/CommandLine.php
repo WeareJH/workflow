@@ -57,7 +57,7 @@ class CommandLine
         $process = $this->newProcess($command);
         $process->setTty(true);
 
-        return $this->runProcess($this->newProcess($command), $this->onOutput());
+        return $this->runProcess($process, $this->onOutput());
     }
 
     private function newProcess(string $command) : Process
