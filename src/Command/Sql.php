@@ -68,9 +68,27 @@ class Sql extends Command implements CommandInterface
     {
         extract($this->getDbDetails($input), EXTR_OVERWRITE);
 
-        $this->commandLine->run(
-            sprintf('docker exec -i %s mysql -u%s -p%s %s < %s', $container, $user, $pass, $db, $file)
-        );
+        if ($this->commandLine->commandExists('pv')) {
+            $command = sprintf(
+                'pv -f %s | docker exec -i %s mysql -u%s -p%s -D %s',
+                escapeshellarg($file),
+                escapeshellarg($container),
+                escapeshellarg($user),
+                escapeshellarg($pass),
+                escapeshellarg($db)
+            );
+        } else {
+            $command = sprintf(
+                'docker exec -i %s mysql -u%s -p%s %s < %s',
+                escapeshellarg($container),
+                escapeshellarg($user),
+                escapeshellarg($pass),
+                escapeshellarg($db),
+                escapeshellarg($file)
+            );
+        }
+
+        $this->commandLine->run($command);
         $output->writeln('<info>DB import complete!</info>');
     }
 
