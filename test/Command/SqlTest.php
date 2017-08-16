@@ -80,7 +80,34 @@ class SqlTest extends AbstractTestCommand
         $this->input->getOption('database')->willReturn(null);
 
         $this->commandLine
-            ->run('docker exec -i m2-db mysql -uroot -pdocker docker < some-import.sql')
+            ->commandExists('pv')
+            ->willReturn(false)
+            ->shouldBeCalled();
+
+        $this->commandLine
+            ->run('docker exec -i \'m2-db\' mysql -u\'root\' -p\'docker\' \'docker\' < \'some-import.sql\'')
+            ->shouldBeCalled();
+
+        $this->output->writeln('<info>DB import complete!</info>')->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testSqlFileIsRunAndPipedThroughPvIfItExists()
+    {
+        $this->useValidEnvironment();
+
+        $this->input->getOption('sql')->willReturn(null);
+        $this->input->getOption('file')->willReturn('some-import.sql');
+        $this->input->getOption('database')->willReturn(null);
+
+        $this->commandLine
+            ->commandExists('pv')
+            ->willReturn(true)
+            ->shouldBeCalled();
+
+        $this->commandLine
+            ->run('pv -f \'some-import.sql\' | docker exec -i \'m2-db\' mysql -u\'root\' -p\'docker\' -D \'docker\'')
             ->shouldBeCalled();
 
         $this->output->writeln('<info>DB import complete!</info>')->shouldBeCalled();
@@ -97,7 +124,12 @@ class SqlTest extends AbstractTestCommand
         $this->input->getOption('database')->willReturn('custom_db');
 
         $this->commandLine
-            ->run('docker exec -i m2-db mysql -uroot -pdocker custom_db < some-import.sql')
+            ->commandExists('pv')
+            ->willReturn(false)
+            ->shouldBeCalled();
+
+        $this->commandLine
+            ->run('docker exec -i \'m2-db\' mysql -u\'root\' -p\'docker\' \'custom_db\' < \'some-import.sql\'')
             ->shouldBeCalled();
 
         $this->output->writeln('<info>DB import complete!</info>')->shouldBeCalled();
