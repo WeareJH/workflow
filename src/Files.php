@@ -112,7 +112,7 @@ class Files
 
                     //chown
                     $this->commandLine->runAsync(sprintf(
-                        'docker exec %s chown -R www-data:www-data %s',
+                        'docker exec %s chown -fR www-data:www-data %s',
                         $container,
                         $destinations->map(toMap('escapeshellarg'))->implode(' ')
                     ));
