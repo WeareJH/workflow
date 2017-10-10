@@ -49,7 +49,7 @@ class Watch extends Command implements CommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $watches  = ['app/code', 'app/design', 'composer.json', 'phpcs.xml', 'phpunit.xml'];
+        $watches  = ['app/code', 'app/design','app/i18n', 'composer.json', 'phpcs.xml', 'phpunit.xml'];
         $excludes = ['".*__jb_.*$"', '".*swp$"', '".*swpx$"'];
 
         $watches = $input->getOption('no-defaults')

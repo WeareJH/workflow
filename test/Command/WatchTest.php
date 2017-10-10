@@ -107,7 +107,7 @@ class WatchTest extends AbstractTestCommand
 
         $this->watchFactory
             ->create(
-                ['app/code', 'app/design', 'composer.json', 'phpcs.xml', 'phpunit.xml'],
+                ['app/code', 'app/design', 'app/i18n', 'composer.json', 'phpcs.xml', 'phpunit.xml'],
                 ['".*__jb_.*$"', '".*swp$"', '".*swpx$"']
             )
             ->willReturn(Observable::empty());
@@ -125,7 +125,7 @@ class WatchTest extends AbstractTestCommand
 
         $this->watchFactory
             ->create(
-                ['custom-dir', 'app/code', 'app/design', 'composer.json', 'phpcs.xml', 'phpunit.xml'],
+                ['custom-dir', 'app/code', 'app/design', 'app/i18n', 'composer.json', 'phpcs.xml', 'phpunit.xml'],
                 ['".*__jb_.*$"', '".*swp$"', '".*swpx$"']
             )
             ->willReturn(Observable::empty());
