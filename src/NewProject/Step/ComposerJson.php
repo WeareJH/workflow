@@ -47,14 +47,8 @@ class ComposerJson implements StepInterface
 
         $data['require-dev']['wearejh/php-coding-standards']     =  'dev-master';
         $data['require-dev']['wearejh/m2-module-symlink-assets'] =  '^1.0';
-
-        isset($data['require-dev']['squizlabs/php_codesniffer'])
-            ? $data['require-dev']['squizlabs/php_codesniffer'] = '^2.7'
-            : $data['require-dev'][] = ['squizlabs/php_codesniffer' => '^2.7'];
-
-        isset($data['require-dev']['phpunit/phpunit'])
-            ? $data['require-dev']['phpunit/phpunit'] = '^6.0'
-            : $data['require-dev'][] = ['phpunit/phpunit' => '^6.0'];
+        $data['require-dev']['squizlabs/php_codesniffer'] = '^3.0';
+        $data['require-dev']['phpunit/phpunit'] = '^6.0';
 
         file_put_contents(
             $details->getProjectName() . '/composer.json',
