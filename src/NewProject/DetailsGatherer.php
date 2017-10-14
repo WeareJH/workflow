@@ -19,13 +19,13 @@ class DetailsGatherer
         $output->note('Gathering Details..');
 
         $repo = $output->ask('GitHub repository? Go create an empty repo first', null, function ($answer) {
-            if (!preg_match('/^git@github\.com:WeareJH\/[a-z0-9-]+.git$/', $answer)) {
+            if (!preg_match('/^git@github\.com:[A-z]+\/[a-z0-9-]+.git$/', $answer)) {
                 throw new \RuntimeException('GitHub url looks incorrect. Make sure it\'s the SSH url');
             }
             return $answer;
         });
 
-        preg_match('/^git@github\.com:WeareJH\/([a-z0-9-]+).git$/', $repo, $matches);
+        preg_match('/^git@github\.com:[A-z]+\/([a-z0-9-]+).git$/', $repo, $matches);
 
         $projectName = $matches[1];
 
