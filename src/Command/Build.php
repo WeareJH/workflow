@@ -38,24 +38,20 @@ class Build extends Command implements CommandInterface
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $service  = $this->getServiceConfig('php');
-        $buildArg = $input->getOption('prod') ? '--build-arg BUILD_ENV=prod ./' : './';
-
-        if ($input->getOption('no-cache')) {
-            $buildArg .= ' --no-cache';
-        }
 
         if (!isset($service['image'])) {
             throw new \RuntimeException('No image specified for PHP container');
         }
 
-        if (!isset($service['build']['dockerfile'])) {
-            throw new \RuntimeException('No dockerfile specified for PHP container');
-        }
+        $envDockerFile = $input->getOption('prod')
+            ? 'docker-compose.prod.yml'
+            : 'docker-compose.dev.yml';
 
-        $dockerFile = $service['build']['dockerfile'];
+        $buildArgs = $input->getOption('no-cache') ? '--no-cache' : '';
 
-        $this->commandLine
-            ->run(sprintf('docker build -t %s -f %s %s', $service['image'], $dockerFile, $buildArg));
+        $this->commandLine->run(
+            rtrim(sprintf('docker-compose -f docker-compose.yml -f %s build %s', $envDockerFile, $buildArgs))
+        );
 
         $output->writeln('<info>Build complete!</info>');
     }
