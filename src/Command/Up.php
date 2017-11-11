@@ -29,7 +29,8 @@ class Up extends Command implements CommandInterface
         $this
             ->setName('up')
             ->setDescription('Uses docker-compose to start the containers')
-            ->addOption('prod', 'p', InputOption::VALUE_OPTIONAL, 'Omits development configurations');
+            ->addOption('prod', 'p', InputOption::VALUE_OPTIONAL, 'Omits development configurations')
+            ->addOption('no-build', null, InputOption::VALUE_NONE, 'Prevents running a full build');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
@@ -38,7 +39,11 @@ class Up extends Command implements CommandInterface
             ? 'docker-compose.prod.yml'
             : 'docker-compose.dev.yml';
 
-        $this->commandLine->run(sprintf('docker-compose -f docker-compose.yml -f %s up -d', $envDockerFile));
+        $buildArg = $input->getOption('no-build') ? '' : '--build';
+
+        $this->commandLine->run(
+            rtrim(sprintf('docker-compose -f docker-compose.yml -f %s up -d %s', $envDockerFile, $buildArg))
+        );
 
         $output->writeln('<info>Containers started</info>');
     }
