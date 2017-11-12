@@ -20,19 +20,18 @@ class Start extends Command implements CommandInterface
         $this
             ->setName('start')
             ->setDescription('Runs build, up and watch comands')
-            ->addOption('prod', 'p', InputOption::VALUE_OPTIONAL, 'Ommits development configurations');
+            ->addOption('prod', 'p', InputOption::VALUE_OPTIONAL, 'Ommits development configurations')
+            ->addOption('no-build', null, InputOption::VALUE_NONE, 'Prevents running a full build');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $buildCommand = $this->getApplication()->find('build');
         $upCommand    = $this->getApplication()->find('up');
         $pullCommand  = $this->getApplication()->find('pull');
         $watchCommand = $this->getApplication()->find('watch');
 
-        $buildCommand->run($input, $output);
         $upCommand->run($input, $output);
         $pullCommand->run(new ArrayInput(['files' => ['.docker/composer-cache']]), $output);
-        $watchCommand->run($input, $output);
+        $watchCommand->run(new ArrayInput([]), $output);
     }
 }
