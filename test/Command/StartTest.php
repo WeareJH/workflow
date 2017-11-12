@@ -60,7 +60,6 @@ class StartTest extends AbstractTestCommand
         $this->watchCommand = $this->prophesize(Watch::class);
 
         $this->application->getHelperSet()->willReturn(new HelperSet);
-        $this->application->find('build')->willReturn($this->buildCommand->reveal());
         $this->application->find('up')->willReturn($this->upCommand->reveal());
         $this->application->find('pull')->willReturn($this->pullCommand->reveal());
         $this->application->find('watch')->willReturn($this->watchCommand->reveal());
@@ -83,18 +82,16 @@ class StartTest extends AbstractTestCommand
 
     public function testCommandRunsAllSubCommands()
     {
-        $this->application->find('build')->shouldBeCalled();
         $this->application->find('up')->shouldBeCalled();
         $this->application->find('pull')->shouldBeCalled();
         $this->application->find('watch')->shouldBeCalled();
 
         $expectedPullInput = new ArrayInput(['files' => ['.docker/composer-cache']]);
+        $expectedWatchInut = new ArrayInput([]);
 
-        $this->buildCommand->run($this->input, $this->output)->shouldBeCalled();
-        $this->upCommand->run($this->input, $this->output)->shouldBeCalled();
         $this->upCommand->run($this->input, $this->output)->shouldBeCalled();
         $this->pullCommand->run($expectedPullInput, $this->output)->shouldBeCalled();
-        $this->watchCommand->run($this->input, $this->output)->shouldBeCalled();
+        $this->watchCommand->run($expectedWatchInut, $this->output)->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
