@@ -37,10 +37,11 @@ class BuildTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.dev.yml build';
+        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.dev.yml build php';
 
         $this->input->getOption('prod')->willReturn(false);
         $this->input->getOption('no-cache')->willReturn(false);
+        $this->input->getOption('service')->willReturn(null);
 
         $this->commandLine->run($expected)->shouldBeCalled();
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
@@ -52,10 +53,11 @@ class BuildTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.dev.yml build --no-cache';
+        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.dev.yml build php --no-cache';
 
         $this->input->getOption('prod')->willReturn(false);
         $this->input->getOption('no-cache')->willReturn(true);
+        $this->input->getOption('service')->willReturn(null);
 
         $this->commandLine->run($expected)->shouldBeCalled();
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
@@ -67,10 +69,11 @@ class BuildTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml build';
+        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml build php';
 
         $this->input->getOption('prod')->willReturn(true);
         $this->input->getOption('no-cache')->willReturn(false);
+        $this->input->getOption('service')->willReturn(null);
 
         $this->commandLine->run($expected)->shouldBeCalled();
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
@@ -82,10 +85,27 @@ class BuildTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml build --no-cache';
+        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml build php --no-cache';
 
         $this->input->getOption('prod')->willReturn(true);
         $this->input->getOption('no-cache')->willReturn(true);
+        $this->input->getOption('service')->willReturn(null);
+
+        $this->commandLine->run($expected)->shouldBeCalled();
+        $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
+
+        $this->command->execute($this->input->reveal(), $this->output->reveal());
+    }
+
+    public function testBuildForSingleService()
+    {
+        $this->useValidEnvironment();
+
+        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml build varnish --no-cache';
+
+        $this->input->getOption('prod')->willReturn(true);
+        $this->input->getOption('no-cache')->willReturn(true);
+        $this->input->getOption('service')->willReturn('varnish');
 
         $this->commandLine->run($expected)->shouldBeCalled();
         $this->output->writeln('<info>Build complete!</info>')->shouldBeCalled();
