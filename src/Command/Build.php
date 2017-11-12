@@ -32,7 +32,8 @@ class Build extends Command implements CommandInterface
             ->setName('build')
             ->setDescription('Runs docker build to create an image ready for use')
             ->addOption('prod', 'p', InputOption::VALUE_NONE, 'Ommits development configurations')
-            ->addOption('no-cache', null, InputOption::VALUE_NONE, 'Skip the build cache');
+            ->addOption('no-cache', null, InputOption::VALUE_NONE, 'Skip the build cache')
+            ->addOption('service', 's', InputOption::VALUE_REQUIRED, 'Service to build');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
@@ -43,14 +44,15 @@ class Build extends Command implements CommandInterface
             throw new \RuntimeException('No image specified for PHP container');
         }
 
-        $envDockerFile = $input->getOption('prod')
+        $dockerFile = $input->getOption('prod')
             ? 'docker-compose.prod.yml'
             : 'docker-compose.dev.yml';
 
-        $buildArgs = $input->getOption('no-cache') ? '--no-cache' : '';
+        $service = $input->getOption('service') ?: 'php';
+        $args    = $input->getOption('no-cache') ? '--no-cache' : '';
 
         $this->commandLine->run(
-            rtrim(sprintf('docker-compose -f docker-compose.yml -f %s build %s', $envDockerFile, $buildArgs))
+            rtrim(sprintf('docker-compose -f docker-compose.yml -f %s build %s %s', $dockerFile, $service, $args))
         );
 
         $output->writeln('<info>Build complete!</info>');
