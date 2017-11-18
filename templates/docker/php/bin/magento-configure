@@ -42,17 +42,6 @@ $config['cache'] = [
                             'port'   => '6379',
                             'database'      => '1'
                         ],
-                ],
-            'page_cache' =>
-                [
-                    'backend'         => 'Cm_Cache_Backend_Redis',
-                    'backend_options' =>
-                        [
-                            'server'        => 'redis',
-                            'port'          => '6379',
-                            'database'      => '2',
-                            'compress_data' => '1'
-                        ]
                 ]
         ]
 ];
