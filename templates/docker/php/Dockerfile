@@ -1,4 +1,4 @@
-FROM php:7.0-fpm
+FROM php:7.1-fpm
 MAINTAINER Michael Woodward <michael@wearejh.com>
 
 ARG BUILD_ENV=dev

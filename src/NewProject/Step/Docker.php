@@ -66,15 +66,14 @@ class Docker implements StepInterface
     {
         $files = [
             'env/production.env.dist'   => '.docker/production.env.dist',
-            'app.php.dockerfile'        => 'app.php.dockerfile',
+            'php/Dockerfile'            => '.docker/php/Dockerfile',
             '.dockerignore'             => '.dockerignore',
             'php/bin/docker-configure'  => '.docker/php/bin/docker-configure',
             'php/bin/magento-configure' => '.docker/php/bin/magento-configure',
             'php/etc/custom.template'   => '.docker/php/etc/custom.template',
             'php/etc/msmtprc.template'  => '.docker/php/etc/msmtprc.template',
             'php/etc/xdebug.template'   => '.docker/php/etc/xdebug.template',
-            'certs/cert.pem'            => sprintf('.docker/certs/live/%s/cert.pem', $details->getProjectDomain()),
-            'certs/privkey.pem'         => sprintf('.docker/certs/live/%s/privkey.pem', $details->getProjectDomain()),
+            'certs/cert0.pem'           => '.docker/certs/cert0.pem',
         ];
 
         foreach ($files as $templatePath => $projectPath) {
