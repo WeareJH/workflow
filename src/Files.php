@@ -213,7 +213,7 @@ class Files
 
         $command  = 'docker cp %s %2$s:/var/www/___files.tar.gz ';
         $command .= '&& docker exec %2$s chown -R www-data:www-data /var/www/___files.tar.gz ';
-        $command .= '&& docker exec %2$s tar xzf ___files.tar.gz';
+        $command .= '&& docker exec %2$s tar xzmf ___files.tar.gz';
 
         return sprintf($command, escapeshellarg($archive), $container);
     }
