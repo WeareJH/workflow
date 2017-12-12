@@ -11,8 +11,8 @@ bin/magento setup:install \
     --db-password=$MYSQL_PASSWORD \
     --base-url=$MAGE_HOST \
     --base-url-secure=$MAGE_HOST \
-    --admin-firstname=$MAGE_ADMIN_FIRSTNAME \
-    --admin-lastname=$MAGE_ADMIN_LASTNAME \
+    --admin-firstname="$MAGE_ADMIN_FIRSTNAME" \
+    --admin-lastname="$MAGE_ADMIN_LASTNAME" \
     --admin-email=$MAGE_ADMIN_EMAIL \
     --admin-user=$MAGE_ADMIN_USER \
     --admin-password=$MAGE_ADMIN_PASS \
