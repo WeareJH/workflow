@@ -12,8 +12,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class VarnishDisable extends Command implements CommandInterface
 {
-    use DockerAwareTrait;
-
     /**
      * @var CommandLine
      */
