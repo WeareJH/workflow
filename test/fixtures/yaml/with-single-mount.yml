@@ -1,0 +1,13 @@
+version: '2'
+volumes:
+    db-data: null
+    app-pub: null
+    app-var: null
+    app-env: null
+services:
+    nginx: { container_name: selco-m2, image: 'nginx:stable-alpine', volumes: ['app-pub:/var/www/pub', '.docker/nginx/sites:/etc/nginx/conf.d', '.docker/certs:/etc/letsencrypt'], working_dir: /var/www, ports: ['80:80', '443:443'], env_file: [./.docker/local.env] }
+    php: { container_name: selco-m2-php, image: wearejh/selco-m2, build: { context: ./, dockerfile: app.php.dockerfile }, volumes: ['app-pub:/var/www/pub', 'app-env:/var/www/app/etc', '~/.composer/auth.json:/root/.composer/auth.json', '.docker/composer-cache:/var/www/.docker/composer-cache', './app/code:/var/www/app/code'], working_dir: /var/www, ports: [9000], env_file: [.docker/local.env] }
+    db: { container_name: selco-m2-db, image: 'mysql:5.6', volumes: ['db-data:/var/lib/mysql', '.docker/db/:/docker-entrypoint-initdb.d/'], ports: ['3306:3306'], restart: unless-stopped, env_file: [./.docker/local.env] }
+    redis: { container_name: selco-m2-redis, image: 'redis:3-alpine', ports: ['6379:6379'] }
+    mail: { container_name: selco-m2-mail, image: schickling/mailcatcher, ports: [1025, '1080:1080'] }
+    blackfire: { container_name: selco-m2-blackfire, image: blackfire/blackfire, env_file: [.docker/local.env] }

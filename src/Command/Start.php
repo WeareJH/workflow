@@ -19,8 +19,9 @@ class Start extends Command implements CommandInterface
     {
         $this
             ->setName('start')
-            ->setDescription('Runs build, up and watch comands')
-            ->addOption('prod', 'p', InputOption::VALUE_OPTIONAL, 'Ommits development configurations');
+            ->setDescription('Runs build, up and watch commands')
+            ->addOption('prod', 'p', InputOption::VALUE_OPTIONAL, 'Omits development configurations')
+            ->addOption('mount', 'm', InputOption::VALUE_OPTIONAL|InputOption::VALUE_IS_ARRAY, 'Directories to mount at run time');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
@@ -30,9 +31,15 @@ class Start extends Command implements CommandInterface
         $pullCommand  = $this->getApplication()->find('pull');
         $watchCommand = $this->getApplication()->find('watch');
 
-        $buildCommand->run($input, $output);
+        $buildCommand->run(new ArrayInput([
+            new InputOption('prod', $input->getOption('prod'))
+        ]), $output);
+
         $upCommand->run($input, $output);
         $pullCommand->run(new ArrayInput(['files' => ['.docker/composer-cache']]), $output);
-        $watchCommand->run($input, $output);
+
+        if (count($input->getOption('mount')) === 0) {
+            $watchCommand->run($input, $output);
+        }
     }
 }

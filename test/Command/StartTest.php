@@ -11,6 +11,7 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -77,8 +78,9 @@ class StartTest extends AbstractTestCommand
     {
         static::assertEquals('start', $this->command->getName());
         static::assertEquals([], $this->command->getAliases());
-        static::assertEquals('Runs build, up and watch comands', $this->command->getDescription());
+        static::assertEquals('Runs build, up and watch commands', $this->command->getDescription());
         static::assertArrayHasKey('prod', $this->command->getDefinition()->getOptions());
+        static::assertArrayHasKey('mount', $this->command->getDefinition()->getOptions());
     }
 
     public function testCommandRunsAllSubCommands()
@@ -89,9 +91,11 @@ class StartTest extends AbstractTestCommand
         $this->application->find('watch')->shouldBeCalled();
 
         $expectedPullInput = new ArrayInput(['files' => ['.docker/composer-cache']]);
+        $expectedBuildInput = new ArrayInput([
+            new InputOption('prod', false)
+        ]);
 
-        $this->buildCommand->run($this->input, $this->output)->shouldBeCalled();
-        $this->upCommand->run($this->input, $this->output)->shouldBeCalled();
+        $this->buildCommand->run($expectedBuildInput, $this->output)->shouldBeCalled();
         $this->upCommand->run($this->input, $this->output)->shouldBeCalled();
         $this->pullCommand->run($expectedPullInput, $this->output)->shouldBeCalled();
         $this->watchCommand->run($this->input, $this->output)->shouldBeCalled();
