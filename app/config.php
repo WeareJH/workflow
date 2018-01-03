@@ -4,12 +4,13 @@ use Interop\Container\ContainerInterface;
 use Jh\Workflow\Application;
 use Jh\Workflow\Command;
 use Jh\Workflow\CommandLine;
+use Jh\Workflow\Details;
+use Jh\Workflow\Details\Collector\Step as CollectorStep;
 use Jh\Workflow\Files;
-use Jh\Workflow\NewProject\DetailsGatherer;
-use Jh\Workflow\NewProject\Step;
-use Jh\Workflow\NewProject\StepRunner;
-use Jh\Workflow\NewProject\TemplateWriter;
+use Jh\Workflow\FitProject;
+use Jh\Workflow\NewProject;
 use Jh\Workflow\NullLogger;
+use Jh\Workflow\Sequence\Executor\Step as ExecutorStep;
 use Jh\Workflow\WatchFactory;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
@@ -50,7 +51,8 @@ return [
         $app->add($c->get(Command\Ssh::class));
         $app->add($c->get(Command\NginxReload::class));
         $app->add($c->get(Command\XdebugLoopback::class));
-        $app->add($c->get(Command\NewProject::class));
+        $app->add($c->get(Command\FitCommand::class));
+        $app->add($c->get(Command\NewCommand::class));
         $app->add($c->get(Command\Php::class));
         $app->add($c->get(Command\Exec::class));
         $app->add($c->get(Command\Delete::class));
@@ -75,8 +77,6 @@ return [
         return new ConsoleOutput;
     },
     ProcessBuilder::class  => DI\object(),
-    TemplateWriter::class  => DI\object(),
-    DetailsGatherer::class => DI\object(),
     LoopInterface::class => function () {
         return new StreamSelectLoop;
     },
@@ -101,58 +101,106 @@ return [
     },
 
     // Commands
-    Command\Build::class              => DI\object(),
-    Command\Magento::class            => DI\object(),
-    Command\MagentoFullInstall::class => DI\object(),
-    Command\MagentoInstall::class     => DI\object(),
-    Command\MagentoConfigure::class   => DI\object(),
-    Command\Pull::class               => DI\object(),
-    Command\Push::class               => DI\object(),
-    Command\Start::class              => DI\object(),
-    Command\Stop::class               => DI\object(),
-    Command\Up::class                 => DI\object(),
     Command\Watch::class              => function (ContainerInterface $c) {
         return new Command\Watch($c->get(WatchFactory::class), $c->get(Files::class));
     },
-    Command\Sync::class               => DI\object(),
-    Command\ComposerUpdate::class     => DI\object(),
-    Command\Sql::class                => DI\object(),
-    Command\NginxReload::class        => DI\object(),
-    Command\XdebugLoopback::class     => DI\object(),
-    Command\Ssh::class                => DI\object(),
-    Command\NewProject::class         => DI\object(),
-    Command\Php::class                => DI\object(),
-    Command\Exec::class               => DI\object(),
 
-    // New Project Steps
-    StepRunner::class => function (ContainerInterface $c) {
-        return new StepRunner($c->get('steps'));
+    // // Fit project steps
+    // StepRunnerFit::class => function (ContainerInterface $c) {
+    //     return new StepRunnerFit([
+    //         $c->get(FitStep\Clean::class),
+    //         // $c->get(Step\AuthJson::class),
+    //         // $c->get(Step\ComposerJson::class),
+    //         // $c->get(Step\Docker::class),
+    //         // $c->get(Step\PrTemplate::class),
+    //         // $c->get(Step\Readme::class),
+    //         // $c->get(Step\CircleCI::class),
+    //         // $c->get(Step\Capistrano::class),
+    //         // $c->get(Step\PhpStorm::class),
+    //         // $c->get(Step\GitCommit::class),
+    //     ]);
+    // },
+
+    ExecutorStep\Clean::class => function (ContainerInterface $c) {
+        return new ExecutorStep\Clean([
+            '.htaccess',
+            '.htaccess.sample',
+            '.php_cs',
+            '.travis.yml',
+            'CHANGELOG.md',
+            'COPYING.txt',
+            'CONTRIBUTING.md',
+            'Gruntfile.js.sample',
+            'ISSUE_TEMPLATE.md',
+            'LICENSE.txt',
+            'LICENSE_AFL.txt',
+            'LICENSE_EE.txt',
+            'nginx.conf.sample',
+            'package.json.sample',
+            'php.ini.sample',
+            'README_EE.txt',
+        ]);
     },
-    Step\CreateProject::class => DI\object(),
-    Step\GitInit::class       => DI\object(),
-    Step\AuthJson::class      => DI\object(),
-    Step\ComposerJson::class  => DI\object(),
-    Step\Docker::class        => DI\object(),
-    Step\PrTemplate::class    => DI\object(),
-    Step\Readme::class        => DI\object(),
-    Step\CircleCI::class      => DI\object(),
-    Step\Capistrano::class    => DI\object(),
-    Step\PhpStorm::class      => DI\object(),
-    Step\GitCommit::class     => DI\object(),
 
-    'steps' => function (ContainerInterface $c) {
-        return [
-            $c->get(Step\CreateProject::class),
-            $c->get(Step\GitInit::class),
-            $c->get(Step\AuthJson::class),
-            $c->get(Step\ComposerJson::class),
-            $c->get(Step\Docker::class),
-            $c->get(Step\PrTemplate::class),
-            $c->get(Step\Readme::class),
-            $c->get(Step\CircleCI::class),
-            $c->get(Step\Capistrano::class),
-            $c->get(Step\PhpStorm::class),
-            $c->get(Step\GitCommit::class),
-        ];
-    }
+    FitProject\Details\Collector::class => function (ContainerInterface $c) {
+        return new FitProject\Details\Collector([
+            $c->get(CollectorStep\Path::class),
+            $c->get(CollectorStep\Repository::class),
+            $c->get(CollectorStep\Auth::class),
+            $c->get(CollectorStep\MagentoEdition::class),
+            $c->get(CollectorStep\UseRabbitMQ::class),
+            $c->get(CollectorStep\ProjectName::class),
+            $c->get(CollectorStep\ProjectNamespace::class),
+            $c->get(CollectorStep\ProjectDomain::class)
+        ]);
+    },
+
+    FitProject\Sequence\Executor::class => function (ContainerInterface $c) {
+        return new FitProject\Sequence\Executor([
+            $c->get(ExecutorStep\Gitignore::class),
+            $c->get(ExecutorStep\Clean::class),
+            $c->get(ExecutorStep\ProvisionCodeDir::class),
+            $c->get(ExecutorStep\AuthJson::class),
+            $c->get(ExecutorStep\Docker::class),
+            $c->get(ExecutorStep\CircleCI::class),
+            $c->get(ExecutorStep\Capistrano::class),
+            $c->get(ExecutorStep\PhpStorm::class),
+            $c->get(ExecutorStep\PRTemplate::class),
+            $c->get(ExecutorStep\Readme::class),
+            $c->get(ExecutorStep\ComposerJson::class),
+            $c->get(ExecutorStep\GitCommit::class),
+        ]);
+    },
+
+    NewProject\Details\Collector::class => function (ContainerInterface $c) {
+        return new NewProject\Details\Collector([
+            $c->get(CollectorStep\Path::class),
+            $c->get(CollectorStep\Repository::class),
+            $c->get(CollectorStep\Auth::class),
+            $c->get(CollectorStep\MagentoEdition::class),
+            $c->get(CollectorStep\UseRabbitMQ::class),
+            $c->get(CollectorStep\ProjectName::class),
+            $c->get(CollectorStep\ProjectNamespace::class),
+            $c->get(CollectorStep\ProjectDomain::class)
+        ]);
+    },
+
+    NewProject\Sequence\Executor::class => function (ContainerInterface $c) {
+        return new NewProject\Sequence\Executor([
+            $c->get(ExecutorStep\ComposerCreateProject::class),
+            $c->get(ExecutorStep\Gitignore::class),
+            $c->get(ExecutorStep\GitInit::class),
+            $c->get(ExecutorStep\Clean::class),
+            $c->get(ExecutorStep\ProvisionCodeDir::class),
+            $c->get(ExecutorStep\AuthJson::class),
+            $c->get(ExecutorStep\Docker::class),
+            $c->get(ExecutorStep\CircleCI::class),
+            $c->get(ExecutorStep\Capistrano::class),
+            $c->get(ExecutorStep\PhpStorm::class),
+            $c->get(ExecutorStep\PRTemplate::class),
+            $c->get(ExecutorStep\Readme::class),
+            $c->get(ExecutorStep\ComposerJson::class),
+            $c->get(ExecutorStep\GitCommit::class),
+        ]);
+    },
 ];

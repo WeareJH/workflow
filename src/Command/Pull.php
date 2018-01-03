@@ -54,7 +54,6 @@ class Pull extends Command implements CommandInterface
         $files     = (array) $input->getArgument('files');
 
         foreach ($files as $file) {
-
             if (!$this->files->existsInContainer($container, $file)) {
                 $output->writeln(sprintf('Looks like "%s" doesn\'t exist', $file));
                 return;
