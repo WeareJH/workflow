@@ -168,6 +168,7 @@ return [
             $c->get(Step\Capistrano::class),
             $c->get(Step\PhpStorm::class),
             $c->get(Step\GitCommit::class),
+            $c->get(Step\GitClean::class),
         ];
     }
 ];
