@@ -60,7 +60,11 @@ class ComposerJson implements StepInterface
 
         $output->success('Updating composer lock file');
         try {
-            $this->commandLine->run('composer update --ignore-platform-reqs --prefer-dist -q');
+            $command =  'docker run --rm ';
+            $command .= '-v %s:/root/build -v %s/.composer/cache:/root/.composer/cache ';
+            $command .= 'wearejh/ci-build-env composer update --prefer-dist -qo';
+
+            $this->commandLine->run(sprintf($command, getcwd(), getenv('HOME')));
         } catch (ProcessFailedException $e) {
             throw new \RuntimeException('Could not update composer lock file');
         }
