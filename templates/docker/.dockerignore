@@ -8,7 +8,6 @@
 !.docker/composer-cache
 
 docker-compose*.yml
-*.dockerfile
 .dockerignore
 
 # Ignore some files we don't need in the containers
@@ -25,6 +24,7 @@ COPYING.txt
 .htaccess
 *.sample
 *.md
+generated
 
 # Only take custom code from host
 app
