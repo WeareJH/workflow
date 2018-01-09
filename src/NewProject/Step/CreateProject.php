@@ -34,11 +34,16 @@ class CreateProject implements StepInterface
     {
         $output->success(sprintf('Running composer create-project into %s', $details->getProjectName()));
 
-        $cmdFormat =  'composer create-project -q --repository-url=https://%s:%s@repo.magento.com/ ';
-        $cmdFormat .= 'magento/project-%s-edition %s --prefer-dist --ignore-platform-reqs';
+        $cmdFormat =  'docker run --rm ';
+        $cmdFormat .= '-v %s:/root/build -v %s/.composer/cache:/root/.composer/cache ';
+        $cmdFormat .= 'wearejh/ci-build-env ';
+        $cmdFormat .= 'composer create-project -q --repository-url=https://%s:%s@repo.magento.com/ ';
+        $cmdFormat .= 'magento/project-%s-edition %s --prefer-dist';
 
         $command = sprintf(
             $cmdFormat,
+            getcwd(),
+            getenv('HOME'),
             $details->getPubKey(),
             $details->getPrivKey(),
             $details->getVersion(),
