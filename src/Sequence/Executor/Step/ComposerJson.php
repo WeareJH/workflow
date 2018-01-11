@@ -56,6 +56,7 @@ class ComposerJson implements StepInterface
         $json['description'] = 'eCommerce Platform for ' . $data->getProjectName();
 
         // @todo check whether this repository is already added
+        // @todo array_values() the repos, named repos are grody
         $json['repositories'][] = [
             'type' => 'vcs',
             'url' => 'git@github.com:WeareJH/php-coding-standards.git'
