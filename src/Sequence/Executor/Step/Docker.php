@@ -55,10 +55,12 @@ class Docker implements StepInterface
             'project-url' => $domain
         ]);
 
-        $rabbit = $data->getUseRabbitMQ();
-        $regex = $rabbit ? '/##RABBIT/s' : '/##RABBIT(\n.*)*##RABBIT/s';
-        $this->template->rgxcp('docker/php/bin/magento-install', "{$path}/.docker/php/bin/magento-install", [
-            $regex => ''
+        // @todo this does not work because duh, shell scripts won't break
+        // over comment lines automatically. so the original regex method was
+        // better, except for the 'escaped whitespace' bug. to fix properly
+        // another time
+        $this->template->repcp('docker/php/bin/magento-install', "{$path}/.docker/php/bin/magento-install", [
+            'use-rabbit' => $data->getUseRabbitMQ() ? '' : '#'
         ]);
 
         $rcp = [

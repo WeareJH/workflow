@@ -18,12 +18,12 @@ bin/magento setup:install \
     --admin-password=$MAGE_ADMIN_PASS \
     --backend-frontname=$MAGE_BACKEND_FRONTNAME \
     --use-secure=1 \
-    --use-secure-admin=1 \ ##RABBIT
-    --amqp-host=rabbitmq \
-    --amqp-port=5672 \
-    --amqp-user=$RABBITMQ_DEFAULT_USER \
-    --amqp-password=$RABBITMQ_DEFAULT_PASS \
-    --amqp-virtualhost=/ \ ##RABBIT
+    --use-secure-admin=1 \
+{use-rabbit}    --amqp-host=rabbitmq \
+{use-rabbit}    --amqp-port=5672 \
+{use-rabbit}    --amqp-user=$RABBITMQ_DEFAULT_USER \
+{use-rabbit}    --amqp-password=$RABBITMQ_DEFAULT_PASS \
+{use-rabbit}    --amqp-virtualhost=/ \
     --cleanup-database -vvv \
     || { exit 1; }
 
