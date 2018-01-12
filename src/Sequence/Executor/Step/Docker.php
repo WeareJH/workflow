@@ -56,10 +56,17 @@ class Docker implements StepInterface
         ]);
 
         $rabbit = $data->getUseRabbitMQ();
-        $regex = $rabbit ? '/##RABBIT/s' : '/##RABBIT(\n.*)*##RABBIT/s';
-        $this->template->rgxcp('docker/php/bin/magento-install', "{$path}/.docker/php/bin/magento-install", [
-            $regex => ''
-        ]);
+
+        if ($rabbit) {
+            $this->template->repcp('docker/php/bin/magento-install', "{$path}/.docker/php/bin/magento-install", [
+                'use-rabbit' => ''
+            ]);
+        }
+        else {
+            $this->template->rgxcp('docker/php/bin/magento-install', "{$path}/.docker/php/bin/magento-install", [
+                '/\{use-rabbit\}[^\n]+\n/' => ''
+            ]);
+        }
 
         $rcp = [
             'docker/docker-compose.dev.yml'  => 'docker-compose.dev.yml',
@@ -73,6 +80,9 @@ class Docker implements StepInterface
         foreach ($rcp as $template => $dest) {
             $this->template->repcp($template, "{$path}/{$dest}", $replace);
         }
+
+        $this->template->touch("{$path}/.data-migration/.gitkeep");
+        $this->template->touch("{$path}/.docker/composer-cache/.gitkeep");
 
         $style->success('Added Docker configuration');
     }
