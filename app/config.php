@@ -142,8 +142,8 @@ return [
         ]);
     },
 
-    FitProject\Details\Collector::class => function (ContainerInterface $c) {
-        return new FitProject\Details\Collector([
+    'collectorSteps' => function (ContainerInterface $c) {
+        return [
             $c->get(CollectorStep\Path::class),
             $c->get(CollectorStep\Repository::class),
             $c->get(CollectorStep\Auth::class),
@@ -152,55 +152,43 @@ return [
             $c->get(CollectorStep\ProjectName::class),
             $c->get(CollectorStep\ProjectNamespace::class),
             $c->get(CollectorStep\ProjectDomain::class)
-        ]);
+        ];
+    },
+
+    'executorSteps' => function (ContainerInterface $c) {
+        return [
+            'composercreate' => $c->get(ExecutorStep\ComposerCreateProject::class),
+            'gitignore'      => $c->get(ExecutorStep\Gitignore::class),
+            'gitinit'        => $c->get(ExecutorStep\GitInit::class),
+            'clean'          => $c->get(ExecutorStep\Clean::class),
+            'appdir'         => $c->get(ExecutorStep\ProvisionCodeDir::class),
+            'authjson'       => $c->get(ExecutorStep\AuthJson::class),
+            'docker'         => $c->get(ExecutorStep\Docker::class),
+            'circleci'       => $c->get(ExecutorStep\CircleCI::class),
+            'capistrano'     => $c->get(ExecutorStep\Capistrano::class),
+            'phpstorm'       => $c->get(ExecutorStep\PhpStorm::class),
+            'prtemplate'     => $c->get(ExecutorStep\PRTemplate::class),
+            'readme'         => $c->get(ExecutorStep\Readme::class),
+            'composerjson'   => $c->get(ExecutorStep\ComposerJson::class),
+            'commit'         => $c->get(ExecutorStep\GitCommit::class),
+        ];
+    },
+
+    FitProject\Details\Collector::class => function (ContainerInterface $c) {
+        return new FitProject\Details\Collector($c->get('collectorSteps'));
     },
 
     FitProject\Sequence\Executor::class => function (ContainerInterface $c) {
-        return new FitProject\Sequence\Executor([
-            $c->get(ExecutorStep\Gitignore::class),
-            $c->get(ExecutorStep\Clean::class),
-            $c->get(ExecutorStep\ProvisionCodeDir::class),
-            $c->get(ExecutorStep\AuthJson::class),
-            $c->get(ExecutorStep\Docker::class),
-            $c->get(ExecutorStep\CircleCI::class),
-            $c->get(ExecutorStep\Capistrano::class),
-            $c->get(ExecutorStep\PhpStorm::class),
-            $c->get(ExecutorStep\PRTemplate::class),
-            $c->get(ExecutorStep\Readme::class),
-            $c->get(ExecutorStep\ComposerJson::class),
-            $c->get(ExecutorStep\GitCommit::class),
-        ]);
+        $exclude = ['composercreate', 'gitinit'];
+        $steps = array_diff_key($c->get('executorSteps'), array_flip($exclude));
+        return new FitProject\Sequence\Executor($steps);
     },
 
     NewProject\Details\Collector::class => function (ContainerInterface $c) {
-        return new NewProject\Details\Collector([
-            $c->get(CollectorStep\Path::class),
-            $c->get(CollectorStep\Repository::class),
-            $c->get(CollectorStep\Auth::class),
-            $c->get(CollectorStep\MagentoEdition::class),
-            $c->get(CollectorStep\UseRabbitMQ::class),
-            $c->get(CollectorStep\ProjectName::class),
-            $c->get(CollectorStep\ProjectNamespace::class),
-            $c->get(CollectorStep\ProjectDomain::class)
-        ]);
+        return new NewProject\Details\Collector($c->get('collectorSteps'));
     },
 
     NewProject\Sequence\Executor::class => function (ContainerInterface $c) {
-        return new NewProject\Sequence\Executor([
-            $c->get(ExecutorStep\ComposerCreateProject::class),
-            $c->get(ExecutorStep\Gitignore::class),
-            $c->get(ExecutorStep\GitInit::class),
-            $c->get(ExecutorStep\Clean::class),
-            $c->get(ExecutorStep\ProvisionCodeDir::class),
-            $c->get(ExecutorStep\AuthJson::class),
-            $c->get(ExecutorStep\Docker::class),
-            $c->get(ExecutorStep\CircleCI::class),
-            $c->get(ExecutorStep\Capistrano::class),
-            $c->get(ExecutorStep\PhpStorm::class),
-            $c->get(ExecutorStep\PRTemplate::class),
-            $c->get(ExecutorStep\Readme::class),
-            $c->get(ExecutorStep\ComposerJson::class),
-            $c->get(ExecutorStep\GitCommit::class),
-        ]);
+        return new NewProject\Sequence\Executor($c->get('executorSteps'));
     },
 ];

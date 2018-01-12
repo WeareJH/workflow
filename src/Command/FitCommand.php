@@ -44,6 +44,9 @@ class FitCommand extends Command implements CommandInterface
         $this->setName('fit')->setDescription('Retrofit an existing Magento root for Workflow compatibility');
         $this->collector->configure($this);
         $this->addOption('force', 'f', InputOption::VALUE_NONE, 'Don\'t confirm values before taking action');
+
+        $onlydesc = sprintf('Run a specific step only [%s]', implode(', ', $this->executor->getStepIds()));
+        $this->addOption('only', null, InputOption::VALUE_REQUIRED, $onlydesc);
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
@@ -68,7 +71,12 @@ class FitCommand extends Command implements CommandInterface
             }
         }
 
-        $this->executor->execute($data, $style);
+        if ($step = $input->getOption('only')) {
+            $this->executor->executeStep($step, $data, $style);
+        }
+        else {
+            $this->executor->execute($data, $style);
+        }
 
         $style->success(sprintf('Fitted existing project in %s', $data->getPath()));
     }

@@ -14,21 +14,34 @@ abstract class Executor
 
     public function __construct(array $steps = [])
     {
-        foreach ($steps as $step) {
-            $this->addStep($step);
+        foreach ($steps as $id => $step) {
+            $this->addStep($id, $step);
         }
     }
 
-    public function addStep(Executor\Step\StepInterface $step) : Executor
+    public function addStep($id, Executor\Step\StepInterface $step) : Executor
     {
-        $this->steps[] = $step;
+        $this->steps[$id] = $step;
         return $this;
     }
 
     public function execute(DataInterface $data, StyleInterface $style)
     {
-        foreach ($this->steps as $step) {
-            $step->execute($data, $style);
+        foreach ($this->getStepIds() as $id) {
+            $this->executeStep($id, $data, $style);
         }
+    }
+
+    public function executeStep($id, DataInterface $data, StyleInterface $style)
+    {
+        if (! array_key_exists($id, $this->steps)) {
+            throw new \RuntimeException("Step {$id} does not exist");
+        }
+        $this->steps[$id]->execute($data, $style);
+    }
+
+    public function getStepIds()
+    {
+        return array_keys($this->steps);
     }
 }
