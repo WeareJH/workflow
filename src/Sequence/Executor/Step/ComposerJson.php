@@ -13,6 +13,8 @@ use Symfony\Component\Console\Style\StyleInterface;
  */
 class ComposerJson implements StepInterface
 {
+    const REPO_PHPCS = 'git@github.com:WeareJH/php-coding-standards.git';
+
     /**
      * @var CommandLine
      */
@@ -55,12 +57,17 @@ class ComposerJson implements StepInterface
         $json['name']        = strtolower($ns) . '-magento2';
         $json['description'] = 'eCommerce Platform for ' . $data->getProjectName();
 
-        // @todo check whether this repository is already added
-        // @todo array_values() the repos, named repos are grody
-        $json['repositories'][] = [
-            'type' => 'vcs',
-            'url' => 'git@github.com:WeareJH/php-coding-standards.git'
-        ];
+        $cs = array_filter($json['repositories'], function ($repo) {
+            return $repo['url'] == self::REPO_PHPCS;
+        });
+        if (1 > count($cs)) {
+            $json['repositories'][] = [
+                'type' => 'vcs',
+                'url' => self::REPO_PHPCS
+            ];
+        }
+
+        $json['repositories'] = array_values($json['repositories']);
 
         $json['scripts'] = [
             'bootstrap'  => 'composer install -o --prefer-dist --ignore-platform-reqs',
