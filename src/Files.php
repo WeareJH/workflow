@@ -107,7 +107,7 @@ class Files
                 $this->getUploadCommand($sources, $container),
                 function () use ($container, $sources, $destinations) {
                     $sources->each(function ($file) use ($container) {
-                        $this->output->writeln(sprintf('<info> 🚀  \'%s\' > %s </info>', $file,  $container));
+                        $this->output->writeln(sprintf('<info> 🚀  \'%s\' > %s </info>', $file, $container));
                     });
 
                     //chown

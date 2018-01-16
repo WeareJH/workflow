@@ -3,7 +3,7 @@ set :keep_releases,     3
 
 #git details
 set :scm, :git
-set :repo_url,      'git@github.com:WeareJH/{project-name}.git'
+set :repo_url,      '{repository}'
 set :deploy_via,    :remote_cache
 set :branch,        'master'
 set :domain,        ->{ fetch(:app_domain) }
