@@ -10,8 +10,6 @@ services:
     php:
         env_file:
             - .docker/local.env
-        volumes:
-            - .docker/composer-cache:/var/www/.docker/composer-cache
 
     db:
         env_file:
