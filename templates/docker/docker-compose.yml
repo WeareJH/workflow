@@ -19,6 +19,7 @@ services:
             - "443:443"
 
     varnish:
+        container_name: {project-name}-varnish
         image: wearejh/magento-varnish:latest
         environment:
             - FORCE_SSL=yes
