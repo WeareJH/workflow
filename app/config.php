@@ -55,10 +55,12 @@ return [
         $app->add($c->get(Command\Exec::class));
         $app->add($c->get(Command\Delete::class));
         $app->add($c->get(Command\DatabaseDump::class));
+        $app->add($c->get(Command\VarnishEnable::class));
+        $app->add($c->get(Command\VarnishDisable::class));
 
         $eventLoop = $c->get(LoopInterface::class);
 
-        Scheduler::setDefaultFactory(function() use ($eventLoop) {
+        Scheduler::setDefaultFactory(function () use ($eventLoop) {
             return new EventLoopScheduler($eventLoop);
         });
 

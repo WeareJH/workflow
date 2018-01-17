@@ -37,8 +37,8 @@ class VarnishEnableTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $this->commandLine->run('docker-compose exec varnish varnishadm vcl.use boot0')->shouldBeCalled();
-        $this->output->writeln('Varnish caching enabled')->shouldBeCalled();
+        $this->commandLine->run('docker exec -t m2-varnish varnishadm vcl.use boot0')->shouldBeCalled();
+        $this->output->writeln('<info>Varnish caching enabled</info>')->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
