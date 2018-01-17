@@ -32,9 +32,9 @@ class ComposerJson implements StepInterface
         $csFormat    = 'phpcs -s app/code/%s --standard=vendor/wearejh/php-coding-standards/Jh';
         $csFixFormat = 'phpcbf -s app/code/%s --standard=vendor/wearejh/php-coding-standards/Jh';
 
-        $data['name']                = $details->getProjectName() . '-magento2';
-        $data['description']         = 'eCommerce Platform for ' . $details->getProjectName();
-        $data['repositories'][]      = ['type' => 'vcs', 'url' => 'git@github.com:WeareJH/php-coding-standards.git'];
+        $data['name']           = $details->getProjectName() . '-magento2';
+        $data['description']    = 'eCommerce Platform for ' . $details->getProjectName();
+        $data['repositories'][] = ['type' => 'vcs', 'url' => 'git@github.com:WeareJH/php-coding-standards.git'];
 
         $data['scripts'] = [
             'test'       => ['@cs', '@unit-tests'],
@@ -45,10 +45,12 @@ class ComposerJson implements StepInterface
             'bootstrap'  => 'composer install -o --prefer-dist --ignore-platform-reqs'
         ];
 
-        $data['require-dev']['wearejh/php-coding-standards']     =  'dev-master';
-        $data['require-dev']['wearejh/m2-module-symlink-assets'] =  '^1.0';
-        $data['require-dev']['squizlabs/php_codesniffer'] = '^3.0';
-        $data['require-dev']['phpunit/phpunit'] = '^6.0';
+        $data['require']['php'] = '>=7.0.6 <7.1';
+
+        $data['require-dev']['wearejh/php-coding-standards']     = 'dev-master';
+        $data['require-dev']['wearejh/m2-module-symlink-assets'] = '^1.0';
+        $data['require-dev']['squizlabs/php_codesniffer']        = '^3.0';
+        $data['require-dev']['phpunit/phpunit']                  = '^6.0';
 
         file_put_contents(
             $details->getProjectName() . '/composer.json',
@@ -60,7 +62,11 @@ class ComposerJson implements StepInterface
 
         $output->success('Updating composer lock file');
         try {
-            $this->commandLine->run('composer update --ignore-platform-reqs --prefer-dist -q');
+            $command =  'docker run --rm ';
+            $command .= '-v %s:/root/build -v %s/.composer/cache:/root/.composer/cache ';
+            $command .= 'wearejh/ci-build-env composer update --prefer-dist -qo';
+
+            $this->commandLine->run(sprintf($command, getcwd(), getenv('HOME')));
         } catch (ProcessFailedException $e) {
             throw new \RuntimeException('Could not update composer lock file');
         }
