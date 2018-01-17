@@ -12,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class VarnishDisable extends Command implements CommandInterface
 {
+    use DockerAwareTrait;
+
     /**
      * @var CommandLine
      */
@@ -33,8 +35,13 @@ class VarnishDisable extends Command implements CommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->commandLine->run('docker-compose exec varnish varnishadm vcl.use boot');
+        $container = $this->getContainerName('varnish');
 
-        $output->writeln('Varnish caching disabled');
+        $this->commandLine->run(sprintf(
+            'docker exec -t %s varnishadm vcl.use boot',
+            $container
+        ));
+
+        $output->writeln('<info>Varnish caching disabled</info>');
     }
 }
