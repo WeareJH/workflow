@@ -26,7 +26,7 @@ class Data implements DataInterface
             'magento_edition' => self::MAGENTO_CE,
             'magento_private_key' => '',
             'magento_public_key' => '',
-            'path' => '',
+            'path' => getcwd(),
             'project_domain' => '',
             'project_name' => '',
             'project_namespace' => '',

@@ -33,7 +33,7 @@ class Repository implements StepInterface
             return;
         }
 
-        $path = $data->getPath(); // path should be already set
+        $path = $data->getPath();
         $configPath =  "{$path}/" . self::FILE_CONFIG;
         if (file_exists($configPath)) {
             $ini = parse_ini_file($configPath, true);

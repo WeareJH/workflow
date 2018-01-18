@@ -144,14 +144,14 @@ return [
 
     'collectorSteps' => function (ContainerInterface $c) {
         return [
-            $c->get(CollectorStep\Path::class),
-            $c->get(CollectorStep\Repository::class),
-            $c->get(CollectorStep\Auth::class),
-            $c->get(CollectorStep\MagentoEdition::class),
-            $c->get(CollectorStep\UseRabbitMQ::class),
-            $c->get(CollectorStep\ProjectName::class),
-            $c->get(CollectorStep\ProjectNamespace::class),
-            $c->get(CollectorStep\ProjectDomain::class)
+            'repository'      => $c->get(CollectorStep\Repository::class),
+            'path'            => $c->get(CollectorStep\Path::class),
+            'auth'            => $c->get(CollectorStep\Auth::class),
+            'magento-edition' => $c->get(CollectorStep\MagentoEdition::class),
+            'rabbitmq'        => $c->get(CollectorStep\UseRabbitMQ::class),
+            'project-name'    => $c->get(CollectorStep\ProjectName::class),
+            'project-ns'      => $c->get(CollectorStep\ProjectNamespace::class),
+            'project-domain'  => $c->get(CollectorStep\ProjectDomain::class)
         ];
     },
 
@@ -175,7 +175,9 @@ return [
     },
 
     FitProject\Details\Collector::class => function (ContainerInterface $c) {
-        return new FitProject\Details\Collector($c->get('collectorSteps'));
+        $exclude = ['path'];
+        $steps = array_diff_key($c->get('collectorSteps'), array_flip($exclude));
+        return new FitProject\Details\Collector($steps);
     },
 
     FitProject\Sequence\Executor::class => function (ContainerInterface $c) {
