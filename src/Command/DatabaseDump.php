@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DatabaseDump extends Command implements CommandInterface
 {
-    use DockerAwareTrait;
+    use DatabaseConnectorTrait;
 
     /**
      * @var CommandLine
@@ -29,7 +29,7 @@ class DatabaseDump extends Command implements CommandInterface
     public function configure()
     {
         $this
-            ->setName('db-dump')
+            ->setName('db:dump')
             ->setDescription('Dump the database to the host')
             ->addOption('database', 'd', InputOption::VALUE_REQUIRED, 'Optional database to dump');
     }
@@ -37,27 +37,12 @@ class DatabaseDump extends Command implements CommandInterface
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->getContainerName('db');
+        list($user, $pass, $db) = array_values($this->getDbDetails());
+        $db = $input->getOption('database') ?: $db;
 
-        $this->dump($container, $input);
+        $command = "docker exec -i {$container} mysqldump -u {$user} -p{$pass} {$db} > dump.sql";
+        $this->commandLine->runQuietly($command);
 
         $output->writeln('<info>Database dump saved to ./dump.sql</info>');
-    }
-
-    private function dump(string $container, InputInterface $input)
-    {
-        extract($this->getDbDetails($input), EXTR_OVERWRITE);
-
-        $command = sprintf('docker exec -i %s mysqldump -u%s -p%s %s > dump.sql', $container, $user, $pass, $db);
-        $this->commandLine->runQuietly($command);
-    }
-
-    private function getDbDetails(InputInterface $input) : array
-    {
-        $envVars   = $this->getDevEnvironmentVars();
-        return [
-            'user' => 'root',
-            'pass' => $envVars['MYSQL_ROOT_PASSWORD'] ?? 'docker',
-            'db'   => $input->getOption('database') ?? $envVars['MYSQL_DATABASE'] ?? 'docker'
-        ];
     }
 }

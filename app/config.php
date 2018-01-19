@@ -54,6 +54,7 @@ return [
         $app->add($c->get(Command\Php::class));
         $app->add($c->get(Command\Exec::class));
         $app->add($c->get(Command\Delete::class));
+        $app->add($c->get(Command\DatabaseCliCommand::class));
         $app->add($c->get(Command\DatabaseDump::class));
 
         $eventLoop = $c->get(LoopInterface::class);
