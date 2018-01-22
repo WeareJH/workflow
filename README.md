@@ -48,3 +48,10 @@ composer global update wearejh/workflow
 Then run `workflow` to see the list of available commands.
 
 Read the [wiki](https://github.com/WeareJH/workflow/wiki) for detailed information on each command
+
+## Troubleshooting
+
+If you are experiencing very slow speeds (i.e. it's hanging for minutes inbetween commands), it may be due to a slow DNS lookup to localunixsocket.local. See relevant [GitHub issue](https://github.com/docker/compose/issues/3419#issuecomment-221793401)
+A quick fix is to add the following to your hosts file.
+
+`127.0.0.1 localunixsocket.local`
