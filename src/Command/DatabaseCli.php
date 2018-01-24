@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @author Aneurin "Anny" Barker Snook <anny@wearejh.com>
  */
-class DatabaseCliCommand extends Command implements CommandInterface
+class DatabaseCli extends Command implements CommandInterface
 {
     use DatabaseConnectorTrait;
 

@@ -46,7 +46,6 @@ return [
         $app->add($c->get(Command\ComposerUpdate::class));
         $app->add($c->get(Command\ComposerInstall::class));
         $app->add($c->get(Command\ComposerRequire::class));
-        $app->add($c->get(Command\Sql::class));
         $app->add($c->get(Command\Ssh::class));
         $app->add($c->get(Command\NginxReload::class));
         $app->add($c->get(Command\XdebugLoopback::class));
@@ -54,8 +53,9 @@ return [
         $app->add($c->get(Command\Php::class));
         $app->add($c->get(Command\Exec::class));
         $app->add($c->get(Command\Delete::class));
-        $app->add($c->get(Command\DatabaseCliCommand::class));
+        $app->add($c->get(Command\DatabaseCli::class));
         $app->add($c->get(Command\DatabaseDump::class));
+        $app->add($c->get(Command\DatabaseExec::class));
 
         $eventLoop = $c->get(LoopInterface::class);
 

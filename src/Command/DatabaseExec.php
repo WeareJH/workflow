@@ -11,9 +11,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class Sql extends Command implements CommandInterface
+class DatabaseExec extends Command implements CommandInterface
 {
-    use DockerAwareTrait;
+    use DatabaseConnectorTrait;
 
     /**
      * @var CommandLine
@@ -29,7 +29,8 @@ class Sql extends Command implements CommandInterface
     public function configure()
     {
         $this
-            ->setName('sql')
+            ->setName('db:exec')
+            ->setAliases(['sql'])
             ->setDescription('Run arbitary sql against the database')
             ->addOption('sql', 's', InputOption::VALUE_OPTIONAL, 'SQL to run directly to mysql')
             ->addOption('file', 'f', InputOption::VALUE_OPTIONAL, 'Path to a file to import')
@@ -57,7 +58,7 @@ class Sql extends Command implements CommandInterface
 
     private function runRaw(string $container, string $sql, InputInterface $input, OutputInterface $output)
     {
-        extract($this->getDbDetails($input), EXTR_OVERWRITE);
+        list($user, $pass, $db) = array_values($this->getDbDetails($input));
 
         $this->commandLine->run(
             sprintf('docker exec -t %s mysql -u%s -p%s %s -e "%s"', $container, $user, $pass, $db, $sql)
@@ -66,7 +67,7 @@ class Sql extends Command implements CommandInterface
 
     private function runFile(string $container, string $file, InputInterface $input, OutputInterface $output)
     {
-        extract($this->getDbDetails($input), EXTR_OVERWRITE);
+        list($user, $pass, $db) = array_values($this->getDbDetails($input));
 
         if ($this->commandLine->commandExists('pv')) {
             $command = sprintf(
@@ -90,16 +91,5 @@ class Sql extends Command implements CommandInterface
 
         $this->commandLine->run($command);
         $output->writeln('<info>DB import complete!</info>');
-    }
-
-    private function getDbDetails(InputInterface $input) : array
-    {
-        $envVars   = $this->getDevEnvironmentVars();
-
-        return [
-            'user' => 'root',
-            'pass' => $envVars['MYSQL_ROOT_PASSWORD'] ?? 'docker',
-            'db'   => $input->getOption('database') ?? $envVars['MYSQL_DATABASE'] ?? 'docker'
-        ];
     }
 }
