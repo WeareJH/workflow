@@ -39,6 +39,7 @@ return [
         $app->add($c->get(Command\MagentoCompile::class));
         $app->add($c->get(Command\MagentoModuleEnable::class));
         $app->add($c->get(Command\MagentoModuleDisable::class));
+        $app->add($c->get(Command\MagentoSetupUpgrade::class));
         $app->add($c->get(Command\Pull::class));
         $app->add($c->get(Command\Push::class));
         $app->add($c->get(Command\Watch::class));
