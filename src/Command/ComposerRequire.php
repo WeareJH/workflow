@@ -12,10 +12,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Aydin Hassan <aydin@wearejh.com>
+ * @author Diego Cabrejas <diego@wearejh.com>
  */
 class ComposerRequire extends Command implements CommandInterface
 {
     use DockerAwareTrait;
+    use ModifiedFilesFinderTrait;
 
     /**
      * @var CommandLine
@@ -59,6 +61,7 @@ class ComposerRequire extends Command implements CommandInterface
             $flags[] = '--dev';
         }
 
+        $startTime = $this->getContainerCurrentTime($this->commandLine, $container);
         $command = sprintf(
             'docker exec -u www-data -e COMPOSER_CACHE_DIR=.docker/composer-cache %s composer require %s %s',
             $container,
@@ -67,9 +70,16 @@ class ComposerRequire extends Command implements CommandInterface
         );
         $this->commandLine->run($command);
 
+        $watchPaths = [
+            'vendor',
+            '.docker/composer-cache/files',
+            '.docker/composer-cache/repo',
+            '.docker/composer-cache/vcs'
+        ];
+        $modifiedFilesPaths = $this->getContainerModifiedFiles($this->commandLine, $container, $startTime, $watchPaths);
+
         $pullCommand   = $this->getApplication()->find('pull');
-        $pullFiles     = ['.docker/composer-cache', 'vendor', 'composer.json', 'composer.lock'];
-        $pullArguments = new ArrayInput(['files' => $pullFiles]);
+        $pullArguments = new ArrayInput(['files' => array_merge($modifiedFilesPaths, ['composer.json', 'composer.lock'])]);
 
         $pullCommand->run($pullArguments, $output);
     }
