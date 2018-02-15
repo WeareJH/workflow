@@ -7,3 +7,5 @@ opcache.enable_cli=1
 opcache.save_comments=1
 opcache.max_accelerated_files=65406
 opcache.memory_consumption=256
+upload_max_filesize = 20M
+post_max_size = 20M
