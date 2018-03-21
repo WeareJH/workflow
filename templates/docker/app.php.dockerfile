@@ -47,10 +47,6 @@ RUN [ "$BUILD_ENV" != "$PROD_ENV" ] \
     && printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8707\n" > $PHP_INI_DIR/conf.d/blackfire.ini; \
     true
 
-# Configuration files
-COPY .docker/php/etc/custom.template .docker/php/etc/xdebug.template /usr/local/etc/php/conf.d/
-COPY .docker/php/etc/msmtprc.template /etc/msmtprc.template
-
 # Copy in Entrypoint file & Magento installation script
 COPY .docker/php/bin/docker-configure .docker/php/bin/magento-install .docker/php/bin/magento-configure /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-configure /usr/local/bin/magento-install /usr/local/bin/magento-configure
@@ -93,6 +89,10 @@ RUN rm -rf \
 
 RUN find . -user root | xargs chown www-data:www-data \
     && chmod +x bin/magento
+
+# Configuration files
+COPY .docker/php/etc/custom.template .docker/php/etc/xdebug.template /usr/local/etc/php/conf.d/
+COPY .docker/php/etc/msmtprc.template /etc/msmtprc.template
 
 VOLUME ["/var/www"]
 ENTRYPOINT ["/usr/local/bin/docker-configure"]
