@@ -43,6 +43,19 @@ class Ssh extends Command implements CommandInterface
 
         $user = $input->getOption('root') ? 'root' : 'www-data';
 
-        $this->commandLine->runInteractively(sprintf('docker exec -it -u %s %s bash', $user, $container));
+        $width = trim(`tput cols`);
+        $height = trim(`tput lines`);
+
+        $command = <<<CMD
+docker exec \
+    -it \
+    -u "{$user}" \
+    -e COLUMNS="{$width}" \
+    -e LINES="{$height}" \
+    "{$container}" bash
+CMD
+        ;
+
+        $this->commandLine->runInteractively($command);
     }
 }
