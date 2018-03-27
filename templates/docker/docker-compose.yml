@@ -5,26 +5,44 @@ volumes:
     app-env:
 
 services:
+    haproxy:
+        image: dockercloud/haproxy:latest
+        links:
+            - varnish
+        environment:
+            - CERT_FOLDER=/certs
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - .docker/certs:/certs
+        ports:
+            - "80:80"
+            - "443:443"
+
+    varnish:
+        container_name: {project-name}-varnish
+        image: wearejh/magento-varnish:latest
+        environment:
+            - FORCE_SSL=yes
+        depends_on:
+            - nginx
+
     nginx:
         container_name: {project-name}
         image: nginx:stable-alpine
+        working_dir: /var/www
         volumes:
             - .docker/nginx/sites:/etc/nginx/conf.d
         volumes_from:
             - php
-        working_dir: /var/www
         depends_on:
             - php
-        ports:
-            - "80:80"
-            - "443:443"
 
     php:
         container_name: {project-name}-php
         image: wearejh/{project-name}
         build:
-            context: ./
-            dockerfile: app.php.dockerfile
+            context: .
+            dockerfile: .docker/php/Dockerfile
         volumes:
             - app-env:/var/www/app/etc
             - ~/.composer/auth.json:/root/.composer/auth.json

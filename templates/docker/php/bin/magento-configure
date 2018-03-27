@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
 
+# Configure env.php
 $config = include 'app/etc/env.php';
 
 $isProduction = array_search('-p', $argv, true);
@@ -42,17 +43,6 @@ $config['cache'] = [
                             'port'   => '6379',
                             'database'      => '1'
                         ],
-                ],
-            'page_cache' =>
-                [
-                    'backend'         => 'Cm_Cache_Backend_Redis',
-                    'backend_options' =>
-                        [
-                            'server'        => 'redis',
-                            'port'          => '6379',
-                            'database'      => '2',
-                            'compress_data' => '1'
-                        ]
                 ]
         ]
 ];
@@ -66,3 +56,20 @@ return %s;
 FILE;
 
 file_put_contents('app/etc/env.php', sprintf($contents, var_export($config, true)));
+
+# Configure Varnish
+$sql = <<<SQL
+DELETE FROM `core_config_data` WHERE `path` like 'system/full_page_cache%';
+INSERT INTO `core_config_data` (`scope`, `scope_id`, `path`, `value`)
+VALUES
+	('default', 0, 'system/full_page_cache/caching_application', '2'),
+	('default', 0, 'system/full_page_cache/varnish/access_list', 'php, nginx, varnish'),
+	('default', 0, 'system/full_page_cache/varnish/backend_host', 'nginx'),
+	('default', 0, 'system/full_page_cache/varnish/backend_port', '80'),
+	('default', 0, 'system/full_page_cache/varnish/grace_period', '300');
+SQL;
+
+$dsn = sprintf('mysql:host=db;dbname=%s', $_ENV['MYSQL_DATABASE']);
+$pdo = new PDO($dsn, $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASSWORD']);
+
+$pdo->exec($sql);
