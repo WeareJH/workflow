@@ -9,9 +9,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @author Michael Woodward <michael@wearejh.com>
+ * @author Max Bucknell <max@wearejh.com>
  */
-class Stop extends Command implements CommandInterface
+class Down extends Command implements CommandInterface
 {
     use DockerAwareTrait;
 
@@ -29,8 +29,8 @@ class Stop extends Command implements CommandInterface
     public function configure()
     {
         $this
-            ->setName('stop')
-            ->setDescription('Stops the containers running')
+            ->setName('down')
+            ->setDescription('Stop and remove containers, networks, images, and volumes')
             ->addOption('prod', 'p', InputOption::VALUE_OPTIONAL, 'Use when started with --prod / -p');
     }
 
@@ -40,7 +40,7 @@ class Stop extends Command implements CommandInterface
             ? 'docker-compose.prod.yml'
             : 'docker-compose.dev.yml';
 
-        $this->commandLine->run(sprintf('docker-compose -f docker-compose.yml -f %s stop', $envDockerFile));
+        $this->commandLine->run(sprintf('docker-compose -f docker-compose.yml -f %s down', $envDockerFile));
 
         $output->writeln('<info>Containers stopped</info>');
     }

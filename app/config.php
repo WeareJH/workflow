@@ -29,6 +29,7 @@ return [
 
         $app->add($c->get(Command\Start::class));
         $app->add($c->get(Command\Stop::class));
+        $app->add($c->get(Command\Down::class));
         $app->add($c->get(Command\Restart::class));
         $app->add($c->get(Command\Build::class));
         $app->add($c->get(Command\Up::class));
@@ -111,6 +112,7 @@ return [
     Command\Push::class               => DI\object(),
     Command\Start::class              => DI\object(),
     Command\Stop::class               => DI\object(),
+    Command\Down::class               => DI\object(),
     Command\Up::class                 => DI\object(),
     Command\Watch::class              => function (ContainerInterface $c) {
         return new Command\Watch($c->get(WatchFactory::class), $c->get(Files::class));
