@@ -4,6 +4,9 @@ use Interop\Container\ContainerInterface;
 use Jh\Workflow\Application;
 use Jh\Workflow\Command;
 use Jh\Workflow\CommandLine;
+use Jh\Workflow\Config\ConfigGeneratorFactory;
+use Jh\Workflow\Config\M1ConfigGenerator;
+use Jh\Workflow\Config\M2ConfigGenerator;
 use Jh\Workflow\Files;
 use Jh\Workflow\NewProject\DetailsGatherer;
 use Jh\Workflow\NewProject\Step;
@@ -57,6 +60,7 @@ return [
         $app->add($c->get(Command\DatabaseDump::class));
         $app->add($c->get(Command\VarnishEnable::class));
         $app->add($c->get(Command\VarnishDisable::class));
+        $app->add($c->get(Command\GenerateConfig::class));
 
         $eventLoop = $c->get(LoopInterface::class);
 
@@ -125,6 +129,12 @@ return [
     Command\NewProject::class         => DI\object(),
     Command\Php::class                => DI\object(),
     Command\Exec::class               => DI\object(),
+    Command\GenerateConfig::class     => DI\object(),
+
+    // Config Generation
+    ConfigGeneratorFactory::class => DI\object(),
+    M1ConfigGenerator::class => DI\object(),
+    M2ConfigGenerator::class => DI\object(),
 
     // New Project Steps
     StepRunner::class => function (ContainerInterface $c) {
