@@ -11,7 +11,6 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @author Michael Woodward <michael@wearejh.com>
@@ -40,7 +39,9 @@ class GenerateConfigTest extends TestCase
 
     public function setUp()
     {
-        $this->rootDir = sys_get_temp_dir() . '/workflow';
+        $this->rootDir = sys_get_temp_dir() . '/' . bin2hex(random_bytes(16));
+        !mkdir($this->rootDir);
+
         $this->input  = $this->prophesize(ArgvInput::class);
         $this->output = new BufferedOutput();
 
@@ -48,7 +49,7 @@ class GenerateConfigTest extends TestCase
 
         $this->command = new GenerateConfig(new ConfigGeneratorFactory(
             new M1ConfigGenerator(),
-            new M2ConfigGenerator(new SymfonyStyle($this->input->reveal(), $this->output))
+            new M2ConfigGenerator()
         ));
     }
 
@@ -62,7 +63,7 @@ class GenerateConfigTest extends TestCase
         return $stream;
     }
 
-    public function testDefaultGenerationWithNoInteraction()
+    public function testM2DefaultGenerationWithNoInteraction()
     {
         $this->input->getOption('m1')->willReturn(false);
         $this->input->isInteractive()->willReturn(false);
@@ -75,7 +76,7 @@ class GenerateConfigTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function testDefaultGenerationWithInteraction()
+    public function testM2DefaultGenerationWithInteraction()
     {
         $this->input->getOption('m1')->willReturn(false);
         $this->input->isInteractive()->willReturn(true);
@@ -89,7 +90,7 @@ class GenerateConfigTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function testQueueGeneration()
+    public function testM2QueueGeneration()
     {
         $this->input->getOption('m1')->willReturn(false);
         $this->input->isInteractive()->willReturn(true);
@@ -103,7 +104,7 @@ class GenerateConfigTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function testProductionGeneration()
+    public function testM2ProductionGeneration()
     {
         $this->input->getOption('m1')->willReturn(false);
         $this->input->isInteractive()->willReturn(true);
@@ -115,5 +116,59 @@ class GenerateConfigTest extends TestCase
         $actual = file_get_contents($this->rootDir . '/app/etc/env.php');
 
         self::assertSame($expected, $actual);
+    }
+
+    public function testM1DefaultGeneration()
+    {
+        $this->input->getOption('m1')->willReturn(true);
+        $this->input->isInteractive()->willReturn(false);
+
+        $this->command->execute($this->input->reveal(), $this->output);
+
+        $expected = file_get_contents(__DIR__ . '/../fixtures/config/local.xml');
+        $actual = file_get_contents($this->rootDir . '/app/etc/local.xml');
+
+        self::assertSame($expected, $actual);
+    }
+
+    public function testM1DefaultGenerationWithHtdocsSetup()
+    {
+        $this->input->getOption('m1')->willReturn(true);
+        $this->input->isInteractive()->willReturn(false);
+
+        !mkdir($this->rootDir . '/htdocs');
+
+        $this->command->execute($this->input->reveal(), $this->output);
+
+        $expected = file_get_contents(__DIR__ . '/../fixtures/config/local.xml');
+        $actual = file_get_contents($this->rootDir . '/htdocs/app/etc/local.xml');
+
+        self::assertSame($expected, $actual);
+        self::assertFileNotExists($this->rootDir . '/app/etc/local.xml');
+    }
+
+    public function testExceptionThrownWhenProjectRootDirDoesNotExist()
+    {
+        $this->expectException(\RuntimeException::class);
+
+        rmdir($this->rootDir);
+
+        $this->input->getOption('m1')->willReturn(true);
+        $this->input->isInteractive()->willReturn(false);
+
+        $this->command->execute($this->input->reveal(), $this->output);
+    }
+
+    public function testExceptionThrownWhenProjectRootDirIsNotADirectory()
+    {
+        $this->expectException(\RuntimeException::class);
+
+        rmdir($this->rootDir);
+        touch($this->rootDir);
+
+        $this->input->getOption('m1')->willReturn(true);
+        $this->input->isInteractive()->willReturn(false);
+
+        $this->command->execute($this->input->reveal(), $this->output);
     }
 }

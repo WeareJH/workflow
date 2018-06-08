@@ -11,20 +11,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class M2ConfigGenerator implements ConfigGeneratorInterface
 {
     /**
-     * @var SymfonyStyle
-     */
-    private $output;
-
-    public function __construct(SymfonyStyle $output)
-    {
-        $this->output = $output;
-    }
-
-    /**
      * @param string $rootDir
-     * @throws \RuntimeException When the
+     * @param SymfonyStyle $output
+     * @throws \RuntimeException When unable to output path
      */
-    public function generateEnvironmentConfig(string $rootDir)
+    public function generateEnvironmentConfig(string $rootDir, SymfonyStyle $output)
     {
         $outputPath = $rootDir . '/app/etc/env.php';
 
@@ -34,8 +25,8 @@ class M2ConfigGenerator implements ConfigGeneratorInterface
 
         $standardConfig = file_get_contents(__DIR__ . '/../../templates/config/M2/env.php.template');
 
-        $mode   = $this->output->choice('Which Magento deployment mode ?', ['developer', 'production'], 'developer');
-        $queues = $this->output->confirm('Do you require queue (e.g. RabbitMQ) configuration ?', false);
+        $mode   = $output->choice('Which Magento deployment mode ?', ['developer', 'production'], 'developer');
+        $queues = $output->confirm('Do you require queue (e.g. RabbitMQ) configuration ?', false);
 
         $config = str_replace(
             ['{mage-mode}', '{use-rabbit}'],
@@ -45,6 +36,6 @@ class M2ConfigGenerator implements ConfigGeneratorInterface
 
         file_put_contents($outputPath, $config);
 
-        $this->output->success('Fresh configuration written to ' . $outputPath);
+        $output->success('Fresh configuration written to ' . $outputPath);
     }
 }
