@@ -9,7 +9,6 @@
     ],
     "require": {
         "php": "^7.0",
-        "symfony/console": "^4.0",
         "symfony/console": "^4.1",
         "php-di/php-di": "^5.4",
         "symfony/yaml": "^3.2",
