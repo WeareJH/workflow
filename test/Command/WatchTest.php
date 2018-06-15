@@ -2,7 +2,6 @@
 
 namespace Jh\WorkflowTest\Command;
 
-use EventLoop\EventLoop;
 use Jh\Workflow\Command\Watch;
 use Jh\Workflow\Files;
 use Jh\Workflow\WatchFactory;
@@ -11,7 +10,6 @@ use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
 use React\EventLoop\Timer\TimerInterface;
 use Rx\Observable;
-use Rx\React\FsWatch;
 use Rx\Scheduler;
 use Rx\Scheduler\EventLoopScheduler;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -99,6 +97,8 @@ class WatchTest extends AbstractTestCommand
 
     public function testWatchWithDefaultValues()
     {
+        $this->useValidEnvironment();
+
         $this->input->getArgument('watches')->willReturn([]);
         $this->input->getOption('no-defaults')->willReturn(false);
 
@@ -117,6 +117,8 @@ class WatchTest extends AbstractTestCommand
 
     public function testWatchWithDefaultValuesAndDefinedWatches()
     {
+        $this->useValidEnvironment();
+
         $this->input->getArgument('watches')->willReturn(['custom-dir']);
         $this->input->getOption('no-defaults')->willReturn(false);
 
@@ -135,6 +137,8 @@ class WatchTest extends AbstractTestCommand
 
     public function testNoDefaultsOptionRemovesDefaults()
     {
+        $this->useValidEnvironment();
+
         $this->input->getArgument('watches')->willReturn(['custom-dir']);
         $this->input->getOption('no-defaults')->willReturn(true);
 
@@ -153,6 +157,8 @@ class WatchTest extends AbstractTestCommand
 
     public function testExceptionIsThrownWhenNoDefaultsSetAndNoArgumentsPassed()
     {
+        $this->useValidEnvironment();
+
         $this->expectException(\InvalidArgumentException::class);
 
         $this->input->getArgument('watches')->willReturn([]);
