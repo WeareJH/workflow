@@ -35,12 +35,9 @@ class VarnishEnable extends Command implements CommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $container = $this->getContainerName('varnish');
+//        $container = $this->getContainerName('varnish');
 
-        $this->commandLine->run(sprintf(
-            'docker exec -t %s varnishadm vcl.use boot0',
-            $container
-        ));
+        $this->commandLine->run('docker-compose exec -T varnish varnishadm vcl.use boot0');
 
         $output->writeln('<info>Varnish caching enabled</info>');
     }
