@@ -5,7 +5,6 @@ namespace Jh\Workflow\Command;
 use Jh\Workflow\BufferWithTime;
 use Jh\Workflow\Files;
 use Jh\Workflow\WatchFactory;
-use Rx\React\FsWatch;
 use Rx\React\WatchEvent;
 use Rx\Scheduler;
 use Symfony\Component\Console\Command\Command;

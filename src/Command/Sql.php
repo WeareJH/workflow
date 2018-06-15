@@ -57,7 +57,10 @@ class Sql extends Command implements CommandInterface
 
     private function runRaw(string $container, string $sql, InputInterface $input, OutputInterface $output)
     {
-        extract($this->getDbDetails($input), EXTR_OVERWRITE);
+        $details = $this->getDbDetails($input);
+        $user = $details['user'];
+        $pass = $details['pass'];
+        $db   = $details['db'];
 
         $this->commandLine->run(
             sprintf('docker exec -t %s mysql -u%s -p%s %s -e "%s"', $container, $user, $pass, $db, $sql)
@@ -66,7 +69,10 @@ class Sql extends Command implements CommandInterface
 
     private function runFile(string $container, string $file, InputInterface $input, OutputInterface $output)
     {
-        extract($this->getDbDetails($input), EXTR_OVERWRITE);
+        $details = $this->getDbDetails($input);
+        $user = $details['user'];
+        $pass = $details['pass'];
+        $db   = $details['db'];
 
         if ($this->commandLine->commandExists('pv')) {
             $command = sprintf(
@@ -94,7 +100,7 @@ class Sql extends Command implements CommandInterface
 
     private function getDbDetails(InputInterface $input) : array
     {
-        $envVars   = $this->getDevEnvironmentVars();
+        $envVars = $this->getDevEnvironmentVars();
 
         return [
             'user' => 'root',
