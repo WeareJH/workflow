@@ -43,8 +43,8 @@ class Ssh extends Command implements CommandInterface
 
         $user = $input->getOption('root') ? 'root' : 'www-data';
 
-        $width = $this->commandLine->run('tput cols');
-        $height = $this->commandLine->run('tput lines');
+        $width = $this->commandLine->runQuietly('tput cols');
+        $height = $this->commandLine->runQuietly('tput lines');
 
         $command = <<<CMD
 docker exec \

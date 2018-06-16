@@ -41,8 +41,8 @@ class SshTest extends AbstractTestCommand
         $this->input->getOption('root')->willReturn(false);
         $this->input->getOption('container')->willReturn(false);
 
-        $this->commandLine->run('tput cols')->willReturn(100);
-        $this->commandLine->run('tput lines')->willReturn(100);
+        $this->commandLine->runQuietly('tput cols')->willReturn(100);
+        $this->commandLine->runQuietly('tput lines')->willReturn(100);
 
         $expected = <<<CMD
 docker exec \
@@ -64,8 +64,8 @@ CMD;
         $this->input->getOption('root')->willReturn(true);
         $this->input->getOption('container')->willReturn(false);
 
-        $this->commandLine->run('tput cols')->willReturn(100);
-        $this->commandLine->run('tput lines')->willReturn(100);
+        $this->commandLine->runQuietly('tput cols')->willReturn(100);
+        $this->commandLine->runQuietly('tput lines')->willReturn(100);
 
         $expected = <<<CMD
 docker exec \
@@ -87,8 +87,8 @@ CMD;
         $this->input->getOption('root')->willReturn(false);
         $this->input->getOption('container')->willReturn('db');
 
-        $this->commandLine->run('tput cols')->willReturn(100);
-        $this->commandLine->run('tput lines')->willReturn(100);
+        $this->commandLine->runQuietly('tput cols')->willReturn(100);
+        $this->commandLine->runQuietly('tput lines')->willReturn(100);
 
         $expected = <<<CMD
 docker exec \
@@ -110,8 +110,8 @@ CMD;
         $this->input->getOption('root')->willReturn(true);
         $this->input->getOption('container')->willReturn('db');
 
-        $this->commandLine->run('tput cols')->willReturn(100);
-        $this->commandLine->run('tput lines')->willReturn(100);
+        $this->commandLine->runQuietly('tput cols')->willReturn(100);
+        $this->commandLine->runQuietly('tput lines')->willReturn(100);
 
         $expected = <<<CMD
 docker exec \
