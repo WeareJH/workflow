@@ -57,8 +57,7 @@ class DockerAwareTraitTest extends AbstractTestCommand
         chdir(__DIR__ . '/../fixtures/missing-docker-files');
         $this->expectException(\RuntimeException::class);
 
-        $message  = 'Could not locate docker files. Are you in the right directory?. Tried to locate ';
-        $message .= 'docker-compose.yml & docker-compose.dev.yml';
+        $message  = 'Could not locate docker-compose.yml file. Are you in the right directory?';
 
         $this->expectExceptionMessage($message);
         $this->implementation->containerNameTest('php');

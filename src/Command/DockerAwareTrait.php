@@ -45,15 +45,13 @@ trait DockerAwareTrait
         $coreComposePath  = $cwd . '/docker-compose.yml';
         $devComposePath   = $cwd . '/docker-compose.dev.yml';
 
-        if (!file_exists($coreComposePath) || !file_exists($devComposePath)) {
-            $message  = 'Could not locate docker files. Are you in the right directory?. Tried to locate ';
-            $message .= 'docker-compose.yml & docker-compose.dev.yml';
-            throw new \RuntimeException($message);
+        if (!file_exists($coreComposePath)) {
+            throw new \RuntimeException('Could not locate docker-compose.yml file. Are you in the right directory?');
         }
 
         try {
             $coreYaml  = Yaml::parse(file_get_contents($coreComposePath));
-            $devYaml   = Yaml::parse(file_get_contents($devComposePath));
+            $devYaml   = file_exists($devComposePath) ? Yaml::parse(file_get_contents($devComposePath)) : [];
         } catch (ParseException $e) {
             throw new \RuntimeException(sprintf("Unable to parse docker-compose file \n\n %s", $e->getMessage()));
         }
@@ -65,5 +63,25 @@ trait DockerAwareTrait
         }
 
         return $yaml['services'][$service];
+    }
+
+    private function getComposeFileFlags(bool $prod = false)
+    {
+        $cwd = getcwd();
+
+        $devComposePath   = $cwd . '/docker-compose.dev.yml';
+        $prodComposePath  = $cwd . '/docker-compose.prod.yml';
+
+        $composeFileFlags = '-f docker-compose.yml';
+
+        if (!$prod && file_exists($devComposePath)) {
+            $composeFileFlags .= ' -f docker-compose.dev.yml';
+        }
+
+        if ($prod && file_exists($prodComposePath)) {
+            $composeFileFlags .= ' -f docker-compose.prod.yml';
+        }
+
+        return $composeFileFlags;
     }
 }
