@@ -19,12 +19,12 @@ vendor
 /setup
 /var
 /phpserver
+/generated
 
 /*.*
 
 !/.data-migration
 !/.dockerignore
-!/*.dockerfile
 !/docker-compose.*
 !/.docker/
 !/composer.json

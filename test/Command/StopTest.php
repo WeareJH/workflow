@@ -38,7 +38,7 @@ class StopTest extends AbstractTestCommand
         $this->useValidEnvironment();
 
         $this->commandLine
-            ->run('docker-compose -f docker-compose.yml -f docker-compose.dev.yml down')
+            ->run('docker-compose -f docker-compose.yml -f docker-compose.dev.yml stop')
             ->shouldBeCalled();
 
         $this->output->writeln('<info>Containers stopped</info>')->shouldBeCalled();
@@ -53,7 +53,7 @@ class StopTest extends AbstractTestCommand
         $this->input->getOption('prod')->willReturn(true);
 
         $this->commandLine
-            ->run('docker-compose -f docker-compose.yml -f docker-compose.prod.yml down')
+            ->run('docker-compose -f docker-compose.yml -f docker-compose.prod.yml stop')
             ->shouldBeCalled();
 
         $this->output->writeln('<info>Containers stopped</info>')->shouldBeCalled();

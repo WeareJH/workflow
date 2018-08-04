@@ -10,8 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @author Michael Woodward <michael@wearejh.com>
  */
-class XdebugLoopback extends Command implements CommandInterface
+class VarnishDisable extends Command implements CommandInterface
 {
+    use DockerAwareTrait;
+
     /**
      * @var CommandLine
      */
@@ -26,13 +28,15 @@ class XdebugLoopback extends Command implements CommandInterface
     public function configure()
     {
         $this
-            ->setName('xdebug-loopback')
-            ->setAliases(['xdebug'])
-            ->setDescription('Starts the network loopback to allow Xdebug from Docker');
+            ->setName('varnish-disable')
+            ->setAliases(['vd'])
+            ->setDescription('Switches the VCL to be a proxy');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->commandLine->run('sudo ifconfig lo0 alias 10.254.254.254');
+        $this->commandLine->run('docker-compose exec -T varnish varnishadm vcl.use boot');
+
+        $output->writeln('<info>Varnish caching disabled</info>');
     }
 }

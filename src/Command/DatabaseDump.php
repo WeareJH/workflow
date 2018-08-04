@@ -45,7 +45,10 @@ class DatabaseDump extends Command implements CommandInterface
 
     private function dump(string $container, InputInterface $input)
     {
-        extract($this->getDbDetails($input), EXTR_OVERWRITE);
+        $details = $this->getDbDetails($input);
+        $user = $details['user'];
+        $pass = $details['pass'];
+        $db   = $details['db'];
 
         $command = sprintf('docker exec -i %s mysqldump -u%s -p%s %s > dump.sql', $container, $user, $pass, $db);
         $this->commandLine->runQuietly($command);

@@ -41,7 +41,19 @@ class SshTest extends AbstractTestCommand
         $this->input->getOption('root')->willReturn(false);
         $this->input->getOption('container')->willReturn(false);
 
-        $this->commandLine->runInteractively('docker exec -it -u www-data m2-php bash')->shouldBeCalled();
+        $this->commandLine->runQuietly('tput cols')->willReturn(100);
+        $this->commandLine->runQuietly('tput lines')->willReturn(100);
+
+        $expected = <<<CMD
+docker exec \
+    -it \
+    -u "www-data" \
+    -e COLUMNS="100" \
+    -e LINES="100" \
+    "m2-php" bash
+CMD;
+
+        $this->commandLine->runInteractively($expected)->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -52,7 +64,19 @@ class SshTest extends AbstractTestCommand
         $this->input->getOption('root')->willReturn(true);
         $this->input->getOption('container')->willReturn(false);
 
-        $this->commandLine->runInteractively('docker exec -it -u root m2-php bash')->shouldBeCalled();
+        $this->commandLine->runQuietly('tput cols')->willReturn(100);
+        $this->commandLine->runQuietly('tput lines')->willReturn(100);
+
+        $expected = <<<CMD
+docker exec \
+    -it \
+    -u "root" \
+    -e COLUMNS="100" \
+    -e LINES="100" \
+    "m2-php" bash
+CMD;
+
+        $this->commandLine->runInteractively($expected)->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -63,7 +87,19 @@ class SshTest extends AbstractTestCommand
         $this->input->getOption('root')->willReturn(false);
         $this->input->getOption('container')->willReturn('db');
 
-        $this->commandLine->runInteractively('docker exec -it -u www-data m2-db bash')->shouldBeCalled();
+        $this->commandLine->runQuietly('tput cols')->willReturn(100);
+        $this->commandLine->runQuietly('tput lines')->willReturn(100);
+
+        $expected = <<<CMD
+docker exec \
+    -it \
+    -u "www-data" \
+    -e COLUMNS="100" \
+    -e LINES="100" \
+    "m2-db" bash
+CMD;
+
+        $this->commandLine->runInteractively($expected)->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
@@ -74,7 +110,19 @@ class SshTest extends AbstractTestCommand
         $this->input->getOption('root')->willReturn(true);
         $this->input->getOption('container')->willReturn('db');
 
-        $this->commandLine->runInteractively('docker exec -it -u root m2-db bash')->shouldBeCalled();
+        $this->commandLine->runQuietly('tput cols')->willReturn(100);
+        $this->commandLine->runQuietly('tput lines')->willReturn(100);
+
+        $expected = <<<CMD
+docker exec \
+    -it \
+    -u "root" \
+    -e COLUMNS="100" \
+    -e LINES="100" \
+    "m2-db" bash
+CMD;
+
+        $this->commandLine->runInteractively($expected)->shouldBeCalled();
 
         $this->command->execute($this->input->reveal(), $this->output->reveal());
     }
