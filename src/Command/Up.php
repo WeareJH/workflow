@@ -14,6 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Up extends Command implements CommandInterface
 {
+    use DockerAwareTrait;
+
     /**
      * @var CommandLine
      */
@@ -37,15 +39,11 @@ class Up extends Command implements CommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $envDockerFile = $input->getOption('prod')
-            ? 'docker-compose.prod.yml'
-            : 'docker-compose.dev.yml';
-
         $buildArg = $input->getOption('no-build') ? '' : '--build';
 
-        $this->commandLine->run(
-            rtrim(sprintf('docker-compose -f docker-compose.yml -f %s up -d %s', $envDockerFile, $buildArg))
-        );
+        $composeFiles = $this->getComposeFileFlags($input->getOption('prod') ? true : false);
+
+        $this->commandLine->run(rtrim(sprintf('docker-compose %s up -d %s', $composeFiles, $buildArg)));
 
         // Pull composer cache for future builds
         $pullCommand  = $this->getApplication()->find('pull');

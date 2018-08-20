@@ -36,11 +36,9 @@ class Down extends Command implements CommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $envDockerFile = $input->getOption('prod')
-            ? 'docker-compose.prod.yml'
-            : 'docker-compose.dev.yml';
+        $composeFiles = $this->getComposeFileFlags($input->getOption('prod') ? true : false);
 
-        $this->commandLine->run(sprintf('docker-compose -f docker-compose.yml -f %s down', $envDockerFile));
+        $this->commandLine->run(sprintf('docker-compose %s down', $composeFiles));
 
         $output->writeln('<info>Containers stopped</info>');
     }

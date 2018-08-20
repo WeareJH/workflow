@@ -44,15 +44,13 @@ class Build extends Command implements CommandInterface
             throw new \RuntimeException('No image specified for PHP container');
         }
 
-        $dockerFile = $input->getOption('prod')
-            ? 'docker-compose.prod.yml'
-            : 'docker-compose.dev.yml';
-
         $service = $input->getOption('service') ?: 'php';
         $args    = $input->getOption('no-cache') ? '--no-cache' : '';
 
+        $composeFiles = $this->getComposeFileFlags($input->getOption('prod') ? true : false);
+
         $this->commandLine->run(
-            rtrim(sprintf('docker-compose -f docker-compose.yml -f %s build %s %s', $dockerFile, $service, $args))
+            rtrim(sprintf('docker-compose %s build %s %s', $composeFiles, $service, $args))
         );
 
         $output->writeln('<info>Build complete!</info>');
