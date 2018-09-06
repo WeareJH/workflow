@@ -15,7 +15,7 @@
         "symfony/process": "^3.2",
         "m1/env": "^2.1",
         "aydin-hassan/osx-rx-fswatch": "^1.0",
-        "tightenco/collect": "^5.4",
+        "tightenco/collect": "5.6.*",
         "psr/log": "^1.0",
         "myclabs/php-enum": "^1.6"
     },
