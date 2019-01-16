@@ -54,6 +54,7 @@ return [
         $app->add($c->get(Command\VarnishEnable::class));
         $app->add($c->get(Command\VarnishDisable::class));
         $app->add($c->get(Command\GenerateConfig::class));
+        $app->add($c->get(Command\N98::class));
 
         $eventLoop = $c->get(LoopInterface::class);
 
