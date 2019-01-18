@@ -12,7 +12,7 @@
         "symfony/console": "^4.1",
         "php-di/php-di": "^5.4",
         "symfony/yaml": "^3.2",
-        "symfony/process": "^3.2",
+        "symfony/process": "^3.2 | ^4.0",
         "m1/env": "^2.1",
         "aydin-hassan/osx-rx-fswatch": "^1.0",
         "tightenco/collect": "5.6.*",
