@@ -53,7 +53,7 @@ class BuildTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.dev.yml build php --no-cache';
+        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.dev.yml build --no-cache php';
 
         $this->input->getOption('prod')->willReturn(false);
         $this->input->getOption('no-cache')->willReturn(true);
@@ -85,7 +85,7 @@ class BuildTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml build php --no-cache';
+        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml build --no-cache php';
 
         $this->input->getOption('prod')->willReturn(true);
         $this->input->getOption('no-cache')->willReturn(true);
@@ -101,7 +101,7 @@ class BuildTest extends AbstractTestCommand
     {
         $this->useValidEnvironment();
 
-        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml build varnish --no-cache';
+        $expected = 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml build --no-cache varnish';
 
         $this->input->getOption('prod')->willReturn(true);
         $this->input->getOption('no-cache')->willReturn(true);

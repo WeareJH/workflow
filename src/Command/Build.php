@@ -45,12 +45,12 @@ class Build extends Command implements CommandInterface
         }
 
         $service = $input->getOption('service') ?: 'php';
-        $args    = $input->getOption('no-cache') ? '--no-cache' : '';
+        $args    = $input->getOption('no-cache') ? '--no-cache ' : '';
 
         $composeFiles = $this->getComposeFileFlags($input->getOption('prod') ? true : false);
 
         $this->commandLine->run(
-            rtrim(sprintf('docker-compose %s build %s %s', $composeFiles, $service, $args))
+            rtrim(sprintf('docker-compose %s build %s%s', $composeFiles, $args, $service))
         );
 
         $output->writeln('<info>Build complete!</info>');
