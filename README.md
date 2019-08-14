@@ -14,20 +14,10 @@ Make sure you have `fswatch` installed. You can install via homebrew:
 brew install fswatch
 ```
 
-Add the following to `~/.composer/composer.json`:
+Run the following commands:
 
 ```
-"repositories" : [
-    {
-        "type": "vcs",
-        "url": "git@github.com:WeareJH/workflow.git"
-    }
-]
-```
-
-Then run:
-
-```
+composer global config repositories.workflow vcs git@github.com:wearejh/workflow
 composer global require wearejh/workflow:dev-master
 ```
 
