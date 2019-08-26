@@ -33,7 +33,8 @@ class Sql extends Command implements CommandInterface
             ->setDescription('Run arbitary sql against the database')
             ->addOption('sql', 's', InputOption::VALUE_OPTIONAL, 'SQL to run directly to mysql')
             ->addOption('file', 'f', InputOption::VALUE_OPTIONAL, 'Path to a file to import')
-            ->addOption('database', 'd', InputOption::VALUE_REQUIRED, 'Optional database to run SQL');
+            ->addOption('database', 'd', InputOption::VALUE_REQUIRED, 'Optional database to run SQL')
+            ->addOption('recreate', 'r', InputOption::VALUE_NONE, 'Drop and recreate database');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
@@ -58,40 +59,48 @@ class Sql extends Command implements CommandInterface
     private function runRaw(string $container, string $sql, InputInterface $input, OutputInterface $output)
     {
         $details = $this->getDbDetails($input);
-        $user = $details['user'];
-        $pass = $details['pass'];
-        $db   = $details['db'];
+
+        $args = [
+            $container,
+            $details['user'],
+            $details['pass'],
+            $details['db'],
+            $sql
+        ];
+
+        if ($input->getOption('recreate')) {
+            $this->commandLine->run(
+                vsprintf('docker exec -t %1$s mysql -u%2$s -p%3$s -e "drop database %4$s; create database %4%s;"', $args)
+            );
+        }
 
         $this->commandLine->run(
-            sprintf('docker exec -t %s mysql -u%s -p%s %s -e "%s"', $container, $user, $pass, $db, $sql)
+            vsprintf('docker exec -t %1$s mysql -u%2$s -p%3$s %4%s -e "%5$s"', $args)
         );
     }
 
     private function runFile(string $container, string $file, InputInterface $input, OutputInterface $output)
     {
         $details = $this->getDbDetails($input);
-        $user = $details['user'];
-        $pass = $details['pass'];
-        $db   = $details['db'];
+
+        $args = array_map('escapeshellarg', [
+            $container,
+            $details['user'],
+            $details['pass'],
+            $details['db'],
+            $file
+        ]);
+
+        if ($input->getOption('recreate')) {
+            $this->commandLine->run(
+                vsprintf('docker exec -t %1$s mysql -u%2$s -p%3$s -e "drop database %4$s; create database %4%s;"', $args)
+            );
+        }
 
         if ($this->commandLine->commandExists('pv')) {
-            $command = sprintf(
-                'pv -f %s | docker exec -i %s mysql -u%s -p%s -D %s',
-                escapeshellarg($file),
-                escapeshellarg($container),
-                escapeshellarg($user),
-                escapeshellarg($pass),
-                escapeshellarg($db)
-            );
+            $command = vsprintf('pv -f %5$s | docker exec -i %1$s mysql -u%2$s -p%3$s -D %4$s', $args);
         } else {
-            $command = sprintf(
-                'docker exec -i %s mysql -u%s -p%s %s < %s',
-                escapeshellarg($container),
-                escapeshellarg($user),
-                escapeshellarg($pass),
-                escapeshellarg($db),
-                escapeshellarg($file)
-            );
+            $command = vsprintf('docker exec -i %1$s mysql -u%2$s -p%3$s %4$s < %5$s', $args);
         }
 
         $this->commandLine->run($command);
